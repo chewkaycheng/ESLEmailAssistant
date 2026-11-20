@@ -1,0 +1,23 @@
+# Build outputs
+bin/
+Win64/
+*.dcu
+*.dpu
+*.rsm
+*.exe
+*.map
+*.mapdbg
+
+# IDE transaction and history files
+*.dproj.local
+__history/
+__recovery/
+
+# IDE-specific
+*.dsk
+*.identcache
+*.gplproj.local
+
+# OS
+.DS_Store
+Thumbs.db
