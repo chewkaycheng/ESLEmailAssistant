@@ -225,8 +225,8 @@ procedure TfrmMain.FormShow(Sender: TObject);
 begin
   InitializeChildForms;
 //  !!!!!!!!!!!!!!!!!!!
-//  ShowChildForm(frmWelcome);
-  ShowChildForm(frmGridTest);
+  ShowChildForm(frmWelcome);
+//  ShowChildForm(frmGridTest);
 end;
 
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
