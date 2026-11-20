@@ -1,25 +1,34 @@
 object frmPreview: TfrmPreview
   Left = 0
   Top = 0
+  Margins.Left = 5
+  Margins.Top = 5
+  Margins.Right = 5
+  Margins.Bottom = 5
   BorderStyle = bsNone
   Caption = 'PREVIEW'
-  ClientHeight = 480
-  ClientWidth = 640
+  ClientHeight = 720
+  ClientWidth = 960
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
+  Font.Height = -18
   Font.Name = 'Segoe UI'
   Font.Style = []
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  TextHeight = 15
+  PixelsPerInch = 144
+  TextHeight = 25
   object sbMain: TRzStatusBar
     Left = 0
-    Top = 460
-    Width = 640
-    Height = 20
+    Top = 618
+    Width = 960
+    Height = 30
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     AutoStyle = False
     SimpleFrameStyle = fsNone
     BorderColor = clSilver
@@ -35,18 +44,28 @@ object frmPreview: TfrmPreview
     object stpLeft: TRzStatusPane
       Left = 1
       Top = 1
-      Width = 496
-      Height = 18
+      Width = 744
+      Height = 28
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       FrameStyle = fsNone
       Align = alLeft
       Caption = ''
-      ExplicitHeight = 13
+      ExplicitLeft = 2
+      ExplicitTop = 2
+      ExplicitHeight = 27
     end
     object stpRight: TRzStatusPane
-      Left = 497
+      Left = 745
       Top = 1
-      Width = 423
-      Height = 18
+      Width = 634
+      Height = 28
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       BorderWidth = 0
       FillColor = clWhite
       FlatColor = clWhite
@@ -55,27 +74,34 @@ object frmPreview: TfrmPreview
       Align = alLeft
       StyleElements = [seFont, seClient]
       Caption = ''
-      ExplicitHeight = 13
+      ExplicitLeft = 746
+      ExplicitTop = 2
+      ExplicitHeight = 27
     end
   end
   object pnlButtons: TCWSSettingsPanel
     Left = 0
-    Top = 412
-    Width = 640
-    Height = 48
+    Top = 648
+    Width = 960
+    Height = 72
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Align = alBottom
     DoubleBuffered = True
     CornerRadius = 0
     BorderEdges = [beTop]
     object btnNewSession: TCWSButton
       AlignWithMargins = True
-      Left = 351
-      Top = 7
-      Width = 133
-      Height = 34
-      Margins.Left = 4
-      Margins.Top = 7
-      Margins.Bottom = 7
+      Left = 527
+      Top = 11
+      Width = 199
+      Height = 50
+      Margins.Left = 6
+      Margins.Top = 11
+      Margins.Right = 5
+      Margins.Bottom = 11
       Align = alRight
       TabOrder = 0
       ButtonStyle = bsCustom
@@ -105,14 +131,14 @@ object frmPreview: TfrmPreview
     end
     object btnNext: TCWSButton
       AlignWithMargins = True
-      Left = 491
-      Top = 7
-      Width = 133
-      Height = 34
-      Margins.Left = 4
-      Margins.Top = 7
-      Margins.Right = 16
-      Margins.Bottom = 7
+      Left = 737
+      Top = 11
+      Width = 199
+      Height = 50
+      Margins.Left = 6
+      Margins.Top = 11
+      Margins.Right = 24
+      Margins.Bottom = 11
       Align = alRight
       TabOrder = 1
       ButtonStyle = bsCustom
@@ -145,57 +171,55 @@ object frmPreview: TfrmPreview
   end
   object Panel1: TPanel
     Left = 0
-    Top = 43
-    Width = 640
-    Height = 369
-    Margins.Left = 12
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Top = 65
+    Width = 960
+    Height = 553
+    Margins.Left = 18
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 1
     Color = clWhite
-    Padding.Left = 16
-    Padding.Top = 16
-    Padding.Right = 16
-    Padding.Bottom = 12
+    Padding.Left = 24
+    Padding.Top = 24
+    Padding.Right = 24
+    Padding.Bottom = 18
     ParentBackground = False
     TabOrder = 2
-    ExplicitTop = 65
-    ExplicitHeight = 347
     object memPreview: TCWSMemo
-      Left = 17
-      Top = 17
-      Width = 606
-      Height = 339
+      Left = 25
+      Top = 25
+      Width = 910
+      Height = 509
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       Text = ''
       ReadOnly = True
       CornerRadius = 6.00000000000000000
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -16
+      Font.Height = -24
       Font.Name = 'Segoe UI'
       Font.Style = []
       Font.Quality = fqClearTypeNatural
       ParentFont = False
       TabOrder = 0
-      ExplicitLeft = 25
-      ExplicitTop = 25
-      ExplicitWidth = 590
-      ExplicitHeight = 303
     end
   end
   object pnlStudent: TPanel
     Left = 0
     Top = 0
-    Width = 640
-    Height = 43
-    Margins.Left = 12
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Width = 960
+    Height = 65
+    Margins.Left = 18
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
     Align = alTop
     BevelOuter = bvNone
     BorderWidth = 1
@@ -204,17 +228,20 @@ object frmPreview: TfrmPreview
     TabOrder = 3
     object lblStudent: TRzLabel
       AlignWithMargins = True
-      Left = 17
-      Top = 4
-      Width = 184
-      Height = 35
-      Margins.Left = 16
+      Left = 25
+      Top = 6
+      Width = 282
+      Height = 53
+      Margins.Left = 24
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       Align = alLeft
       Caption = 'Select a student to preview:'
       Color = clWhite
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -15
+      Font.Height = -23
       Font.Name = 'Segoe UI'
       Font.Style = []
       Font.Quality = fqClearTypeNatural
@@ -222,19 +249,19 @@ object frmPreview: TfrmPreview
       ParentFont = False
       Layout = tlCenter
       CenterPoint = cpLowerRight
-      ExplicitLeft = 25
-      ExplicitTop = 6
-      ExplicitHeight = 20
+      ExplicitLeft = 26
+      ExplicitHeight = 31
     end
     object cboStudent: TCWSComboBox
       AlignWithMargins = True
-      Left = 234
-      Top = 9
-      Width = 389
-      Height = 30
-      Margins.Left = 30
-      Margins.Top = 8
-      Margins.Right = 16
+      Left = 357
+      Top = 13
+      Width = 578
+      Height = 46
+      Margins.Left = 45
+      Margins.Top = 12
+      Margins.Right = 24
+      Margins.Bottom = 5
       Style = csDropDownList
       CornerRadius = 4.00000000000000000
       DropdownCornerRadius = 8.00000000000000000
@@ -243,20 +270,17 @@ object frmPreview: TfrmPreview
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -21
+      Font.Height = -32
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
       TabOrder = 0
       TabStop = True
       OnChange = cboStudentChange
-      ExplicitLeft = 357
-      ExplicitTop = 13
-      ExplicitWidth = 258
-      ExplicitHeight = 46
     end
   end
   object SVGIconImageList1: TSVGIconImageList
+    Size = 24
     SVGIconItems = <
       item
         IconName = 'next-black'

@@ -22,7 +22,7 @@ uses
   System.Generics.Collections,
   FireDAC.Comp.Client,
   RzStatus,
-  ipwsmtp;
+  ipwsmtp, System.SyncObjs;
 
 const
   MaxRetryCount       = 3;
@@ -52,10 +52,84 @@ type
     function GetSummary: String;
   end;
 
+  TEmailException = class
+  private
+    FErrorMsg: String;
+    FCriticalSection: TCriticalSection;
+  public
+    constructor Create;
+    destructor Destroy;
+    procedure GetErrorMsg(var AErrorMsg: String);
+    procedure SetErrorMsg(AErrorMsg: String);
+  end;
+
+  TCurrentInfo = class
+  private
+    FStudentName: String;
+    FTeacherName: String;
+    FRoomNumber: String;
+    FClassLevel: String;
+    FChildcareLevel: String;
+    FPercentComplete: Integer;
+    FCriticalSection: TCriticalSection;
+  public
+    constructor Create;
+    destructor Destroy;
+    procedure GetInfo(
+      var AStudentName,
+          ATeacherName,
+          ARoomNumber,
+          AClassLevel,
+          AChildcareLevel: String;
+      var APercentComplete: Integer);
+    procedure SetInfo(
+      AStudentName,
+      ATeacherName,
+      ARoomNumber,
+      AClassLevel,
+      AChildcareLevel: String;
+      APercentComplete: Integer);
+  end;
+
   TCSVHelper = class
     class function QuoteCSVField(const AValue: String): String;
     class function ParseCSVLine(const ALine: String): TArray<String>;
   end;
+
+  TEmailProcessThread = class(TThread)
+  private
+    FKillThreadEvent: TEvent;
+    FThreadEndedEvent: TEvent;
+    FSendResult: TSendResult;
+    FParentHandle: THandle;
+    FCheckpointFile: String;
+    FCurrentInfo: TCurrentInfo;
+    FEmailException: TEmailException;
+    FSubject: String;
+    FSmtp: TipwSMTP;
+  public
+    property KillThreadEvent: TEvent
+      read FKillThreadEvent
+      write FKillThreadEvent;
+    property ThreadEndedEvent: TEvent
+      read FThreadEndedEvent
+      write FThreadEndedEvent;
+    property SendResult: TSendResult
+      read FSendResult;
+    constructor Create(
+      ACreateSuspended: Boolean;
+      AParentHandle: THandle;
+      ACheckpointFile: String;
+      var ACurrentInfo: TCurrentInfo;
+      var AEmailException: TEmailException;
+      ASubject: String;
+      ASmtp: TipwSMTP
+      ); reintroduce;
+    destructor Destroy; override;
+    procedure Execute; override;
+
+  end;
+
 
   TEmailProcessor = class
   private
@@ -100,7 +174,10 @@ type
 implementation
 
 uses
-  Vcl.Forms;
+  Winapi.Windows,
+  Vcl.Forms,
+
+  Constsu;
 
 { TSendResult }
 
@@ -481,6 +558,155 @@ end;
 class function TCSVHelper.QuoteCSVField(const AValue: String): String;
 begin
   Result := '"' + StringReplace(AValue, '"', '""', [rfReplaceAll]) + '"';
+end;
+
+
+{ TCurrentInfo }
+
+constructor TCurrentInfo.Create;
+begin
+  FCriticalSection := TCriticalSection.Create;
+end;
+
+destructor TCurrentInfo.Destroy;
+begin
+  if Assigned(FCriticalSection) then begin
+    FreeAndNil(FCriticalSection);
+  end;
+end;
+
+procedure TCurrentInfo.GetInfo(
+ var AStudentName,
+          ATeacherName,
+          ARoomNumber,
+          AClassLevel,
+          AChildcareLevel: String;
+      var APercentComplete: Integer);
+ begin
+  FCriticalSection.Enter;
+  try
+    AStudentName := FStudentName;
+    ATeacherName := FTeacherName;
+    ARoomNumber := FRoomNumber;
+    AClassLevel := FClassLevel;
+    AChildcareLevel := FChildcareLevel;
+    APercentComplete := FPercentComplete;
+  finally
+    FCriticalSection.Leave;
+  end;
+end;
+
+procedure TCurrentInfo.SetInfo(
+  AStudentName,
+  ATeacherName,
+  ARoomNumber,
+  AClassLevel,
+  AChildcareLevel: String;
+  APercentComplete: Integer);
+begin
+  FCriticalSection.Enter;
+  try
+    FStudentName := AStudentName;
+    FTeacherName := ATeacherName;
+    FRoomNumber := ARoomNumber;
+    FClassLevel := AClassLevel;
+    FChildcareLevel := AChildcareLevel;
+    FPercentComplete := APercentComplete;
+  finally
+    FCriticalSection.Leave;
+  end;
+end;
+
+{ TEmailProcessThread }
+
+constructor TEmailProcessThread.Create(
+  ACreateSuspended: Boolean;
+  AParentHandle: THandle;
+  ACheckpointFile: String;
+  var ACurrentInfo: TCurrentInfo;
+  var AEmailException: TEmailException;
+  ASubject: String;
+  ASmtp: TipwSMTP);
+begin
+  inherited Create(ACreateSuspended);
+  FKillThreadEvent := TEvent.Create(Nil, True, False, '');
+  FThreadEndedEvent := TEvent.Create(Nil, True, False, '');
+  FParentHandle := AParentHandle;
+  FCheckpointFile := ACheckpointFile;
+  FCurrentInfo := ACurrentInfo;
+  FEmailException := AEmailException;
+  FSubject := ASubject;
+  FSmtp := ASmtp;
+end;
+
+destructor TEmailProcessThread.Destroy;
+begin
+  if Assigned(FKillThreadEvent) then begin
+    FreeAndNil(FKillThreadEvent);
+  end;
+  if Assigned(FThreadEndedEvent) then begin
+    FreeAndNil(FThreadEndedEvent);
+  end;
+  inherited;
+end;
+
+procedure TEmailProcessThread.Execute;
+begin
+  try
+    try
+      if Not TFile.Exists(FCheckpointFile) then begin
+        FSendResult.TotalProcessed := 0;
+        FSendResult.TotalSent := 0;
+        FSendResult.TotalFailed := 0;
+        PostMessage(FParentHandle, WM_SEND_EMAILS_COMPLETED, 0, 0);
+        Exit;
+      end;
+
+
+    except
+      On E:Exception do begin
+        FEmailException.SetErrorMsg(E.Message);
+        PostMessage(FParentHandle, WM_SHOW_SEND_ERROR, 0, 0);
+      end;
+    end;
+  finally
+    FThreadEndedEvent.SetEvent;
+  end;
+
+end;
+
+{ TEmailException }
+
+constructor TEmailException.Create;
+begin
+  FCriticalSection := TCriticalSection.Create;
+end;
+
+destructor TEmailException.Destroy;
+begin
+  if Assigned(FCriticalSection) then begin
+    FreeAndNil(FCriticalSection);
+  end;
+end;
+
+procedure TEmailException.GetErrorMsg(var AErrorMsg: String);
+begin
+  FCriticalSection.Enter;
+  try
+    AErrorMsg := FErrorMsg;
+  finally
+    FCriticalSection.Leave;
+  end;
+end;
+
+procedure TEmailException.SetErrorMsg(AErrorMsg: String);
+begin
+  FCriticalSection.Enter;
+  try
+    FErrorMsg := AErrorMsg;
+  finally
+    FCriticalSection.Leave;
+  end;
 end;
 
 end.

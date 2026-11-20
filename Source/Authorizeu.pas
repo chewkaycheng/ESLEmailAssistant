@@ -48,7 +48,6 @@ type
     procedure btnBackClick(Sender: TObject);
     procedure CWSButton1Click(Sender: TObject);
   private
-    FIsAuthorized: Boolean;
     FAuthorization: String;
     FAuthorizationError: String;
     FRefreshToken: String;
@@ -76,7 +75,6 @@ uses
 procedure TfrmAuthorize.FormCreate(Sender: TObject);
 begin
   inherited FormCreate(Sender);
-  FIsAuthorized := False;
   TUtils.AdjustButtonsPanel(pnlButtons);
 end;
 
@@ -88,8 +86,8 @@ end;
 procedure TfrmAuthorize.FormShow(Sender: TObject);
 begin
   FParentForm.SVGimgSteps.ImageIndex := 4;
-  btnNext.Enabled := FIsAuthorized;
-  btnAuthorize.Enabled := Not(FIsAuthorized);
+  btnNext.Enabled := FParentForm.IsAuthorized;
+  btnAuthorize.Enabled := Not(FParentForm.IsAuthorized);
 end;
 
 procedure TfrmAuthorize.ApplyTheme;
@@ -121,10 +119,10 @@ end;
 
 procedure TfrmAuthorize.CheckAuthorization;
 begin
-  btnAuthorize.Enabled := Not(FIsAuthorized);
-  btnNext.Enabled := FIsAuthorized;
+  btnAuthorize.Enabled := Not(FParentForm.IsAuthorized);
+  btnNext.Enabled := FParentForm.IsAuthorized;
 
-  if FIsAuthorized then begin
+  if FParentForm.IsAuthorized then begin
     stpLeft.Caption :=  '✓ Authorization successful! You may proceed.';
   end else begin
     stpLeft.Caption :=  'Click "Authorize" to connect to Gmail.';
@@ -144,11 +142,11 @@ begin
     FRefreshToken := FParentForm.iOAuthMain.RefreshToken;
     FParentForm.ismtpMain.AuthMechanism := TipwAuthMechanisms.amXOAUTH2;
     FParentForm.ismtpMain.Config('AuthorizationIdentity=' + FAuthorization);
-    FIsAuthorized := True;
+    FParentForm.IsAuthorized := True;
     CheckAuthorization;
   except
     On E:Exception do begin
-      FIsAuthorized := False;
+      FParentForm.IsAuthorized := False;
       ShowMessage('Unable to authorize: ' + E.Message);
     end;
   end;

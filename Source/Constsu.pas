@@ -3,6 +3,7 @@ unit Constsu;
 interface
 
 uses
+  Winapi.Messages,
   Daisy.Theme;
 
 type
@@ -11,6 +12,10 @@ type
   TRecipientType = (rtAllStudents=0, rtStudentsByCountries=1, rtStudentsByClassLevels=2);
 
 const
+  WM_READ_CURRENT_INFO = WM_USER + 5;
+  WM_SHOW_SEND_ERROR = WM_USER + 6;
+  WM_SEND_EMAILS_COMPLETED = WM_USER + 7;
+
   DefaultThemeKind: TDaisyThemeKind        = TDaisyThemeKind.dtCorporate;
   DarkThemeKind: TDaisyThemeKind           = TDaisyThemeKind.dtDark;
   DefaultThemeButtonVariant: TDaisyVariant = TDaisyVariant.dvPrimary;

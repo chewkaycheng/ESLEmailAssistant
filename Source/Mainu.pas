@@ -108,12 +108,12 @@ type
     // FSubject: String;
     // Selected file in the file list box in the Compose form
     FSelectedFile: String;
-
+    // Indicates if the email authorization has been performed
+    FIsAuthorized: Boolean;
     FDmMain: TDmMain;
     FLogger: TSimpleLogger;
 
     FAuthorizationErrorMsg: String;
-    FIsAuthorized: Boolean;
 
     FDarkMode: Boolean;
     FActiveForm: TForm;
