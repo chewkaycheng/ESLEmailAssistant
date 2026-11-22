@@ -32,7 +32,7 @@ uses
   SVGIconImageList,
 
   FileSystemMonitor,
-  Mainu;
+  Mainu, RzAnimtr;
 
 const
   WM_SET_NEXT_ENABLED = WM_USER + 0;
@@ -64,6 +64,8 @@ type
     lstTemplates: TCWSListBox;
     pnlTemplateFiles: TCWSSettingsPanel;
     lblTemplateFiles: TRzLabel;
+    SVGIconImageList2: TSVGIconImageList;
+    aniArrow: TRzAnimator;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -364,6 +366,7 @@ end;
 procedure TfrmCompose.OnSetNextBtnEnabled(var Msg: TMessage);
 begin
   btnNext.Enabled := Boolean(Msg.WParam);
+  aniArrow.Visible := Not(btnNext.Enabled);
 end;
 
 procedure TfrmCompose.OnSetSelectedFile(var Msg: TMessage);

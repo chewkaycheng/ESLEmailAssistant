@@ -94,6 +94,9 @@ type
     FFullSessionIniFileName: String;
     // Full path of the app ini file name
     FFullAppIniFileName: String;
+    // Full path of the list for emails that have caused
+    // an error during sending
+    FFullSendErrorFileName: String;
     // App Ini File handler
     FAppIniFileHandler: TAppIniFileHandler;
     // ESLAdmin Ini File handler
@@ -158,6 +161,8 @@ type
       read FFullRecipientsByCountriesCSVFileName;
     property FullRecipientsByClassLevelsCSVFileName: String
       read FFullRecipientsByClassLevelsCSVFileName;
+    property FullSendErrorFileName: String
+      read FFullSendErrorFileName;
     property SendEmailInitated: Boolean
       read FSendEmailInitated
       write FSendEmailInitated;
@@ -288,6 +293,11 @@ begin
   FFullAppIniFileName := IncludeTrailingPathDelimiter(
     ExtractFilePath(Application.ExeName)) +
     AppIniFile;
+
+  // Construct the full send error file name
+  FFullSendErrorFileName := IncludeTrailingPathDelimiter(
+    FFullSourceFilesDir) +
+    SendErrorFile;
 end;
 
 procedure TfrmMain.CreateFilesAndDirectories;
@@ -361,23 +371,29 @@ procedure TfrmMain.SetupEmail;
 var
   LEmlUserName: String;
 begin
-  FAuthorizationErrorMsg        := '';
-  FIsAuthorized                 := False;
-  LEmlUserName                  :=
-    FESLAdminIniFileHandler.IniValues.EmlUsername;
-  iOAuthMain.ClientId           :=
-    FESLAdminIniFileHandler.IniValues.ClientId;
-  iOAuthMain.ClientSecret       :=
-    FESLAdminIniFileHandler.IniValues.ClientSecret;
-  iOAuthMain.ServerAuthURL      := IniServerAuthUrl;
-  iOAuthMain.ServerTokenURL     := IniServerTokenUrl;
-  iOAuthMain.RefreshToken       := '';
-  iOAuthMain.AuthorizationScope := IniAuthorizationScope;
+  try
+    FAuthorizationErrorMsg        := '';
+    FIsAuthorized                 := False;
+    LEmlUserName                  :=
+      FESLAdminIniFileHandler.IniValues.EmlUsername;
+    iOAuthMain.ClientId           :=
+      FESLAdminIniFileHandler.IniValues.ClientId;
+    iOAuthMain.ClientSecret       :=
+      FESLAdminIniFileHandler.IniValues.ClientSecret;
+    iOAuthMain.ServerAuthURL      := IniServerAuthUrl;
+    iOAuthMain.ServerTokenURL     := IniServerTokenUrl;
+    iOAuthMain.RefreshToken       := '';
+    iOAuthMain.AuthorizationScope := IniAuthorizationScope;
 
-  if Length(Trim(LEmlUserName)) > 0 then begin
-    ismtpMain.User := LEmlUserName;
-    ismtpMain.From := LEmlUserName;
-    ismtpMain.MailServer := IniGoogleMailServer;
+    if Length(Trim(LEmlUserName)) > 0 then begin
+      ismtpMain.User := LEmlUserName;
+      ismtpMain.From := LEmlUserName;
+      ismtpMain.MailServer := IniGoogleMailServer;
+    end;
+  except
+    On E:Exception do begin
+
+    end;
   end;
 end;
 

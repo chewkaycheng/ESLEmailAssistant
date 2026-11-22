@@ -15,6 +15,7 @@ const
   WM_READ_CURRENT_INFO = WM_USER + 5;
   WM_SHOW_SEND_ERROR = WM_USER + 6;
   WM_SEND_EMAILS_COMPLETED = WM_USER + 7;
+  WM_SHOW_PROGRESS = WM_USER + 8;
 
   DefaultThemeKind: TDaisyThemeKind        = TDaisyThemeKind.dtCorporate;
   DarkThemeKind: TDaisyThemeKind           = TDaisyThemeKind.dtDark;
@@ -31,6 +32,7 @@ const
   BackupFilesDir = 'backup_files';
 
   AppLogFile     = 'app.log';
+  SendErrorFile  = 'send_errors.log';
   AppIniFile     = 'app.ini';
   SessionIniFile = 'session.ini';
   SubjectFile    = 'esl_subject.txt';

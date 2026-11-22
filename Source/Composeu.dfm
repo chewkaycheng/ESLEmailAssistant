@@ -151,7 +151,7 @@ object frmCompose: TfrmCompose
     object stpRight: TRzStatusPane
       Left = 745
       Top = 1
-      Width = 421
+      Width = 420
       Height = 28
       Margins.Left = 5
       Margins.Top = 5
@@ -339,7 +339,7 @@ object frmCompose: TfrmCompose
       Left = 1
       Top = 52
       Width = 232
-      Height = 64
+      Height = 63
       Margins.Left = 12
       Margins.Top = 5
       Margins.Right = 5
@@ -356,7 +356,7 @@ object frmCompose: TfrmCompose
         Left = 6
         Top = 13
         Width = 201
-        Height = 50
+        Height = 49
         Margins.Left = 6
         Margins.Top = 12
         Margins.Right = 24
@@ -464,7 +464,7 @@ object frmCompose: TfrmCompose
       AlignWithMargins = True
       Left = 25
       Top = 6
-      Width = 217
+      Width = 216
       Height = 60
       Margins.Left = 24
       Margins.Top = 5
@@ -487,9 +487,9 @@ object frmCompose: TfrmCompose
     end
     object edtSubject: TCWSEdit
       AlignWithMargins = True
-      Left = 271
+      Left = 270
       Top = 13
-      Width = 664
+      Width = 665
       Height = 46
       Cursor = crIBeam
       Margins.Left = 24
@@ -510,6 +510,19 @@ object frmCompose: TfrmCompose
       TabOrder = 0
       TabStop = True
       ExplicitHeight = 48
+    end
+    object aniArrow: TRzAnimator
+      Left = 235
+      Top = 24
+      Width = 24
+      Height = 24
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
+      Delay = 300
+      ImageIndex = 1
+      ImageList = SVGIconImageList2
     end
   end
   object pnlTemplateFiles: TCWSSettingsPanel
@@ -595,5 +608,42 @@ object frmCompose: TfrmCompose
     Scaled = True
     Left = 822
     Top = 480
+  end
+  object SVGIconImageList2: TSVGIconImageList
+    Size = 24
+    SVGIconItems = <
+      item
+        IconName = 'right-arrow-black'
+        SVGText = 
+          '<?xml version="1.0" encoding="utf-8"?>'#13#10#13#10'<!-- Uploaded to: SVG ' +
+          'Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->'#10'<svg ' +
+          'fill="#000000" height="800px" width="800px" version="1.1" id="La' +
+          'yer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://ww' +
+          'w.w3.org/1999/xlink" '#13#10#9' viewBox="0 0 512 512" enable-background' +
+          '="new 0 0 512 512" xml:space="preserve">'#13#10'<polygon points="512,2' +
+          '61.5 298.7,90.8 298.7,218.8 0,218.8 0,304.2 298.7,304.2 298.7,43' +
+          '2.2 "/>'#13#10'</svg>'
+      end
+      item
+        IconName = 'right-arrow-1-white'
+        SVGText = 
+          '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.or' +
+          'g/Graphics/SVG/1.1/DTD/svg11.dtd">'#10#13'<!-- Uploaded to: SVG Repo, ' +
+          'www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->'#10'<svg f' +
+          'ill="#ffffff" height="200px" width="200px" version="1.1" id="Lay' +
+          'er_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www' +
+          '.w3.org/1999/xlink" viewBox="0 0 512 512" enable-background="new' +
+          ' 0 0 512 512" xml:space="preserve" style="width: 200px; height: ' +
+          '200px; color: rgb(255, 255, 255);" stroke="#ffffff">'#10#13'<g id="SVG' +
+          'Repo_bgCarrier" stroke-width="0"/>'#10#13'<g id="SVGRepo_tracerCarrier' +
+          '" stroke-linecap="round" stroke-linejoin="round"/>'#10#13'<g id="SVGRe' +
+          'po_iconCarrier">'#10#13'<!-- Uploaded to: SVG Repo, www.svgrepo.com, G' +
+          'enerator: SVG Repo Mixer Tools --> <polygon points="512,261.5 29' +
+          '8.7,90.8 298.7,218.8 0,218.8 0,304.2 298.7,304.2 298.7,432.2 "/>' +
+          ' </g>'#10#13'</svg>'
+      end>
+    Scaled = True
+    Left = 508
+    Top = 393
   end
 end

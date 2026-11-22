@@ -1,5 +1,5 @@
-{===============================================================================
-  EMailProcessoru — Revised Mail Processor
+ï»¿{===============================================================================
+  EMailProcessoru ï¿½ Revised Mail Processor
 
   Changes from original (UMailProcessor):
     1. Fixed ParseCSVLine off-by-one error
@@ -70,7 +70,6 @@ type
     FRoomNumber: String;
     FClassLevel: String;
     FChildcareLevel: String;
-    FPercentComplete: Integer;
     FCriticalSection: TCriticalSection;
   public
     constructor Create;
@@ -80,56 +79,19 @@ type
           ATeacherName,
           ARoomNumber,
           AClassLevel,
-          AChildcareLevel: String;
-      var APercentComplete: Integer);
+          AChildcareLevel: String);
     procedure SetInfo(
       AStudentName,
       ATeacherName,
       ARoomNumber,
       AClassLevel,
-      AChildcareLevel: String;
-      APercentComplete: Integer);
+      AChildcareLevel: String);
   end;
 
   TCSVHelper = class
     class function QuoteCSVField(const AValue: String): String;
     class function ParseCSVLine(const ALine: String): TArray<String>;
   end;
-
-  TEmailProcessThread = class(TThread)
-  private
-    FKillThreadEvent: TEvent;
-    FThreadEndedEvent: TEvent;
-    FSendResult: TSendResult;
-    FParentHandle: THandle;
-    FCheckpointFile: String;
-    FCurrentInfo: TCurrentInfo;
-    FEmailException: TEmailException;
-    FSubject: String;
-    FSmtp: TipwSMTP;
-  public
-    property KillThreadEvent: TEvent
-      read FKillThreadEvent
-      write FKillThreadEvent;
-    property ThreadEndedEvent: TEvent
-      read FThreadEndedEvent
-      write FThreadEndedEvent;
-    property SendResult: TSendResult
-      read FSendResult;
-    constructor Create(
-      ACreateSuspended: Boolean;
-      AParentHandle: THandle;
-      ACheckpointFile: String;
-      var ACurrentInfo: TCurrentInfo;
-      var AEmailException: TEmailException;
-      ASubject: String;
-      ASmtp: TipwSMTP
-      ); reintroduce;
-    destructor Destroy; override;
-    procedure Execute; override;
-
-  end;
-
 
   TEmailProcessor = class
   private
@@ -169,6 +131,44 @@ type
       AInputStr: String;
       AReplaceList: TObjectList<TTemplateVar>): String;
     function GetFailedEmailsAsText: String;
+  end;
+
+  TEmailProcessThread = class(TThread)
+  private
+    FKillThreadEvent: TEvent;
+    FThreadEndedEvent: TEvent;
+    FSendResult: TSendResult;
+    FParentHandle: THandle;
+    FCheckpointFile: String;
+    FSendErrorFile: String;
+    FCurrentInfo: TCurrentInfo;
+    FEmailException: TEmailException;
+    FEmailProcessor: TEmailProcessor;
+    FSubject: String;
+    FSmtp: TipwSMTP;
+  public
+    property KillThreadEvent: TEvent
+      read FKillThreadEvent
+      write FKillThreadEvent;
+    property ThreadEndedEvent: TEvent
+      read FThreadEndedEvent
+      write FThreadEndedEvent;
+    property SendResult: TSendResult
+      read FSendResult;
+    constructor Create(
+      ACreateSuspended: Boolean;
+      AParentHandle: THandle;
+      ACheckpointFile: String;
+      ASendErrorFile: String;
+      AEmailProcessor: TEmailProcessor;
+      var ACurrentInfo: TCurrentInfo;
+      var AEmailException: TEmailException;
+      ASubject: String;
+      ASmtp: TipwSMTP
+      ); reintroduce;
+    destructor Destroy; override;
+    procedure Execute; override;
+
   end;
 
 implementation
@@ -580,8 +580,7 @@ procedure TCurrentInfo.GetInfo(
           ATeacherName,
           ARoomNumber,
           AClassLevel,
-          AChildcareLevel: String;
-      var APercentComplete: Integer);
+          AChildcareLevel: String);
  begin
   FCriticalSection.Enter;
   try
@@ -590,7 +589,6 @@ procedure TCurrentInfo.GetInfo(
     ARoomNumber := FRoomNumber;
     AClassLevel := FClassLevel;
     AChildcareLevel := FChildcareLevel;
-    APercentComplete := FPercentComplete;
   finally
     FCriticalSection.Leave;
   end;
@@ -601,8 +599,7 @@ procedure TCurrentInfo.SetInfo(
   ATeacherName,
   ARoomNumber,
   AClassLevel,
-  AChildcareLevel: String;
-  APercentComplete: Integer);
+  AChildcareLevel: String);
 begin
   FCriticalSection.Enter;
   try
@@ -611,7 +608,6 @@ begin
     FRoomNumber := ARoomNumber;
     FClassLevel := AClassLevel;
     FChildcareLevel := AChildcareLevel;
-    FPercentComplete := APercentComplete;
   finally
     FCriticalSection.Leave;
   end;
@@ -623,6 +619,8 @@ constructor TEmailProcessThread.Create(
   ACreateSuspended: Boolean;
   AParentHandle: THandle;
   ACheckpointFile: String;
+  ASendErrorFile: String;
+  AEmailProcessor: TEmailProcessor;
   var ACurrentInfo: TCurrentInfo;
   var AEmailException: TEmailException;
   ASubject: String;
@@ -633,6 +631,8 @@ begin
   FThreadEndedEvent := TEvent.Create(Nil, True, False, '');
   FParentHandle := AParentHandle;
   FCheckpointFile := ACheckpointFile;
+  FSendErrorFile := ASendErrorFile;
+  FEmailProcessor := AEmailProcessor;
   FCurrentInfo := ACurrentInfo;
   FEmailException := AEmailException;
   FSubject := ASubject;
@@ -651,10 +651,62 @@ begin
 end;
 
 procedure TEmailProcessThread.Execute;
-begin
-  try
+var
+  LLines: TStringList;
+  LFields: TArray<String>;
+  LStudentName: String;
+  LTeacherName: String;
+  LRoomName: String;
+  LClassLevel: String;
+  LChildcareLevel: String;
+  LEmail: String;
+  LCountry: String;
+  LLanguage: String;
+  LMessage: String;
+  I: Integer;
+  LCounter: Integer;
+  LSize: Integer;
+  LRetryCount: Integer;
+  LSendSuccess: Boolean;
+  LPercentComplete: Integer;
+  LErrorMsg: String;
+  LFailedEmail: TFailedEmail;
+  LStreamWriter: TStreamWriter;
+
+  procedure WriteToSendErrorFile(AMsg: String);
+  begin
+    LStreamWriter :=
+      TStreamWriter.Create(
+        FSendErrorFile,
+        True);
     try
-      if Not TFile.Exists(FCheckpointFile) then begin
+      LStreamWriter.WriteLine(AMsg);
+    finally
+      LStreamWriter.Free;
+    end;
+
+  end;
+begin
+
+  LLines := TStringList.Create;
+  try
+    if Not TFile.Exists(FCheckpointFile) then begin
+      FSendResult.TotalProcessed := 0;
+      FSendResult.TotalSent := 0;
+      FSendResult.TotalFailed := 0;
+      PostMessage(FParentHandle, WM_SEND_EMAILS_COMPLETED, 0, 0);
+      Exit;
+    end;
+    FSendResult.Clear;
+    try
+      LLines.LoadFromFile(
+        FCheckpointFile,
+        TEncoding.UTF8);
+      // The file includes a header line, so need to exclude
+      // that from the total number of records in the file
+      LSize := LLines.Count - 1;
+      if LLines.Count < 2 then begin
+        TFile.Delete(FCheckpointFIle);
         FSendResult.TotalProcessed := 0;
         FSendResult.TotalSent := 0;
         FSendResult.TotalFailed := 0;
@@ -662,7 +714,124 @@ begin
         Exit;
       end;
 
+      if not TFile.Exists(FSendErrorFile) then
+        TFile.Create(FSendErrorFile).Free;
 
+      I := 1;
+      LCounter := 1;
+      while I < LLines.Count do begin
+        if (FKillThreadEvent.WaitFor(0) = TWaitResult.wrSignaled) then begin
+          Exit;
+        end;
+
+        LFields := TCSVHelper.ParseCSVLine(LLines[i]);
+
+        // Validate field count
+        if Length(LFields) < 8 then begin
+          Inc(I);
+          Continue;
+        end;
+
+        // Unpack fields
+        LStudentName      := LFields[0];
+        LTeacherName      := LFields[1];
+        LRoomName         := LFields[2];
+        LClassLevel       := LFields[3];
+        LChildcareLevel   := LFields[4];
+        LEmail            := LFields[5];
+        LCountry          := LFields[6];
+        LLanguage         := LFields[7];
+
+        LMessage := FEmailProcessor.ProcessMailMessage(
+          FCheckpointFile,
+          LStudentName,
+          LTeacherName,
+          LRoomName,
+          LClassLevel,
+          LChildcareLevel,
+          LLanguage);
+
+        FCurrentInfo.SetInfo(
+          LStudentName,
+          LTeacherName,
+          LRoomName,
+          LClassLevel,
+          LChildcareLevel
+        );
+        PostMessage(FParentHandle, WM_READ_CURRENT_INFO, 0, 0);
+
+        // Attempt to send with retry logic
+        LSendSuccess := False;
+        LRetryCount := 0;
+
+        while (Not LSendSuccess) and
+              (LRetryCount < MaxRetryCount) do begin
+          try
+            //FSmtp.SendTo := LEmail;
+            {FSmtp.SendTo := 'kaycheng.chew@gmail.com';
+            FSmtp.Subject := FSubject;
+            FSmtp.Message := LMessage;
+
+            FSmtp.Connect;
+            FSmtp.Send;
+            FSmtp.Disconnect;}
+
+            LSendSuccess := True;
+            Sleep(400);
+            Inc(FSendResult.TotalSent);
+          except
+            On E:Exception do begin
+              Inc(LRetryCount);
+              if LRetryCount < MaxRetryCount then begin
+                WriteToSendErrorFile(Format(
+                  'Retry %d/%d for %s (%s): %s',
+                  [LRetryCount,
+                   MaxRetryCount,
+                   LStudentName,
+                   LEmail,
+                   E.Message]));
+                Sleep(RetryDelayMs);
+              end else begin
+                // All retries exhausted - record as failed
+                LFailedEmail := TFailedEmail.Create;
+                LFailedEmail.StudentName := LStudentName;
+                LFailedEmail.EmailAddress := LEmail;
+                LFailedEmail.ErrorMessage := E.Message;
+                LFailedEmail.AttemptCount := LRetryCount;
+                FSendResult.FailedEmails.Add(LFailedEmail);
+                Inc(FSendResult.TotalFailed);
+
+                WriteToSendErrorFile(Format(
+                  'FAILED after %d attempts: %s (%s) - %s',
+                  [LRetryCount, LStudentName, LEmail, E.Message]));
+              end; // if LRetryCount
+            end; // On E:Exception
+          end; // except
+        end; // (Not LSendSuccess) and ...
+        Inc(FSendResult.TotalProcessed);
+
+        // Only remove the row AFTER processing
+        LLines.Delete(I);
+        LLines.SaveToFile(FCheckPointFile, TEncoding.UTF8);
+        LPercentComplete := (LCounter * 100) div LSize;
+        PostMessage(
+          FParentHandle,
+          WM_SHOW_PROGRESS,
+          Integer(LPercentComplete),
+          0);
+        Inc(LCounter);
+
+      end; // while I < LLines.Count...
+
+      if LLines.Count <= 1 then
+        TFile.Delete(FCheckpointFile);
+      PostMessage(
+          FParentHandle,
+          WM_SHOW_PROGRESS,
+          100,
+          0);
+      WriteToSendErrorFile(FSendResult.GetSummary);
+      PostMessage(FParentHandle, WM_SEND_EMAILS_COMPLETED, 0, 0);
     except
       On E:Exception do begin
         FEmailException.SetErrorMsg(E.Message);
@@ -670,9 +839,11 @@ begin
       end;
     end;
   finally
+    if Assigned(LLines) then begin
+      FreeAndNil(LLines);
+    end;
     FThreadEndedEvent.SetEvent;
   end;
-
 end;
 
 { TEmailException }

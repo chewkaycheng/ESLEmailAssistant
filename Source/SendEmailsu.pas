@@ -29,7 +29,8 @@ uses
   RzLabel,
 
   Constsu,
-  BaseFormu;
+  BaseFormu,
+  EmailProcessoru;
 
 
 type
@@ -45,35 +46,44 @@ type
     CWSSettingsPanel3: TCWSSettingsPanel;
     CWSSettingsPanel2: TCWSSettingsPanel;
     circProgress: TCWSProgressCircle;
-    CWSSettingsPanel5: TCWSSettingsPanel;
+    pnlChildcare: TCWSSettingsPanel;
     CWSSettingsPanel4: TCWSSettingsPanel;
     lblChildcareRight: TRzLabel;
     lblChildcareLeft: TRzLabel;
-    CWSSettingsPanel6: TCWSSettingsPanel;
+    pnlStudent: TCWSSettingsPanel;
     lblNameRight: TRzLabel;
     lblNameLeft: TRzLabel;
-    CWSSettingsPanel7: TCWSSettingsPanel;
+    pnlTeacher: TCWSSettingsPanel;
     lblTeacherRight: TRzLabel;
     lblTeacherLeft: TRzLabel;
-    CWSSettingsPanel8: TCWSSettingsPanel;
+    pnlRoom: TCWSSettingsPanel;
     lblRoomRight: TRzLabel;
     lblRoomLeft: TRzLabel;
-    CWSSettingsPanel9: TCWSSettingsPanel;
+    pnlClassLevel: TCWSSettingsPanel;
     lblClassLevelRight: TRzLabel;
     lblClassLevelLeft: TRzLabel;
     lblSending: TRzLabel;
+    CWSSettingsPanel10: TCWSSettingsPanel;
+    RzLabel1: TRzLabel;
+    pnlSummary: TCWSSettingsPanel;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnBackClick(Sender: TObject);
+    procedure btnSendEmailsClick(Sender: TObject);
   private
+    FCurrentInfo: TCurrentInfo;
+    FEmailException: TEmailException;
+    FEmailProcessThread: TEmailProcessThread;
+    FEmailProcessor: TEmailProcessor;
     procedure OnReadCurrentInfo(var Msg: TMessage);
        message WM_READ_CURRENT_INFO;
     procedure OnShowErrorMsg(var Msg: TMessage);
        message WM_SHOW_SEND_ERROR;
     procedure OnSendEmailsCompleted(var Msg: TMessage);
       message WM_SEND_EMAILS_COMPLETED;
-
+    procedure OnShowProgress(var Msg: TMessage);
+      message WM_SHOW_PROGRESS;
   public
   protected
     procedure ApplyTheme; override;
@@ -95,46 +105,94 @@ uses
 
 { TfrmSendEmails }
 
-procedure TfrmSendEmails.btnBackClick(Sender: TObject);
-begin
-  if Not(FParentForm.SendEmailInitated) then begin
-    if FParentForm.IsAuthorized then begin
-      FParentForm.ShowPreviewForm;
-    end else begin
-      FParentForm.ShowAuthorizeForm;
-    end;
-  end;
-end;
-
 procedure TfrmSendEmails.FormCreate(Sender: TObject);
 begin
   inherited FormCreate(Sender);
+  FCurrentInfo := TCurrentInfo.Create;
+  FEmailException := TEmailException.Create;
+  FEmailProcessor := TEmailProcessor.Create;
+
+  TUtils.AdjustButtonsPanel(pnlButtons);
 end;
 
 procedure TfrmSendEmails.FormDestroy(Sender: TObject);
 begin
-  inherited FormDestroy(Sender);
+  if Assigned(FCurrentInfo) then begin
+    FreeAndNil(FCurrentInfo);
+  end;
+  if Assigned(FEmailException) then begin
+    FreeAndNil(FEmailException);
+  end;
+  if Assigned(FEmailProcessor) then begin
+    FreeAndNil(FEmailProcessor);
+  end;
 
+  inherited FormDestroy(Sender);
 end;
 
 procedure TfrmSendEmails.FormShow(Sender: TObject);
 begin
   FParentForm.SVGimgSteps.ImageIndex := 5;
+  if Not(FParentForm.SendEmailInitated) then begin
+    lblSending.Caption := 'Click on the Send Emails button';
+    pnlSummary.Visible := False;
+  end else begin
+    lblSending.Caption := 'Sending Email to:';
+    pnlSummary.Visible := True;
+  end;
 end;
 
 procedure TfrmSendEmails.OnReadCurrentInfo(var Msg: TMessage);
+var
+  LStudentName,
+  LTeacherName,
+  LRoomNumber,
+  LClassLevel,
+  LChildcareLevel: String;
 begin
-
+  FCurrentInfo.GetInfo(
+    LStudentName,
+    LTeacherName,
+    LRoomNumber,
+    LClassLevel,
+    LChildcareLevel);
+  lblNameRight.Caption := LStudentName;
+  lblTeacherRight.Caption := LTeacherName;
+  lblRoomRight.Caption := LRoomNumber;
+  lblClassLevelRight.Caption := LClassLevel;
+  lblChildcareRight.Caption := LChildcareLevel;
 end;
 
 procedure TfrmSendEmails.OnSendEmailsCompleted(var Msg: TMessage);
 begin
-// to implement
+  FParentForm.SVGimgSteps.ImageIndex := 6;
+  if Assigned(FEmailProcessThread) then begin
+    stpLeft.Caption := FEmailProcessThread.SendResult.GetSummary;
+    FEmailProcessThread.KillThreadEvent.SetEvent;
+    FEmailProcessThread.ThreadEndedEvent.WaitFor(2000);
+    FreeAndNil(FEmailProcessThread);
+  end;
 end;
 
 procedure TfrmSendEmails.OnShowErrorMsg(var Msg: TMessage);
+var
+  LException: String;
 begin
+  FEmailException.GetErrorMsg(LException);
+  ShowMessage(LException);
+  if Assigned(FEmailProcessThread) then begin
+    FEmailProcessThread.KillThreadEvent.SetEvent;
+    FEmailProcessThread.ThreadEndedEvent.WaitFor(2000);
+    FreeAndNil(FEmailProcessThread);
+  end;
+end;
 
+procedure TfrmSendEmails.OnShowProgress(var Msg: TMessage);
+var
+  LPercentComplete: Integer;
+begin
+  LPercentComplete := Msg.WParam;
+  circProgress.Value := LPercentComplete;
 end;
 
 procedure TfrmSendEmails.ApplyTheme;
@@ -159,6 +217,47 @@ begin
 
     if LComp is TRzLabel then begin
       TUtils.SetLabelColor(LComp as TRzLabel)
+    end;
+  end;
+end;
+
+procedure TfrmSendEmails.btnBackClick(Sender: TObject);
+begin
+  if Not(FParentForm.SendEmailInitated) then begin
+    if FParentForm.IsAuthorized then begin
+      FParentForm.ShowPreviewForm;
+    end else begin
+      FParentForm.ShowAuthorizeForm;
+    end;
+  end;
+end;
+
+procedure TfrmSendEmails.btnSendEmailsClick(Sender: TObject);
+begin
+  lblSending.Caption := 'Sending Email to:';
+  pnlSummary.Visible := True;
+  if btnSendEmails.Caption = 'Send Emails' then begin
+    btnSendEmails.Caption := 'Stop';
+    btnSendEmails.ImageIndex := 2;
+    FEmailProcessThread := TEmailProcessThread.Create(
+      True,
+      Self.Handle,
+      FParentForm.FullCheckpointCSVFileName,
+      FParentForm.FullSendErrorFileName,
+      FEmailProcessor,
+      FCurrentInfo,
+      FEmailException,
+      FParentForm.SessionIniValues.Subject,
+      FParentForm.ismtpMain);
+    FEmailProcessThread.Start;
+    FParentForm.SendEmailInitated := True;
+  end else begin
+    btnSendEmails.Caption := 'Send Emails';
+    btnSendEmails.ImageIndex := 0;
+    if Assigned(FEmailProcessThread) then begin
+      FEmailProcessThread.KillThreadEvent.SetEvent;
+      FEmailProcessThread.ThreadEndedEvent.WaitFor(2000);
+      FreeAndNil(FEmailProcessThread);
     end;
   end;
 end;
