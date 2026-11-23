@@ -25,6 +25,7 @@ uses
   BaseFormu in '..\Source\BaseFormu.pas' {frmBase},
   Authorizeu in '..\Source\Authorizeu.pas' {frmAuthorize},
   SendEmailsu in '..\Source\SendEmailsu.pas' {frmSendEmails},
+  GridTestu in '..\Source\GridTestu.pas' {frmGridTest},
   Previewu in '..\Source\Previewu.pas' {frmPreview};
 
 {$R *.res}
@@ -41,6 +42,7 @@ begin
   Application.CreateForm(TfrmEditMessageTemplate, frmEditMessageTemplate);
   Application.CreateForm(TfrmAuthorize, frmAuthorize);
   Application.CreateForm(TfrmSendEmails, frmSendEmails);
+  Application.CreateForm(TfrmGridTest, frmGridTest);
   Application.CreateForm(TfrmPreview, frmPreview);
   Application.Run;
 end.

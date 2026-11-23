@@ -272,6 +272,7 @@ begin
       0
     );
 
+
     if DirectoryHandle = INVALID_HANDLE_VALUE then
       Exit;
 
@@ -280,10 +281,9 @@ begin
       MonitorInfo.Directory := NormalizedDir;
       MonitorInfo.DirectoryHandle := DirectoryHandle;
       MonitorInfo.NotifyFilter := NotifyFlagsToDWORD(NotifyFlags);
-
-      if FilePath = '' then
-        MonitorInfo.DirectoryHandlers.Add(TDirectoryHandlerInfo.Create(OnChange, WatchSubtree))
-      else
+      if FilePath = '' then begin
+        MonitorInfo.DirectoryHandlers.Add(TDirectoryHandlerInfo.Create(OnChange, WatchSubtree));
+      end else
       begin
         NormalizedFile := NormalizePath(FilePath);
         MonitorInfo.FileHandlers.Add(NormalizedFile, [OnChange]);
@@ -425,7 +425,7 @@ begin
       NumBytes,
       CompletionKey,
       Overlapped,
-      5000 // 5-second timeout
+      500 // 5-second timeout
     );
 
     if Success then

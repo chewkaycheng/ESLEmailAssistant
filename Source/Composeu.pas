@@ -181,6 +181,7 @@ begin
   FLoading := True;
   try
     edtSubject.Text := FParentForm.SessionIniValues.Subject;
+    aniArrow.Visible := Length(Trim(edtSubject.Text)) < 2;
   finally
     FLoading := False;
   end;
@@ -340,6 +341,7 @@ begin
   LIniValues.Subject := edtSubject.Text;
   FParentForm.SessionIniValues := LIniValues;
 
+  aniArrow.Visible := Length(Trim(edtSubject.Text)) < 2;
   RefreshFileList;
 end;
 
@@ -366,7 +368,6 @@ end;
 procedure TfrmCompose.OnSetNextBtnEnabled(var Msg: TMessage);
 begin
   btnNext.Enabled := Boolean(Msg.WParam);
-  aniArrow.Visible := Not(btnNext.Enabled);
 end;
 
 procedure TfrmCompose.OnSetSelectedFile(var Msg: TMessage);

@@ -127,6 +127,9 @@
         <DCC_MapFile>3</DCC_MapFile>
         <DCC_DebugInformation>2</DCC_DebugInformation>
         <DCC_LocalDebugSymbols>true</DCC_LocalDebugSymbols>
+        <DCC_ExeOutput>..\bin</DCC_ExeOutput>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -179,6 +182,10 @@
         </DCCReference>
         <DCCReference Include="..\Source\SendEmailsu.pas">
             <Form>frmSendEmails</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="..\Source\GridTestu.pas">
+            <Form>frmGridTest</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\Source\Previewu.pas">
