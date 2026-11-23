@@ -439,7 +439,7 @@ object frmCompose: TfrmCompose
       Margins.Bottom = 8
       Text = ''
       CornerRadius = 4.00000000000000000
-      TextHint = 'Enter the subject for the Emails (min 2 letters)'
+      TextHint = 'Enter the subject for the Emails (min 2 letters) '
       OnChange = edtSubjectChange
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
@@ -450,7 +450,7 @@ object frmCompose: TfrmCompose
       ParentFont = False
       TabOrder = 0
       TabStop = True
-      ExplicitHeight = 32
+      ExplicitTop = 10
     end
     object aniArrow: TRzAnimator
       Left = 157
