@@ -31,9 +31,6 @@ uses
 
   SynEdit,
 
-  Daisy.Theme,
-  Daisy.VCL.Button,
-
   CWSSettingsPanel,
   CWSButton,
   CWSRadioButton,
@@ -74,10 +71,6 @@ type
     class procedure SetMemoColor(AMemo: TCWSMemo);
 
     class procedure EnsureDirectoryCreated(ADirectory: String);
-    class procedure SetComponentColors(
-      AKind: TDaisyThemeKind;
-      AVariant: TDaisyVariant;
-      AForm: TForm);
     class procedure SetButtonColors(AButton: TCWSButton);
   end;
 
@@ -236,25 +229,6 @@ begin
   AComboBox.TextColor := flNeutralForeground1;
 end;
 
-class procedure TUtils.SetComponentColors(
-  AKind: TDaisyThemeKind;
-  AVariant: TDaisyVariant;
-  AForm: TForm);
-var
-  LTheme: TDaisyTheme;
-  LComponent: TComponent;
-  I: Integer;
-begin
-  LTheme := DaisyGetTheme(AKind);
-  for I := 0 to AForm.ComponentCount - 1 do begin
-    LComponent := AForm.Components[i];
-    if LComponent.ClassType = TRzPanel then begin
-      (LComponent As TRzPanel).Color := AlphaColorToColor(LTheme.Base100);
-    end else if LComponent.ClassType = TDaisyButton then begin
-      //(LComponent As TDaisyButton).Variant := AVariant;
-    end;
-  end;
-end;
 
 class procedure TUtils.SetEditColor(AEdit: TCWSEdit);
 begin

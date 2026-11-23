@@ -3,8 +3,7 @@ unit Constsu;
 interface
 
 uses
-  Winapi.Messages,
-  Daisy.Theme;
+  Winapi.Messages;
 
 type
   TImageSteps = (stWelcome=0, stRecipients=1, stCompose=2, stPreview=3,
@@ -16,11 +15,6 @@ const
   WM_SHOW_SEND_ERROR = WM_USER + 6;
   WM_SEND_EMAILS_COMPLETED = WM_USER + 7;
   WM_SHOW_PROGRESS = WM_USER + 8;
-
-  DefaultThemeKind: TDaisyThemeKind        = TDaisyThemeKind.dtCorporate;
-  DarkThemeKind: TDaisyThemeKind           = TDaisyThemeKind.dtDark;
-  DefaultThemeButtonVariant: TDaisyVariant = TDaisyVariant.dvPrimary;
-  DarkThemeButtonVariant: TDaisyVariant    = TDaisyVariant.dvNeutral;
 
   FormWidth: Integer = 900;
   FormHeight: Integer = 700;

@@ -2734,7 +2734,6 @@ object frmMain: TfrmMain
             Font.Name = 'Segoe UI'
             Font.Style = [fsBold]
             ParentFont = False
-            ExplicitLeft = 14
             ExplicitHeight = 40
           end
           object btnTheme: TCWSButton

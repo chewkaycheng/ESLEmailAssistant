@@ -192,7 +192,6 @@ type
     procedure ShowPreviewForm;
     procedure ShowAuthorizeForm;
     procedure ShowSendEmailsForm;
-    procedure ShowGridTestForm;
   end;
 
 var
@@ -214,7 +213,6 @@ uses
   Previewu,
   Authorizeu,
   SendEmailsu,
-  GridTestu,
   EditMessageTemplateu;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
@@ -405,7 +403,6 @@ begin
   frmPreview.ParentForm := Self;
   frmAuthorize.ParentForm := Self;
   frmSendEmails.ParentForm := Self;
-  frmGridTest.ParentForm := Self;
   frmEditMessageTemplate.SetParentForm(Self);
 end;
 
@@ -521,11 +518,6 @@ end;
 procedure TfrmMain.ShowComposeForm;
 begin
   ShowChildForm(frmCompose);
-end;
-
-procedure TfrmMain.ShowGridTestForm;
-begin
-  ShowChildForm(frmGridTest);
 end;
 
 procedure TfrmMain.ShowPreviewForm;
