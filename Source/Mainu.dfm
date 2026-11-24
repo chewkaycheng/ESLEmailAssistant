@@ -6,12 +6,12 @@ object frmMain: TfrmMain
   Margins.Right = 5
   Margins.Bottom = 5
   Caption = 'ESL | Email Assistant'
-  ClientHeight = 1059
-  ClientWidth = 1437
+  ClientHeight = 1055
+  ClientWidth = 1428
   Color = clBtnFace
   CustomTitleBar.Control = brTitle
   CustomTitleBar.Enabled = True
-  CustomTitleBar.Height = 45
+  CustomTitleBar.Height = 31
   CustomTitleBar.SystemColors = False
   CustomTitleBar.SystemButtons = False
   CustomTitleBar.BackgroundColor = 13924352
@@ -32,7 +32,7 @@ object frmMain: TfrmMain
   Font.Name = 'Segoe UI'
   Font.Style = []
   GlassFrame.Enabled = True
-  GlassFrame.Top = 45
+  GlassFrame.Top = 31
   Position = poScreenCenter
   StyleElements = []
   OnClose = FormClose
@@ -43,8 +43,8 @@ object frmMain: TfrmMain
   object brTitle: TTitleBarPanel
     Left = 0
     Top = 0
-    Width = 1437
-    Height = 44
+    Width = 1428
+    Height = 30
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
@@ -53,9 +53,9 @@ object frmMain: TfrmMain
   end
   object pnlMain: TCWSSettingsPanel
     Left = 0
-    Top = 44
-    Width = 1437
-    Height = 1015
+    Top = 30
+    Width = 1428
+    Height = 1025
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
@@ -66,22 +66,25 @@ object frmMain: TfrmMain
     InnerCornerRadius = 0
     RoundedCorners = []
     BorderWidth = 0
+    ExplicitTop = 45
+    ExplicitHeight = 1010
     object pnlImage: TCWSSettingsPanel
       Left = 0
       Top = 0
       Width = 339
-      Height = 1015
+      Height = 1025
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
       Margins.Bottom = 5
       Align = alLeft
       DoubleBuffered = True
+      ExplicitHeight = 1010
       object Image1: TImage
         Left = 0
         Top = 0
         Width = 339
-        Height = 1015
+        Height = 1025
         Margins.Left = 5
         Margins.Top = 5
         Margins.Right = 5
@@ -2632,15 +2635,15 @@ object frmMain: TfrmMain
           74A0B436D009A14ADB478A0114296568B65009A35147B69416801455EA13E068
           501FFFD9}
         Stretch = True
-        ExplicitHeight = 1014
+        ExplicitHeight = 1010
       end
     end
     object pnlContent: TPanel
       AlignWithMargins = True
       Left = 339
       Top = 0
-      Width = 1098
-      Height = 1015
+      Width = 1089
+      Height = 1025
       Margins.Left = 0
       Margins.Top = 0
       Margins.Right = 0
@@ -2651,10 +2654,11 @@ object frmMain: TfrmMain
       Color = 15329769
       ParentBackground = False
       TabOrder = 1
+      ExplicitHeight = 1010
       object pnlHeaders: TPanel
         Left = 0
         Top = 0
-        Width = 1098
+        Width = 1089
         Height = 221
         Margins.Left = 5
         Margins.Top = 5
@@ -2669,7 +2673,7 @@ object frmMain: TfrmMain
         object pnlSteps: TPanel
           Left = 12
           Top = 0
-          Width = 1086
+          Width = 1077
           Height = 153
           Margins.Left = 5
           Margins.Top = 5
@@ -2687,7 +2691,7 @@ object frmMain: TfrmMain
           object SVGimgSteps: TSVGIconImage
             Left = 12
             Top = 6
-            Width = 1062
+            Width = 1053
             Height = 141
             Margins.Left = 5
             Margins.Top = 5
@@ -2703,7 +2707,7 @@ object frmMain: TfrmMain
         object pnlTitle: TPanel
           Left = 12
           Top = 153
-          Width = 1086
+          Width = 1077
           Height = 72
           Margins.Left = 12
           Margins.Top = 5
@@ -2734,11 +2738,12 @@ object frmMain: TfrmMain
             Font.Name = 'Segoe UI'
             Font.Style = [fsBold]
             ParentFont = False
+            ExplicitLeft = 14
             ExplicitHeight = 40
           end
           object btnTheme: TCWSButton
             AlignWithMargins = True
-            Left = 1011
+            Left = 1002
             Top = 10
             Width = 50
             Height = 52
@@ -2774,14 +2779,16 @@ object frmMain: TfrmMain
             CaptionColorDisabled = 12434877
             IconColorDisabled = 12434877
             OnClick = btnThemeClick
+            ExplicitTop = 11
+            ExplicitHeight = 51
           end
         end
       end
       object CWSSettingsPanel1: TCWSSettingsPanel
         Left = 0
         Top = 221
-        Width = 1098
-        Height = 794
+        Width = 1089
+        Height = 804
         Margins.Left = 5
         Margins.Top = 5
         Margins.Right = 5
@@ -2790,12 +2797,13 @@ object frmMain: TfrmMain
         DoubleBuffered = True
         RoundedCorners = [coTopLeft]
         BorderEdges = [beTop, beLeft]
+        ExplicitHeight = 789
         object pnlContentForm: TPanel
           AlignWithMargins = True
           Left = 0
           Top = 0
-          Width = 1098
-          Height = 794
+          Width = 1089
+          Height = 804
           Margins.Left = 0
           Margins.Top = 0
           Margins.Right = 0
@@ -2806,6 +2814,7 @@ object frmMain: TfrmMain
           Color = 15329769
           ParentBackground = False
           TabOrder = 0
+          ExplicitHeight = 789
         end
       end
     end

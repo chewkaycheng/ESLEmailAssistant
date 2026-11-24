@@ -215,18 +215,23 @@ end;
 
 class procedure TUtils.SetComboBoxColor(AComboBox: TCWSComboBox);
 begin
-  AComboBox.BackgroundColor := flNeutralBackground2;
-  AComboBox.BackgroundHoverColor := flNeutralBackground1Hover;
-  AComboBox.BorderColor := flNeutralStroke1;
+  TCWSComboBox(AComboBox).BackgroundColor := flNeutralBackground2;
+  TCWSComboBox(AComboBox).DropdownBackColor := flNeutralBackground2;
+  TCWSComboBox(AComboBox).BackgroundHoverColor := flNeutralBackground1Hover;
+  TCWSComboBox(AComboBox).BorderColor := flNeutralStroke1;
+  TCWSComboBox(AComboBox).DropdownBorderColor := flNeutralStroke1;
 
-  AComboBox.DisabledColor := flNeutralBackgroundDisabled;
-  AComboBox.DisabledBorderColor := flNeutralStrokeDisabled;
+  TCWSComboBox(AComboBox).DisabledColor := flNeutralBackgroundDisabled;
+  TCWSComboBox(AComboBox).DisabledBorderColor := flNeutralStrokeDisabled;
 
+  TCWSComboBox(AComboBox).AccentColor := flNeutralForeground2BrandPressed;
 
-  AComboBox.AccentColor := flNeutralForeground2BrandPressed;
-
-  AComboBox.Font.Color := flNeutralForeground1;
-  AComboBox.TextColor := flNeutralForeground1;
+  TCWSComboBox(AComboBox).Font.Color := flNeutralForeground1;
+  TCWSComboBox(AComboBox).ItemHighlightColor := flNeutralBackground1Selected;
+  TCWSComboBox(AComboBox).ItemHighlightPressedColor := flNeutralBackground1Selected;
+  TCWSComboBox(AComboBox).ItemHighlightTextColor := flNeutralForeground2;
+  TCWSComboBox(AComboBox).ItemNormalTextColor := flNeutralForeground1;
+  TCWSComboBox(AComboBox).TextColor := flNeutralForeground1;
 end;
 
 

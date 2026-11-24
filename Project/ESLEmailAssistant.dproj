@@ -184,10 +184,6 @@
             <Form>frmSendEmails</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="..\Source\GridTestu.pas">
-            <Form>frmGridTest</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="..\Source\Previewu.pas">
             <Form>frmPreview</Form>
             <FormType>dfm</FormType>

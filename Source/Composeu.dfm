@@ -1,39 +1,49 @@
 object frmCompose: TfrmCompose
   Left = 0
   Top = 0
+  Margins.Left = 5
+  Margins.Top = 5
+  Margins.Right = 5
+  Margins.Bottom = 5
   BorderStyle = bsNone
   Caption = 'MESSAGE TEMPLATES'
-  ClientHeight = 480
-  ClientWidth = 640
+  ClientHeight = 720
+  ClientWidth = 960
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
+  Font.Height = -18
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poDesktopCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  TextHeight = 15
+  PixelsPerInch = 144
+  TextHeight = 25
   object pnlButtons: TCWSSettingsPanel
     Left = 0
-    Top = 412
-    Width = 640
-    Height = 48
+    Top = 648
+    Width = 960
+    Height = 72
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Align = alBottom
     DoubleBuffered = True
     CornerRadius = 0
     BorderEdges = [beTop]
     object btnBack: TCWSButton
       AlignWithMargins = True
-      Left = 351
-      Top = 7
-      Width = 133
-      Height = 34
-      Margins.Left = 4
-      Margins.Top = 7
-      Margins.Bottom = 7
+      Left = 527
+      Top = 11
+      Width = 199
+      Height = 50
+      Margins.Left = 6
+      Margins.Top = 11
+      Margins.Right = 5
+      Margins.Bottom = 11
       Align = alRight
       TabOrder = 0
       ButtonStyle = bsCustom
@@ -64,14 +74,14 @@ object frmCompose: TfrmCompose
     end
     object btnNext: TCWSButton
       AlignWithMargins = True
-      Left = 491
-      Top = 7
-      Width = 133
-      Height = 34
-      Margins.Left = 4
-      Margins.Top = 7
-      Margins.Right = 16
-      Margins.Bottom = 7
+      Left = 737
+      Top = 11
+      Width = 199
+      Height = 50
+      Margins.Left = 6
+      Margins.Top = 11
+      Margins.Right = 24
+      Margins.Bottom = 11
       Align = alRight
       TabOrder = 1
       ButtonStyle = bsCustom
@@ -103,9 +113,13 @@ object frmCompose: TfrmCompose
   end
   object sbMain: TRzStatusBar
     Left = 0
-    Top = 460
-    Width = 640
-    Height = 20
+    Top = 618
+    Width = 960
+    Height = 30
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     AutoStyle = False
     SimpleFrameStyle = fsNone
     BorderColor = clSilver
@@ -121,17 +135,28 @@ object frmCompose: TfrmCompose
     object stpLeft: TRzStatusPane
       Left = 1
       Top = 1
-      Width = 496
-      Height = 18
+      Width = 744
+      Height = 28
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       FrameStyle = fsNone
       Align = alLeft
       Caption = ''
+      ExplicitLeft = 2
+      ExplicitTop = 2
+      ExplicitHeight = 27
     end
     object stpRight: TRzStatusPane
-      Left = 497
+      Left = 745
       Top = 1
-      Width = 280
-      Height = 18
+      Width = 420
+      Height = 28
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       BorderWidth = 0
       FillColor = clWhite
       FlatColor = clWhite
@@ -140,14 +165,20 @@ object frmCompose: TfrmCompose
       Align = alLeft
       StyleElements = [seFont, seClient]
       Caption = ''
+      ExplicitLeft = 746
+      ExplicitTop = 2
+      ExplicitHeight = 27
     end
   end
   object pnlLanguage: TPanel
     Left = 0
     Top = 0
-    Width = 640
-    Height = 43
-    Margins.Left = 8
+    Width = 960
+    Height = 65
+    Margins.Left = 12
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Align = alTop
     BevelOuter = bvNone
     BorderWidth = 1
@@ -156,17 +187,20 @@ object frmCompose: TfrmCompose
     TabOrder = 2
     object lblLanguage: TRzLabel
       AlignWithMargins = True
-      Left = 17
-      Top = 4
-      Width = 70
-      Height = 35
-      Margins.Left = 16
+      Left = 25
+      Top = 6
+      Width = 106
+      Height = 53
+      Margins.Left = 24
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       Align = alLeft
       Caption = 'Language:'
       Color = clWhite
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -15
+      Font.Height = -23
       Font.Name = 'Segoe UI'
       Font.Style = []
       Font.Quality = fqClearTypeNatural
@@ -174,27 +208,29 @@ object frmCompose: TfrmCompose
       ParentFont = False
       Layout = tlCenter
       CenterPoint = cpLowerRight
-      ExplicitHeight = 20
+      ExplicitLeft = 26
+      ExplicitHeight = 31
     end
     object cboLanguage: TCWSComboBox
       AlignWithMargins = True
-      Left = 181
-      Top = 12
-      Width = 301
-      Height = 30
-      Margins.Left = 91
-      Margins.Top = 11
-      Margins.Right = 6
+      Left = 273
+      Top = 18
+      Width = 450
+      Height = 46
+      Margins.Left = 137
+      Margins.Top = 17
+      Margins.Right = 9
       Margins.Bottom = 0
       Style = csDropDownList
       CornerRadius = 4.00000000000000000
       DropdownCornerRadius = 8.00000000000000000
+      ItemHighlightTextColor = clWhite
       ItemHighlightCornerRadius = 4.00000000000000000
       Text = ''
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -14
+      Font.Height = -21
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
@@ -204,12 +240,13 @@ object frmCompose: TfrmCompose
     end
     object btnCreateTemplate: TCWSButton
       AlignWithMargins = True
-      Left = 491
-      Top = 9
-      Width = 132
-      Height = 33
-      Margins.Top = 8
-      Margins.Right = 16
+      Left = 737
+      Top = 13
+      Width = 198
+      Height = 51
+      Margins.Left = 5
+      Margins.Top = 12
+      Margins.Right = 24
       Margins.Bottom = 0
       Align = alRight
       TabOrder = 1
@@ -242,32 +279,39 @@ object frmCompose: TfrmCompose
   end
   object pnlFiles: TPanel
     Left = 0
-    Top = 135
-    Width = 484
-    Height = 277
-    Margins.Left = 8
+    Top = 203
+    Width = 726
+    Height = 415
+    Margins.Left = 12
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 1
     Color = clWhite
-    Padding.Left = 16
-    Padding.Right = 6
-    Padding.Bottom = 12
+    Padding.Left = 24
+    Padding.Right = 9
+    Padding.Bottom = 18
     ParentBackground = False
     TabOrder = 3
     object lstTemplates: TCWSListBox
-      Left = 17
+      Left = 25
       Top = 1
-      Width = 460
-      Height = 263
+      Width = 691
+      Height = 395
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       Items.Strings = (
         '')
       IntegralHeight = False
-      ItemHeight = 19
+      ItemHeight = 30
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -14
+      Font.Height = -21
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
@@ -278,11 +322,14 @@ object frmCompose: TfrmCompose
     end
   end
   object pnlEditDel: TPanel
-    Left = 484
-    Top = 135
-    Width = 156
-    Height = 277
-    Margins.Left = 8
+    Left = 726
+    Top = 203
+    Width = 234
+    Height = 415
+    Margins.Left = 12
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Align = alRight
     BevelOuter = bvNone
     BorderWidth = 1
@@ -291,26 +338,29 @@ object frmCompose: TfrmCompose
     TabOrder = 4
     object pnlDelete: TPanel
       Left = 1
-      Top = 35
-      Width = 154
-      Height = 42
-      Margins.Left = 8
+      Top = 52
+      Width = 232
+      Height = 63
+      Margins.Left = 12
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       Align = alTop
       BevelOuter = bvNone
       BorderWidth = 1
       Color = clWhite
-      Padding.Left = 16
+      Padding.Left = 24
       ParentBackground = False
       TabOrder = 0
       object btnDeleteTemplate: TCWSButton
         AlignWithMargins = True
-        Left = 3
-        Top = 9
-        Width = 134
-        Height = 32
-        Margins.Left = 4
-        Margins.Top = 8
-        Margins.Right = 16
+        Left = 6
+        Top = 13
+        Width = 201
+        Height = 49
+        Margins.Left = 6
+        Margins.Top = 12
+        Margins.Right = 24
         Margins.Bottom = 0
         Align = alRight
         TabOrder = 0
@@ -344,9 +394,12 @@ object frmCompose: TfrmCompose
     object pnlEdit: TPanel
       Left = 1
       Top = 1
-      Width = 154
-      Height = 34
-      Margins.Left = 8
+      Width = 232
+      Height = 51
+      Margins.Left = 12
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       Align = alTop
       BevelOuter = bvNone
       BorderWidth = 1
@@ -355,13 +408,13 @@ object frmCompose: TfrmCompose
       TabOrder = 1
       object btnEditTemplate: TCWSButton
         AlignWithMargins = True
-        Left = 3
+        Left = 6
         Top = 1
-        Width = 134
-        Height = 32
-        Margins.Left = 4
+        Width = 201
+        Height = 49
+        Margins.Left = 6
         Margins.Top = 0
-        Margins.Right = 16
+        Margins.Right = 24
         Margins.Bottom = 0
         Align = alRight
         TabOrder = 0
@@ -395,10 +448,13 @@ object frmCompose: TfrmCompose
   end
   object pnlSubject: TPanel
     Left = 0
-    Top = 43
-    Width = 640
-    Height = 48
-    Margins.Left = 8
+    Top = 65
+    Width = 960
+    Height = 72
+    Margins.Left = 12
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Align = alTop
     BevelOuter = bvNone
     BorderWidth = 1
@@ -407,36 +463,40 @@ object frmCompose: TfrmCompose
     TabOrder = 5
     object lblSubject: TRzLabel
       AlignWithMargins = True
-      Left = 17
-      Top = 4
-      Width = 144
-      Height = 40
-      Margins.Left = 16
+      Left = 25
+      Top = 6
+      Width = 216
+      Height = 60
+      Margins.Left = 24
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       Align = alLeft
       AutoSize = False
       Caption = 'Subject (Required):'
       Color = clWhite
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -15
+      Font.Height = -23
       Font.Name = 'Segoe UI'
       Font.Style = []
       Font.Quality = fqClearTypeNatural
       ParentColor = False
       ParentFont = False
       Layout = tlCenter
+      ExplicitLeft = 26
     end
     object edtSubject: TCWSEdit
       AlignWithMargins = True
-      Left = 180
-      Top = 9
-      Width = 443
-      Height = 30
+      Left = 270
+      Top = 13
+      Width = 665
+      Height = 46
       Cursor = crIBeam
-      Margins.Left = 16
-      Margins.Top = 8
-      Margins.Right = 16
-      Margins.Bottom = 8
+      Margins.Left = 24
+      Margins.Top = 12
+      Margins.Right = 24
+      Margins.Bottom = 12
       Text = ''
       CornerRadius = 4.00000000000000000
       TextHint = 'Enter the subject for the Emails (min 2 letters).'
@@ -444,44 +504,50 @@ object frmCompose: TfrmCompose
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -14
+      Font.Height = -21
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
       TabOrder = 0
       TabStop = True
-      ExplicitHeight = 32
+      ExplicitHeight = 48
     end
     object aniArrow: TRzAnimator
-      Left = 157
-      Top = 16
-      Width = 16
-      Height = 16
+      Left = 236
+      Top = 24
+      Width = 24
+      Height = 24
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       Delay = 300
-      ImageIndex = 1
       ImageList = SVGIconImageList2
     end
   end
   object pnlTemplateFiles: TCWSSettingsPanel
     AlignWithMargins = True
-    Left = 3
-    Top = 103
-    Width = 634
-    Height = 29
-    Margins.Top = 12
+    Left = 5
+    Top = 155
+    Width = 950
+    Height = 43
+    Margins.Left = 5
+    Margins.Top = 18
+    Margins.Right = 5
+    Margins.Bottom = 5
     Align = alTop
     DoubleBuffered = True
     BorderEdges = []
     object lblTemplateFiles: TRzLabel
       AlignWithMargins = True
-      Left = 16
-      Top = 4
-      Width = 555
-      Height = 21
-      Margins.Left = 16
-      Margins.Top = 4
-      Margins.Right = 4
-      Margins.Bottom = 4
+      Left = 24
+      Top = 6
+      Width = 864
+      Height = 31
+      Margins.Left = 24
+      Margins.Top = 6
+      Margins.Right = 6
+      Margins.Bottom = 6
       Align = alLeft
       Caption = 
         'Message Template Files (an English language Message Template Fil' +
@@ -489,14 +555,16 @@ object frmCompose: TfrmCompose
       Color = clWhite
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -16
+      Font.Height = -24
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentColor = False
       ParentFont = False
+      ExplicitHeight = 32
     end
   end
   object SVGIconImageList1: TSVGIconImageList
+    Size = 24
     SVGIconItems = <
       item
         IconName = 'next-black'
@@ -542,6 +610,7 @@ object frmCompose: TfrmCompose
     Top = 480
   end
   object SVGIconImageList2: TSVGIconImageList
+    Size = 24
     SVGIconItems = <
       item
         IconName = 'right-arrow-black'
