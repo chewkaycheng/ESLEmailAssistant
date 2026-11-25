@@ -1,13 +1,9 @@
 object frmMain: TfrmMain
   Left = 0
   Top = 0
-  Margins.Left = 5
-  Margins.Top = 5
-  Margins.Right = 5
-  Margins.Bottom = 5
   Caption = 'ESL | Email Assistant'
-  ClientHeight = 1055
-  ClientWidth = 1428
+  ClientHeight = 703
+  ClientWidth = 952
   Color = clBtnFace
   CustomTitleBar.Control = brTitle
   CustomTitleBar.Enabled = True
@@ -28,7 +24,7 @@ object frmMain: TfrmMain
   CustomTitleBar.ButtonInactiveBackgroundColor = clWhite
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -18
+  Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
   GlassFrame.Enabled = True
@@ -38,57 +34,37 @@ object frmMain: TfrmMain
   OnClose = FormClose
   OnCreate = FormCreate
   OnShow = FormShow
-  PixelsPerInch = 144
-  TextHeight = 25
+  TextHeight = 15
   object brTitle: TTitleBarPanel
     Left = 0
     Top = 0
-    Width = 1428
+    Width = 952
     Height = 30
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
     CustomButtons = <>
   end
   object pnlMain: TCWSSettingsPanel
     Left = 0
     Top = 30
-    Width = 1428
-    Height = 1025
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Width = 952
+    Height = 673
     Align = alClient
     DoubleBuffered = True
     CornerRadius = 0
     InnerCornerRadius = 0
     RoundedCorners = []
     BorderWidth = 0
-    ExplicitTop = 45
-    ExplicitHeight = 1010
     object pnlImage: TCWSSettingsPanel
       Left = 0
       Top = 0
-      Width = 339
-      Height = 1025
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Width = 226
+      Height = 673
       Align = alLeft
       DoubleBuffered = True
-      ExplicitHeight = 1010
       object Image1: TImage
         Left = 0
         Top = 0
-        Width = 339
-        Height = 1025
-        Margins.Left = 5
-        Margins.Top = 5
-        Margins.Right = 5
-        Margins.Bottom = 5
+        Width = 226
+        Height = 673
         Align = alClient
         Picture.Data = {
           0A544A504547496D616765B53D0100FFD8FFE000104A46494600010100000100
@@ -2635,15 +2611,15 @@ object frmMain: TfrmMain
           74A0B436D009A14ADB478A0114296568B65009A35147B69416801455EA13E068
           501FFFD9}
         Stretch = True
-        ExplicitHeight = 1010
+        ExplicitHeight = 683
       end
     end
     object pnlContent: TPanel
       AlignWithMargins = True
-      Left = 339
+      Left = 226
       Top = 0
-      Width = 1089
-      Height = 1025
+      Width = 726
+      Height = 673
       Margins.Left = 0
       Margins.Top = 0
       Margins.Right = 0
@@ -2654,49 +2630,36 @@ object frmMain: TfrmMain
       Color = 15329769
       ParentBackground = False
       TabOrder = 1
-      ExplicitHeight = 1010
       object pnlHeaders: TPanel
         Left = 0
         Top = 0
-        Width = 1089
-        Height = 221
-        Margins.Left = 5
-        Margins.Top = 5
-        Margins.Right = 5
-        Margins.Bottom = 5
+        Width = 726
+        Height = 147
         Align = alTop
         BevelOuter = bvNone
         Color = clWhite
-        Padding.Left = 12
+        Padding.Left = 8
         ParentBackground = False
         TabOrder = 0
         object pnlSteps: TPanel
-          Left = 12
+          Left = 8
           Top = 0
-          Width = 1077
-          Height = 153
-          Margins.Left = 5
-          Margins.Top = 5
-          Margins.Right = 5
-          Margins.Bottom = 5
+          Width = 718
+          Height = 102
           Align = alTop
           BevelOuter = bvNone
           Color = clWhite
-          Padding.Left = 12
-          Padding.Top = 6
-          Padding.Right = 12
-          Padding.Bottom = 6
+          Padding.Left = 8
+          Padding.Top = 4
+          Padding.Right = 8
+          Padding.Bottom = 4
           ParentBackground = False
           TabOrder = 0
           object SVGimgSteps: TSVGIconImage
-            Left = 12
-            Top = 6
-            Width = 1053
-            Height = 141
-            Margins.Left = 5
-            Margins.Top = 5
-            Margins.Right = 5
-            Margins.Bottom = 5
+            Left = 8
+            Top = 4
+            Width = 702
+            Height = 94
             AutoSize = False
             ImageList = SVGimlSteps
             ImageIndex = 0
@@ -2705,52 +2668,45 @@ object frmMain: TfrmMain
           end
         end
         object pnlTitle: TPanel
-          Left = 12
-          Top = 153
-          Width = 1077
-          Height = 72
-          Margins.Left = 12
-          Margins.Top = 5
-          Margins.Right = 5
-          Margins.Bottom = 5
+          Left = 8
+          Top = 102
+          Width = 718
+          Height = 48
+          Margins.Left = 8
           Align = alTop
           BevelOuter = bvNone
           BorderWidth = 1
           Color = clWhite
-          Padding.Left = 12
+          Padding.Left = 8
           ParentBackground = False
           TabOrder = 1
           object lblTitle: TLabel
             AlignWithMargins = True
-            Left = 13
-            Top = 6
-            Width = 94
-            Height = 60
+            Left = 9
+            Top = 4
+            Width = 60
+            Height = 40
             Margins.Left = 0
-            Margins.Top = 5
-            Margins.Right = 5
-            Margins.Bottom = 5
             Align = alLeft
             Caption = 'lblTitle'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
-            Font.Height = -29
+            Font.Height = -19
             Font.Name = 'Segoe UI'
             Font.Style = [fsBold]
             ParentFont = False
-            ExplicitLeft = 14
-            ExplicitHeight = 40
+            ExplicitHeight = 25
           end
           object btnTheme: TCWSButton
             AlignWithMargins = True
-            Left = 1002
-            Top = 10
-            Width = 50
-            Height = 52
+            Left = 668
+            Top = 7
+            Width = 33
+            Height = 34
             Margins.Left = 0
-            Margins.Top = 9
-            Margins.Right = 24
-            Margins.Bottom = 9
+            Margins.Top = 6
+            Margins.Right = 16
+            Margins.Bottom = 6
             Align = alRight
             Color = clBtnFace
             TabOrder = 0
@@ -2779,31 +2735,24 @@ object frmMain: TfrmMain
             CaptionColorDisabled = 12434877
             IconColorDisabled = 12434877
             OnClick = btnThemeClick
-            ExplicitTop = 11
-            ExplicitHeight = 51
           end
         end
       end
       object CWSSettingsPanel1: TCWSSettingsPanel
         Left = 0
-        Top = 221
-        Width = 1089
-        Height = 804
-        Margins.Left = 5
-        Margins.Top = 5
-        Margins.Right = 5
-        Margins.Bottom = 5
+        Top = 147
+        Width = 726
+        Height = 526
         Align = alClient
         DoubleBuffered = True
         RoundedCorners = [coTopLeft]
         BorderEdges = [beTop, beLeft]
-        ExplicitHeight = 789
         object pnlContentForm: TPanel
           AlignWithMargins = True
           Left = 0
           Top = 0
-          Width = 1089
-          Height = 804
+          Width = 726
+          Height = 526
           Margins.Left = 0
           Margins.Top = 0
           Margins.Right = 0
@@ -2814,13 +2763,11 @@ object frmMain: TfrmMain
           Color = 15329769
           ParentBackground = False
           TabOrder = 0
-          ExplicitHeight = 789
         end
       end
     end
   end
   object SVGimlSteps: TSVGIconImageList
-    Size = 24
     SVGIconItems = <
       item
         IconName = 'stepper_1_current'
@@ -3406,7 +3353,6 @@ object frmMain: TfrmMain
     Top = 982
   end
   object SVGimlStepsDarkMode: TSVGIconImageList
-    Size = 24
     SVGIconItems = <
       item
         IconName = 'stepper_1_current-darkmode'

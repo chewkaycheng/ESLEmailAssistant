@@ -42,7 +42,7 @@ uses
   DMMainu,
   SimpleLoggeru,
   IniFileHandleru,
-  Constsu;
+  Constsu, Messageu;
 
 type
   TfrmMain = class(TForm)
@@ -120,6 +120,7 @@ type
 
     FDarkMode: Boolean;
     FActiveForm: TForm;
+    FMessageForm: TfrmMessage;
 
     // Navigation
     procedure ShowChildForm(AForm: TForm);
@@ -192,6 +193,17 @@ type
     procedure ShowPreviewForm;
     procedure ShowAuthorizeForm;
     procedure ShowSendEmailsForm;
+    procedure ShowInfoMessage(
+      const AMsgCaption,
+      AMsg: String);
+    function ShowQuestionMessage(
+      const AMsgCaption,
+      AMsg: String): Integer;
+    procedure ShowErrorMessage(
+      const AMsgCaption,
+      AProcName,
+      AErrorMsg,
+      ACallStack: String);
   end;
 
 var
@@ -222,6 +234,7 @@ begin
   Height := MulDiv(FormHeight, Screen.PixelsPerInch, 96);
 
   Initialize;
+  FMessageForm := TfrmMessage.Create(Self);
 end;
 
 procedure TfrmMain.FormShow(Sender: TObject);
@@ -251,6 +264,7 @@ begin
 
   FDmMain.Free;
   ExcludedFileList.Free;
+  FMessageForm.Free;
   FLogger.Free;
 end;
 
@@ -520,6 +534,7 @@ begin
   ShowChildForm(frmCompose);
 end;
 
+
 procedure TfrmMain.ShowPreviewForm;
 begin
   ShowChildForm(frmPreview);
@@ -546,6 +561,47 @@ begin
   AForm.Show;
   lblTitle.Caption := AForm.Caption;
   FActiveForm := AForm;
+end;
+
+procedure TfrmMain.ShowErrorMessage(
+  const AMsgCaption,
+  AProcName,
+  AErrorMsg,
+  ACallStack: String);
+var
+  LErrorMsg: String;
+begin
+  LErrorMsg := TUtils.FormatErrorMessage(AProcName, AErrorMsg, ACallStack);
+  FMessageForm.lblCaption.LeftText := AMsgCaption;
+  FMessageForm.MessageImage.ImageIndex := 87;
+  FMessageForm.MessageImage.ImageColor := $004040FF;
+  FMessageForm.memError.Visible := True;
+  FMessageForm.lblMessage.Visible := False;
+  FMessageForm.memError.Text := LErrorMsg;
+  FMessageForm.btnCancel.Visible := False;
+  FMessageForm.ShowModal;
+end;
+
+procedure TfrmMain.ShowInfoMessage(const AMsgCaption, AMsg: String);
+begin
+  FMessageForm.lblCaption.LeftText := AMsgCaption;
+  FMessageForm.lblMessage.Caption := AMsg;
+  FMessageForm.btnCancel.Visible := False;
+  FMessageForm.memError.Visible := False;
+  FMessageForm.lblMessage.Visible := True;
+  FMessageForm.ShowModal;
+end;
+
+function TfrmMain.ShowQuestionMessage(const AMsgCaption, AMsg: String): Integer;
+begin
+  FMessageForm.lblCaption.LeftText  := AMsgCaption;
+  FMessageForm.MessageImage.ImageIndex := 89;
+  FMessageForm.btnCancel.Visible := True;
+  FMessageForm.lblMessage.Caption := AMsg;
+  FMessageForm.memError.Visible := False;
+  FMessageForm.lblMessage.Visible := True;
+  FMessageForm.ShowModal;
+  Result := FMessageForm.ModalResult;
 end;
 
 end.

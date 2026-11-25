@@ -188,6 +188,10 @@
             <Form>frmPreview</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="..\Source\Messageu.pas">
+            <Form>frmMessage</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

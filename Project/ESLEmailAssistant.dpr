@@ -25,7 +25,8 @@ uses
   BaseFormu in '..\Source\BaseFormu.pas' {frmBase},
   Authorizeu in '..\Source\Authorizeu.pas' {frmAuthorize},
   SendEmailsu in '..\Source\SendEmailsu.pas' {frmSendEmails},
-  Previewu in '..\Source\Previewu.pas' {frmPreview};
+  Previewu in '..\Source\Previewu.pas' {frmPreview},
+  Messageu in '..\Source\Messageu.pas' {frmMessage};
 
 {$R *.res}
 

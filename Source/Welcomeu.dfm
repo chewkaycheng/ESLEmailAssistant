@@ -62,7 +62,6 @@ object frmWelcome: TfrmWelcome
     StyleElements = [seFont, seClient]
     TabOrder = 0
     VisualStyle = vsClassic
-    ExplicitTop = 429
     object stpLeft: TRzStatusPane
       Left = 1
       Top = 1
@@ -96,7 +95,6 @@ object frmWelcome: TfrmWelcome
     DoubleBuffered = True
     CornerRadius = 0
     BorderEdges = [beTop]
-    ExplicitTop = 359
     object btnNewSession: TCWSButton
       AlignWithMargins = True
       Left = 502
@@ -170,6 +168,43 @@ object frmWelcome: TfrmWelcome
       ImageIndex = 1
       ImageIndexPressed = 1
       OnClick = btnResumeSessionClick
+    end
+    object CWSButton1: TCWSButton
+      AlignWithMargins = True
+      Left = 362
+      Top = 7
+      Width = 133
+      Height = 34
+      Margins.Top = 7
+      Margins.Right = 4
+      Margins.Bottom = 7
+      Align = alRight
+      TabOrder = 2
+      ButtonStyle = bsCustom
+      IconFontName = 'Segoe MDL2 Assets'
+      BckNormalColor = 12413967
+      BckHoverColor = 10706449
+      BckPressedColor = 6175500
+      BorderColorNormal = 12413967
+      BorderColorHover = 10706449
+      BorderColorPressed = 6175500
+      Caption = 'New Session'
+      IconColorNormal = clWhite
+      IconColorHover = clWhite
+      IconColorPressed = clWhite
+      CaptionColorNormal = clWhite
+      CaptionColorHover = clWhite
+      CaptionColorPressed = clWhite
+      BckDisabledColor = 15790320
+      BorderColorDisabled = 14737632
+      CaptionColorDisabled = 12434877
+      IconColorDisabled = 12434877
+      IconMode = icmImageList
+      Images = SVGIconImageList1
+      ImageIndex = 0
+      ImageIndexPressed = 0
+      OnClick = CWSButton1Click
+      ExplicitLeft = 502
     end
   end
   object SVGIconImageList1: TSVGIconImageList

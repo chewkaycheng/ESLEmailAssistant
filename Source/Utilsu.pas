@@ -72,6 +72,11 @@ type
 
     class procedure EnsureDirectoryCreated(ADirectory: String);
     class procedure SetButtonColors(AButton: TCWSButton);
+
+    class function FormatErrorMessage(
+      AProcName: String;
+      AErrorMsg: String;
+      ACallStack: String): String;
   end;
 
 implementation
@@ -191,6 +196,19 @@ begin
   if Not(TDirectory.Exists(ADirectory)) then begin
     TDirectory.CreateDirectory(ADirectory);
   end;
+end;
+
+class function TUtils.FormatErrorMessage(
+  AProcName,
+  AErrorMsg,
+  ACallStack: String): String;
+begin
+  Result := 'An Error has occurred in the application. Please copy the ' +
+            'error message, paste into a text document and send to ' +
+            'tech support.' + #13#10 + #13#10;
+  Result := Result + 'Procedure/Function: ' + AProcName + #13#10;
+  Result := Result + 'Error Message: ' + AErrorMsg + #13#10 + #13#10;
+  Result := Result + 'Call Stack: ' + ACallStack;
 end;
 
 class procedure TUtils.SetButtonColors(AButton: TCWSButton);

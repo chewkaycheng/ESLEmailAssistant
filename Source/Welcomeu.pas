@@ -36,11 +36,13 @@ type
     stpRight: TRzStatusPane;
     btnNewSession: TCWSButton;
     btnResumeSession: TCWSButton;
+    CWSButton1: TCWSButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnNewSessionClick(Sender: TObject);
     procedure btnResumeSessionClick(Sender: TObject);
+    procedure CWSButton1Click(Sender: TObject);
   private
     { Private declarations }
     FParentForm: TfrmMain;
@@ -180,6 +182,24 @@ begin
     FParentForm.ShowPreviewForm;
   end else begin
     FParentForm.ShowRecipientsForm;
+  end;
+end;
+
+procedure TfrmWelcome.CWSButton1Click(Sender: TObject);
+var
+  SL: TStringList;
+begin
+  try
+    SL.Text := 'rrl';
+  except
+    On E:Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmWelcome.CWSButton1Click',
+        E.Message,
+        E.StackTrace
+      )
+    end;
   end;
 end;
 
