@@ -203,8 +203,8 @@ class function TUtils.FormatErrorMessage(
   AErrorMsg,
   ACallStack: String): String;
 begin
-  Result := 'An Error has occurred in the application. Please copy the ' +
-            'error message, paste into a text document and send to ' +
+  Result := 'An Error has occurred in the application. Click on the Copy Error ' +
+            'button to copy the message to notepad, then save the file and send to ' +
             'tech support.' + #13#10 + #13#10;
   Result := Result + 'Procedure/Function: ' + AProcName + #13#10;
   Result := Result + 'Error Message: ' + AErrorMsg + #13#10 + #13#10;
