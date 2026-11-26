@@ -40,15 +40,21 @@ type
   public
   end;
 
+var
+  frmMessage: TfrmMessage;
+
 implementation
 
 uses
   System.IOUtils,
+  System.Generics.Collections,
+
+  Winapi.ShellAPI,
+
   CWSFluentColorsMulti,
 
   Constsu,
-  Utilsu,
-  Winapi.ShellAPI, System.Generics.Collections;
+  Utilsu;
 
 {$R *.dfm}
 
@@ -81,20 +87,13 @@ var
   I: Integer;
 begin
   Self.Color := flNeutralBackground1;
-  TCWSMemo(memError).BackgroundColor := flNeutralBackground2;
-  TCWSMemo(memError).BackgroundFocusColor := flNeutralBackground2;
-  TCWSMemo(memError).BackgroundHoverColor := flNeutralBackground1Hover;
-  TCWSMemo(memError).BorderColor := flNeutralStroke1;
-  TCWSMemo(memError).DisabledColor := flNeutralBackgroundDisabled;
-  TCWSMemo(memError).DisabledBorderColor := flNeutralStrokeDisabled;
-  TCWSMemo(memError).LabelColor := flNeutralForeground2;
-  TCWSMemo(memError).AccentColor := flNeutralForeground2BrandPressed;
-  TCWSMemo(memError).Font.Color := flNeutralForeground1;
 
   TUtils.SetStatusBarColor(sbMain);
   TUtils.SetPanelColor(pnlTitle);
   TUtils.SetPanelColor(pnlButtons);
+  TUtils.SetMemoColor(memError);
   lblCaption.LeftFont.Color := flNeutralForeground1;
+
   for I := 0 to ComponentCount - 1 do  begin
     LComp := Components[I];
     if LComp is TRzLabel then begin

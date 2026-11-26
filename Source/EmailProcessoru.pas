@@ -54,13 +54,21 @@ type
 
   TEmailException = class
   private
+    FProcName: String;
     FErrorMsg: String;
+    FStackTrace: String;
     FCriticalSection: TCriticalSection;
   public
     constructor Create;
-    destructor Destroy;
-    procedure GetErrorMsg(var AErrorMsg: String);
-    procedure SetErrorMsg(AErrorMsg: String);
+    destructor Destroy; override;
+    procedure GetErrorInfo(
+      var AProcName: String;
+      var AErrorMsg: String;
+      var AStackTrace: String);
+    procedure SetErrorInfo(
+      AProcName: String;
+      AErrorMsg: String;
+      AStackTrace: String);
   end;
 
   TCurrentInfo = class
@@ -73,7 +81,7 @@ type
     FCriticalSection: TCriticalSection;
   public
     constructor Create;
-    destructor Destroy;
+    destructor Destroy; override;
     procedure GetInfo(
       var AStudentName,
           ATeacherName,
@@ -100,6 +108,8 @@ type
     FOnProgress: TNotifyEvent;
     FOnStatusMessage: TProc<String>;
     FMailDirectory: String;
+    FParent: TComponent;
+    FEmailException: TEmailException;
     procedure LogMessage(const AMsg: String);
   public
     property MailDirectory: String
@@ -111,7 +121,9 @@ type
     property OnStatusMessage: TProc<String>
       read FOnStatusMessage write FOnStatusMessage;
 
-    constructor Create;
+    constructor Create(
+      AComponent: TComponent;
+      AEmailException: TEmailException);
     destructor Destroy; override;
 
     procedure ProcessCheckpointFile(
@@ -199,29 +211,76 @@ end;
 
 { TEmailProcessor }
 
-constructor TEmailProcessor.Create;
+constructor TEmailProcessor.Create(
+  AComponent: TComponent;
+  AEmailException: TEmailException);
 begin
-  FEmailDirectory := TPath.Combine(
-    TPath.GetDirectoryName(
-      ExtractFilePath(Application.ExeName)), 'EmailDirectory');
+  FParent := AComponent;
+  FEmailException := AEmailException;
+  try
+    FEmailDirectory := TPath.Combine(
+      TPath.GetDirectoryName(
+        ExtractFilePath(Application.ExeName)), 'EmailDirectory');
 
-  if Not(TDirectory.Exists(FEMailDirectory)) then
-    TDirectory.CreateDirectory(FEmailDirectory);
+    if Not(TDirectory.Exists(FEMailDirectory)) then
+      TDirectory.CreateDirectory(FEmailDirectory);
 
-  FSendResult.FailedEmails := TObjectList<TFailedEmail>.Create(True);
-  FSendResult.Clear;
+    FSendResult.FailedEmails := TObjectList<TFailedEmail>.Create(True);
+    FSendResult.Clear;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FEmailException.SetErrorInfo(
+        'TEmailProcessor.Create',
+        E.Message,
+        E.StackTrace);
+      PostMessage(TForm(FParent).Handle, WM_SHOW_SEND_ERROR, 0, 0);
+    end;
+    {$ENDIF}
+  end;
 end;
 
 destructor TEmailProcessor.Destroy;
 begin
-  FSendResult.FailedEmails.Free;
+  try
+    FSendResult.FailedEmails.Free;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FEmailException.SetErrorInfo(
+        'TEmailProcessor.Destroy',
+        E.Message,
+        E.StackTrace);
+      PostMessage(TForm(FParent).Handle, WM_SHOW_SEND_ERROR, 0, 0);
+    end;
+    {$ENDIF}
+  end;
   inherited;
 end;
 
 procedure TEmailProcessor.LogMessage(const AMsg: String);
 begin
-  if Assigned(FOnStatusMessage) then
-    FOnStatusMessage(AMsg);
+  try
+    if Assigned(FOnStatusMessage) then
+      FOnStatusMessage(AMsg);
+
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FEmailException.SetErrorInfo(
+        'TEmailProcessor.LogMessage',
+        E.Message,
+        E.StackTrace);
+      PostMessage(TForm(FParent).Handle, WM_SHOW_SEND_ERROR, 0, 0);
+    end;
+    {$ENDIF}
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -404,25 +463,40 @@ begin
   LSL := TStringList.Create;
   Result := '';
   try
-    // Properly handle language file vs English file
-    if SameText(ALanguage, 'English') then begin
-      if FileExists(LEnglishFile) then begin
-        LSL.LoadFromFile(LEnglishFile, TEncoding.UTF8);
-        Result := LSL.Text;
-      end;
-    end else begin
-      // Try the language-specific file first
-      if FileExists(LLanguageFile) then begin
-        LSL.LoadFromFile(LLanguageFile, TEncoding.UTF8);
-        Result := LSL.Text;
+  try
+      // Properly handle language file vs English file
+      if SameText(ALanguage, 'English') then begin
+        if FileExists(LEnglishFile) then begin
+          LSL.LoadFromFile(LEnglishFile, TEncoding.UTF8);
+          Result := LSL.Text;
+        end;
+      end else begin
+        // Try the language-specific file first
+        if FileExists(LLanguageFile) then begin
+          LSL.LoadFromFile(LLanguageFile, TEncoding.UTF8);
+          Result := LSL.Text;
+        end;
+
+         // If no language-specific file or it's empty, fall back to English
+         if (Length(Result) = 0) and FileExists(LEnglishFile) then begin
+           LSL.LoadFromFile(LEnglishFile, TEncoding.UTF8);
+           Result := LSL.Text;
+         end;
       end;
 
-       // If no language-specific file or it's empty, fall back to English
-       if (Length(Result) = 0) and FileExists(LEnglishFile) then begin
-         LSL.LoadFromFile(LEnglishFile, TEncoding.UTF8);
-         Result := LSL.Text;
-       end;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FEmailException.SetErrorInfo(
+        'TEmailProcessor.ProcessMailMessage',
+        E.Message,
+        E.StackTrace);
+      PostMessage(TForm(FParent).Handle, WM_SHOW_SEND_ERROR, 0, 0);
     end;
+    {$ENDIF}
+  end;
   finally
     LSL.Free;
   end;
@@ -430,32 +504,47 @@ begin
   // Apply token substitution
   LReplaceList := TObjectList<TTemplateVar>.Create(True);
   try
-    LTemplateVar := TTemplateVar.Create;
-    LTemplateVar.OldPattern := '{TeacherName}';
-    LTemplateVar.NewPattern := ATeacherName;
-    LReplaceList.Add(LTemplateVar);
+  try
+      LTemplateVar := TTemplateVar.Create;
+      LTemplateVar.OldPattern := '{TeacherName}';
+      LTemplateVar.NewPattern := ATeacherName;
+      LReplaceList.Add(LTemplateVar);
 
-    LTemplateVar := TTemplateVar.Create;
-    LTemplateVar.OldPattern := '{ClassLevel}';
-    LTemplateVar.NewPattern := AClassLevel;
-    LReplaceList.Add(LTemplateVar);
+      LTemplateVar := TTemplateVar.Create;
+      LTemplateVar.OldPattern := '{ClassLevel}';
+      LTemplateVar.NewPattern := AClassLevel;
+      LReplaceList.Add(LTemplateVar);
 
-    LTemplateVar := TTemplateVar.Create;
-    LTemplateVar.OldPattern := '{Room}';
-    LTemplateVar.NewPattern := ARoomName;
-    LReplaceList.Add(LTemplateVar);
+      LTemplateVar := TTemplateVar.Create;
+      LTemplateVar.OldPattern := '{Room}';
+      LTemplateVar.NewPattern := ARoomName;
+      LReplaceList.Add(LTemplateVar);
 
-    LTemplateVar := TTemplateVar.Create;
-    LTemplateVar.OldPattern := '{StudentName}';
-    LTemplateVar.NewPattern := AStudentName;
-    LReplaceList.Add(LTemplateVar);
+      LTemplateVar := TTemplateVar.Create;
+      LTemplateVar.OldPattern := '{StudentName}';
+      LTemplateVar.NewPattern := AStudentName;
+      LReplaceList.Add(LTemplateVar);
 
-    LTemplateVar := TTemplateVar.Create;
-    LTemplateVar.OldPattern := '{ChildcareLevel}';
-    LTemplateVar.NewPattern := AChildcareLevel;
-    LReplaceList.Add(LTemplateVar);
+      LTemplateVar := TTemplateVar.Create;
+      LTemplateVar.OldPattern := '{ChildcareLevel}';
+      LTemplateVar.NewPattern := AChildcareLevel;
+      LReplaceList.Add(LTemplateVar);
 
-    Result := TemplateReplace(Result, LReplaceList);
+      Result := TemplateReplace(Result, LReplaceList);
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FEmailException.SetErrorInfo(
+        'TEmailProcessor.ProcessMailMessage',
+        E.Message,
+        E.StackTrace);
+      PostMessage(TForm(FParent).Handle, WM_SHOW_SEND_ERROR, 0, 0);
+    end;
+    {$ENDIF}
+  end;
+
   finally
     LReplaceList.Free;
   end;
@@ -469,13 +558,28 @@ var
   I: Integer;
   LTemplateVar: TTemplateVar;
 begin
-  Result := AInputStr;
-  for I := 0 to AReplaceList.Count - 1 do begin
-    LTemplateVar := AReplaceList.Items[I];
-    Result := StringReplace(Result,
-                            LTemplateVar.OldPattern,
-                            LTemplateVar.NewPattern,
-                            [rfReplaceAll, rfIgnoreCase]);
+  try
+    Result := AInputStr;
+    for I := 0 to AReplaceList.Count - 1 do begin
+      LTemplateVar := AReplaceList.Items[I];
+      Result := StringReplace(Result,
+                              LTemplateVar.OldPattern,
+                              LTemplateVar.NewPattern,
+                              [rfReplaceAll, rfIgnoreCase]);
+    end;
+
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FEmailException.SetErrorInfo(
+        'TEmailProcessor.TemplateReplace',
+        E.Message,
+        E.StackTrace);
+      PostMessage(TForm(FParent).Handle, WM_SHOW_SEND_ERROR, 0, 0);
+    end;
+    {$ENDIF}
   end;
 end;
 
@@ -486,20 +590,35 @@ var
 begin
   LSL := TStringList.Create;
   try
-    if FSendResult.FailedEmails.Count = 0 then begin
-      Result := 'No failed emails.';
-      Exit;
-    end;
+  try
+      if FSendResult.FailedEmails.Count = 0 then begin
+        Result := 'No failed emails.';
+        Exit;
+      end;
 
-    LSL.Add('Failed Emails:');
-    LSL.Add('---');
-    for LFailed in FSendResult.FailedEmails do begin
-      LSL.Add(Format(
-        'Name: %s | Email: %s | Attempts: %d | Error: %s',
-        [LFailed.StudentName, LFailed.EmailAddress,
-         LFailed.AttemptCount, LFailed.ErrorMessage]));
+      LSL.Add('Failed Emails:');
+      LSL.Add('---');
+      for LFailed in FSendResult.FailedEmails do begin
+        LSL.Add(Format(
+          'Name: %s | Email: %s | Attempts: %d | Error: %s',
+          [LFailed.StudentName, LFailed.EmailAddress,
+           LFailed.AttemptCount, LFailed.ErrorMessage]));
+      end;
+      Result := LSL.Text;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FEmailException.SetErrorInfo(
+        'TEmailProcessor.GetFailedEmailsAsText',
+        E.Message,
+        E.StackTrace);
+      PostMessage(TForm(FParent).Handle, WM_SHOW_SEND_ERROR, 0, 0);
     end;
-    Result := LSL.Text;
+    {$ENDIF}
+  end;
+
   finally
     LSL.Free;
   end;
@@ -834,7 +953,10 @@ begin
       PostMessage(FParentHandle, WM_SEND_EMAILS_COMPLETED, 0, 0);
     except
       On E:Exception do begin
-        FEmailException.SetErrorMsg(E.Message);
+        FEmailException.SetErrorInfo(
+          'TEmailProcessThread.Execute',
+          E.Message,
+          E.StackTrace);
         PostMessage(FParentHandle, WM_SHOW_SEND_ERROR, 0, 0);
       end;
     end;
@@ -860,21 +982,31 @@ begin
   end;
 end;
 
-procedure TEmailException.GetErrorMsg(var AErrorMsg: String);
+procedure TEmailException.GetErrorInfo(
+  var AProcName: String;
+  var AErrorMsg: String;
+  var AStackTrace: String);
 begin
   FCriticalSection.Enter;
   try
+    AProcName := FProcName;
     AErrorMsg := FErrorMsg;
+    AStackTrace := FStackTrace;
   finally
     FCriticalSection.Leave;
   end;
 end;
 
-procedure TEmailException.SetErrorMsg(AErrorMsg: String);
+procedure TEmailException.SetErrorInfo(
+  AProcName: String;
+  AErrorMsg: String;
+  AStackTrace: String);
 begin
   FCriticalSection.Enter;
   try
+    FProcName := AProcName;
     FErrorMsg := AErrorMsg;
+    FStackTrace := AStackTrace;
   finally
     FCriticalSection.Leave;
   end;

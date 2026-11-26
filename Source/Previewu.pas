@@ -31,6 +31,7 @@ uses
   SVGIconImageListBase,
   SVGIconImageList,
 
+  Constsu,
   BaseFormu,
   EmailProcessoru,
   Mainu;
@@ -81,7 +82,6 @@ uses
   CWSFluentColorsMulti,
   RzCommon,
 
-  Constsu,
   Utilsu;
 
 procedure TfrmPreview.FormCreate(Sender: TObject);
@@ -97,6 +97,9 @@ begin
   FSLStudents := TStringList.Create;
   cboStudent.Font.Size := InputFontSize;
   TUtils.AdjustButtonsPanel(pnlButtons);
+  FEmailProcessor := TEmailProcessor.Create(
+    Self,
+    FEmailException);
 end;
 
 procedure TfrmPreview.FormDestroy(Sender: TObject);
@@ -228,7 +231,6 @@ begin
   finally
     LLines.Free;
   end;
-
 end;
 
 procedure TfrmPreview.ScrollPreviewToTop(Sender: TObject);

@@ -1,35 +1,36 @@
 object dmMain: TdmMain
-  Height = 480
-  Width = 640
+  Height = 720
+  Width = 960
+  PixelsPerInch = 144
   object conMain: TFDConnection
-    Left = 24
-    Top = 147
+    Left = 36
+    Top = 221
   end
   object lnkMain: TFDPhysFBDriverLink
-    Left = 24
-    Top = 16
+    Left = 36
+    Top = 24
   end
   object txMain: TFDTransaction
     Connection = conMain
-    Left = 25
-    Top = 83
+    Left = 38
+    Top = 125
   end
   object qryStudents: TFDQuery
     Connection = conMain
     Transaction = txMain
-    Left = 21
-    Top = 215
+    Left = 32
+    Top = 323
   end
   object curMain: TFDGUIxWaitCursor
     Provider = 'Forms'
-    Left = 91
-    Top = 17
+    Left = 137
+    Top = 26
   end
   object qryCountries: TFDQuery
     Connection = conMain
     Transaction = txMain
-    Left = 105
-    Top = 81
+    Left = 158
+    Top = 122
   end
   object mtCountries: TFDMemTable
     Active = True
@@ -61,8 +62,8 @@ object dmMain: TdmMain
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
     StoreDefs = True
-    Left = 105
-    Top = 148
+    Left = 158
+    Top = 222
     object mtCountriesCountryName: TStringField
       DisplayLabel = 'Country Name'
       DisplayWidth = 32
@@ -88,8 +89,8 @@ object dmMain: TdmMain
   end
   object dsCountries: TDataSource
     DataSet = mtCountries
-    Left = 105
-    Top = 220
+    Left = 158
+    Top = 330
   end
   object mtClassLevels: TFDMemTable
     Active = True
@@ -100,8 +101,8 @@ object dmMain: TdmMain
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 203
-    Top = 149
+    Left = 305
+    Top = 224
     object mtClassLevelsCLASSLEVELNAME: TStringField
       DisplayLabel = 'Class Level'
       DisplayWidth = 32
@@ -116,18 +117,18 @@ object dmMain: TdmMain
   end
   object qryClassLevels: TFDQuery
     Connection = conMain
-    Left = 205
-    Top = 80
+    Left = 308
+    Top = 120
   end
   object dsClassLevels: TDataSource
     DataSet = mtClassLevels
-    Left = 200
-    Top = 221
+    Left = 300
+    Top = 332
   end
   object qryStudentCount: TFDQuery
     Connection = conMain
     Transaction = txMain
-    Left = 21
-    Top = 281
+    Left = 32
+    Top = 422
   end
 end

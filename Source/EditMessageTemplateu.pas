@@ -1,4 +1,4 @@
-unit EditMessageTemplateu;
+﻿unit EditMessageTemplateu;
 
 interface
 
@@ -175,95 +175,126 @@ uses
 
 {$R *.dfm}
 
-procedure TfrmEditMessageTemplate.FileExitExecute(Sender: TObject);
+procedure TfrmEditMessageTemplate.FormCreate(Sender: TObject);
+var
+  LHighlighter: TSynHighlighterEmailTokens;
 begin
-  Close;
-end;
+  try
+    RegisterThemeChange(Self.ApplyTheme);
+    FluentApplySystemTheme;
 
-procedure TfrmEditMessageTemplate.FileSaveExecute(Sender: TObject);
-begin
-  if not(FUserEdited) or (Length(Trim(edtMessageTemplate.Text)) = 0) then Exit;
-  //edtMessageTemplate.PlainText := True;
-  edtMessageTemplate.Lines.SaveToFile(FSourceFile, TEncoding.UTF8);
-  FUserEdited := False;
-  stpLeft.Caption :=  'Saved: ' + FSourceFile;
-  UpdateStatusBar;
+    Width  := MulDiv(860, Screen.PixelsPerInch, 96);
+    Height := MulDiv(700, Screen.PixelsPerInch, 96);
+
+    LHighlighter := TSynHighlighterEmailTokens.Create(Self);
+    edtMessageTemplate.Highlighter := LHighlighter;
+    popMenuTemplate.FOnt.Size := 9;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmEditMessageTemplate.FormCreate',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmEditMessageTemplate.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
-  if FUserEdited then begin
-    if Length(Trim(edtMessageTemplate.Text)) = 0 then begin
-      ShowMessage('There is no content in the email message. The file will not be saved.');
-      Close;
-    end else begin
-      if (MessageDlg(
-        'The file ' + FLanguage + '.txt has been modified. ' +  #10#13 +
-        'Do you wish to save the file?',
-       TMsgDlgType.mtConfirmation,
-       [mbYes, mbNo], 0, mbNo)) = mrYes then begin
-        edtMessageTemplate.Lines.SaveToFile(FSourceFile, TEncoding.UTF8);
-        FUserEdited := False;
+  try
+    if FUserEdited then begin
+      if Length(Trim(edtMessageTemplate.Text)) = 0 then begin
+        ShowMessage('There is no content in the email message. The file will not be saved.');
+        Close;
+      end else begin
+        if (MessageDlg(
+          'The file ' + FLanguage + '.txt has been modified. ' +  #10#13 +
+          'Do you wish to save the file?',
+         TMsgDlgType.mtConfirmation,
+         [mbYes, mbNo], 0, mbNo)) = mrYes then begin
+          edtMessageTemplate.Lines.SaveToFile(FSourceFile, TEncoding.UTF8);
+          FUserEdited := False;
+        end;
       end;
     end;
+    edtMessageTemplate.Text := '';
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmEditMessageTemplate.FormClose',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
-  edtMessageTemplate.Text := '';
-end;
 
-procedure TfrmEditMessageTemplate.FormCreate(Sender: TObject);
-var
-  LHighlighter: TSynHighlighterEmailTokens;
-begin
-  RegisterThemeChange(Self.ApplyTheme);
-  FluentApplySystemTheme;
-
-  Width  := MulDiv(860, Screen.PixelsPerInch, 96);
-  Height := MulDiv(700, Screen.PixelsPerInch, 96);
-
-  LHighlighter := TSynHighlighterEmailTokens.Create(Self);
-  edtMessageTemplate.Highlighter := LHighlighter;
-  popMenuTemplate.FOnt.Size := 9;
 end;
 
 procedure TfrmEditMessageTemplate.FormShow(Sender: TObject);
 begin
-  ScaleForPPI(CurrentPPI);
-  Caption := 'Edit Message Template (Language: ' +
-             Uppercase(FLanguage) + ')';
+  try
+    ScaleForPPI(CurrentPPI);
+    Caption := 'Edit Message Template (Language: ' +
+               Uppercase(FLanguage) + ')';
 
-  FHighlighting := False;
-  FUserEdited := False;
-  NotifyThemeChange;
+    FHighlighting := False;
+    FUserEdited := False;
+    NotifyThemeChange;
 
-  if Pos('.txt', FLanguage) > 0 then begin
-    FSourceFile := IncludeTrailingPathDelimiter(
-      FParentForm.FullSourceFilesDir) + FLanguage;
-  end else begin
-    FSourceFile := IncludeTrailingPathDelimiter(
-      FParentForm.FullSourceFilesDir) + FLanguage + '.txt';
+    if Pos('.txt', FLanguage) > 0 then begin
+      FSourceFile := IncludeTrailingPathDelimiter(
+        FParentForm.FullSourceFilesDir) + FLanguage;
+    end else begin
+      FSourceFile := IncludeTrailingPathDelimiter(
+        FParentForm.FullSourceFilesDir) + FLanguage + '.txt';
+    end;
+    if TFile.Exists(FSourceFile) then begin
+      //edtMessageTemplate.PlainText := True;
+      edtMessageTemplate.Lines.LoadFromFile(FSourceFile, TEncoding.UTF8);
+      edtMessageTemplate.ClearUndo;
+    end else begin
+      edtMessageTemplate.Clear;
+      edtMessageTemplate.ClearUndo;
+    end;
+
+    stpLeft.Caption := 'Editing ' + FSourceFile;
+
+    lblInstructions.Caption := Format('Copy the %s content of the message template ' +
+      'from the source document and paste below.' + #13#10 +
+      'Right click to insert a Student Name token, a Teacher Name token, etc.',
+        [UpperCase(FLanguage)]);
+    UpdateStatusBar;
+
+    // Reset after load+highlight so initial state is clean
+    FUserEdited := False;
+    FileSave.Enabled := False;
+    btnSave.Enabled := False;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmEditMessageTemplate.FormShow',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
-  if TFile.Exists(FSourceFile) then begin
-    //edtMessageTemplate.PlainText := True;
-    edtMessageTemplate.Lines.LoadFromFile(FSourceFile, TEncoding.UTF8);
-    edtMessageTemplate.ClearUndo;
-  end else begin
-    edtMessageTemplate.Clear;
-    edtMessageTemplate.ClearUndo;
-  end;
-
-  stpLeft.Caption := 'Editing ' + FSourceFile;
-
-  lblInstructions.Caption := Format('Copy the %s content of the message template ' +
-    'from the source document and paste below.' + #13#10 +
-    'Right click to insert a Student Name token, a Teacher Name token, etc.',
-      [UpperCase(FLanguage)]);
-  UpdateStatusBar;
-
-  // Reset after load+highlight so initial state is clean
-  FUserEdited := False;
-  FileSave.Enabled := False;
-  btnSave.Enabled := False;
 
 //  if FluentThemeMode = ftmDark  then begin
 //     mmMain.ThemeKind := TDaisyThemeKind.dtDark;
@@ -273,21 +304,101 @@ begin
 
 end;
 
+procedure TfrmEditMessageTemplate.FormDestroy(Sender: TObject);
+begin
+  try
+    UnregisterThemeChange(Self.ApplyTheme);
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmEditMessageTemplate.FormDestroy',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
+end;
+
+procedure TfrmEditMessageTemplate.FileExitExecute(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TfrmEditMessageTemplate.FileSaveExecute(Sender: TObject);
+begin
+  try
+    if not(FUserEdited) or (Length(Trim(edtMessageTemplate.Text)) = 0) then Exit;
+    //edtMessageTemplate.PlainText := True;
+    edtMessageTemplate.Lines.SaveToFile(FSourceFile, TEncoding.UTF8);
+    FUserEdited := False;
+    stpLeft.Caption :=  'Saved: ' + FSourceFile;
+    UpdateStatusBar;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmEditMessageTemplate.FileSaveExecute',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
+end;
+
 procedure TfrmEditMessageTemplate.InsertToken(AToken: String);
 var
   LSelStart: Integer;
 begin
-  LSelStart := edtMessageTemplate.SelStart;
-  edtMessageTemplate.SelLength := 0;
-  edtMessageTemplate.SelText := AToken;
-  edtMessageTemplate.SelStart := LSelStart + Length(AToken);
-  edtMessageTemplate.SelLength := 0;
-  edtMessageTemplate.SetFocus;
+  try
+    LSelStart := edtMessageTemplate.SelStart;
+    edtMessageTemplate.SelLength := 0;
+    edtMessageTemplate.SelText := AToken;
+    edtMessageTemplate.SelStart := LSelStart + Length(AToken);
+    edtMessageTemplate.SelLength := 0;
+    edtMessageTemplate.SetFocus;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmEditMessageTemplate.InsertToken',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmEditMessageTemplate.RoomNumberExecute(Sender: TObject);
 begin
-  InsertToken('{Room}');
+  try
+    InsertToken('{Room}');
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmEditMessageTemplate.RoomNumberExecute',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmEditMessageTemplate.SetParentForm(AParent: TfrmMain);
@@ -297,44 +408,149 @@ end;
 
 procedure TfrmEditMessageTemplate.StudentNameExecute(Sender: TObject);
 begin
-  InsertToken('{StudentName}');
+  try
+    InsertToken('{StudentName}');
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmEditMessageTemplate.StudentNameExecute',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmEditMessageTemplate.TeacherNameExecute(Sender: TObject);
 begin
-  InsertToken('{TeacherName}');
+  try
+    InsertToken('{TeacherName}');
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmEditMessageTemplate.TeacherNameExecute',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmEditMessageTemplate.UpdateStatusBar;
 begin
-  stpRight.Caption :=  Format('Lines: %d', [edtMessageTemplate.Lines.Count]);
+  try
+    stpRight.Caption :=  Format('Lines: %d', [edtMessageTemplate.Lines.Count]);
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmEditMessageTemplate.UpdateStatusBar',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmEditMessageTemplate.btnPopupClick(Sender: TObject);
 var
   P: TPoint;
 begin
-  P := btnPopup.ClientToScreen(Point(0, btnPopup.Height));
-  popMenuTemplate.Popup(P.X, P.Y);
+  try
+    P := btnPopup.ClientToScreen(Point(0, btnPopup.Height));
+    popMenuTemplate.Popup(P.X, P.Y);
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmEditMessageTemplate.btnPopupClick',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmEditMessageTemplate.ChildcareExecute(Sender: TObject);
 begin
-  InsertToken('{ChildcareLevel}');
+  try
+    InsertToken('{ChildcareLevel}');
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmEditMessageTemplate.ChildcareExecute',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmEditMessageTemplate.ClassLevelExecute(Sender: TObject);
 begin
-  InsertToken('{ClassLevel}');
+  try
+    InsertToken('{ClassLevel}');
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmEditMessageTemplate.ClassLevelExecute',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmEditMessageTemplate.edtMessageTemplateChange(Sender: TObject);
 begin
-  UpdateStatusBar;
-  // Only flag as edited if this is a user change, not our highlighting
-  FUserEdited := True;
-  FileSave.Enabled := True;
-  btnSave.Enabled := True;
+  try
+    UpdateStatusBar;
+    // Only flag as edited if this is a user change, not our highlighting
+    FUserEdited := True;
+    FileSave.Enabled := True;
+    btnSave.Enabled := True;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmEditMessageTemplate.edtMessageTemplateChange',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmEditMessageTemplate.ApplyTheme;
@@ -342,53 +558,62 @@ var
   I: Integer;
   LComp: TComponent;
 begin
-  Self.Color := flNeutralBackground1;
-  TUtils.SetTitlebarColor(Self.CustomTitleBar);
-
-  for I := 0 to ComponentCount - 1 do begin
-    LComp := Components[i];
-
-    if LComp Is TSynEdit then begin
-      TUtils.SetSynEditColors(TSynEdit(LComp));
+  try
+    Self.Color := flNeutralBackground1;
+    TUtils.SetTitlebarColor(Self.CustomTitleBar);
+  
+    for I := 0 to ComponentCount - 1 do begin
+      LComp := Components[i];
+  
+      if LComp Is TSynEdit then begin
+        TUtils.SetSynEditColors(TSynEdit(LComp));
+      end;
+  
+      if LComp Is TRzStatusBar then begin
+        TUtils.SetStatusBarColor(TRzStatusBar(LComp));
+      end;
+  
+      if LComp Is TCWSPopupMenu then begin
+        TUtils.SetPopUpMenuColor(TCWSPopupMenu(LComp));
+      end;
+  
+      if LComp is TCWSSettingsPanel then begin
+        TUtils.SetPanelColor(TCWSSettingsPanel(LComp));
+      end;
+  
+      if LComp is TscGPButton then begin
+        TUtils.SetMenuButtonColor(TscGPButton(LComp));
+      end;
+  
+      if LComp is TCWSSettingsPanel then begin
+        TUtils.SetPanelColor(TCWSSettingsPanel(LComp));
+      end;
+  
+      if LComp is TRzLabel then begin
+        TUtils.SetLabelColor(TRzLabel(LComp));
+      end;
+  
+      if LComp is TRzToolbarButton then begin
+        TRzToolbarButton(LComp).Caption := '';
+        TRzToolbarButton(LComp).ShowCaption := False;
+      end;
     end;
 
-    if LComp Is TRzStatusBar then begin
-      TUtils.SetStatusBarColor(TRzStatusBar(LComp));
+    Invalidate;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmEditMessageTemplate.ApplyTheme',
+        E.Message,
+        E.StackTrace
+        );
     end;
-
-    if LComp Is TCWSPopupMenu then begin
-      TUtils.SetPopUpMenuColor(TCWSPopupMenu(LComp));
-    end;
-
-    if LComp is TCWSSettingsPanel then begin
-      TUtils.SetPanelColor(TCWSSettingsPanel(LComp));
-    end;
-
-    if LComp is TscGPButton then begin
-      TUtils.SetMenuButtonColor(TscGPButton(LComp));
-    end;
-
-    if LComp is TCWSSettingsPanel then begin
-      TUtils.SetPanelColor(TCWSSettingsPanel(LComp));
-    end;
-
-    if LComp is TRzLabel then begin
-      TUtils.SetLabelColor(TRzLabel(LComp));
-    end;
-
-    if LComp is TRzToolbarButton then begin
-      TRzToolbarButton(LComp).Caption := '';
-      TRzToolbarButton(LComp).ShowCaption := False;
-    end;
+    {$ENDIF}
   end;
-
-  Invalidate;
 end;
-
-procedure TfrmEditMessageTemplate .FormDestroy(Sender: TObject);
-begin
-  UnregisterThemeChange(Self.ApplyTheme);
-end;
-
 
 end.

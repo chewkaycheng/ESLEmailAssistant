@@ -316,7 +316,7 @@ end;
   HELPER METHODS
   ============================================================================ }
 procedure TfrmMain.SetupPathsAndFileNames;
-begin
+begin      
   // Create source_files directory if it does not exist
   FFullSourceFilesDir := IncludeTrailingPathDelimiter(
     ExtractFilePath(Application.ExeName)) + SourceFilesDir;

@@ -1,13 +1,17 @@
 object frmEditMessageTemplate: TfrmEditMessageTemplate
   Left = 0
   Top = 0
+  Margins.Left = 5
+  Margins.Top = 5
+  Margins.Right = 5
+  Margins.Bottom = 5
   Caption = 'Edit Email Message Template'
-  ClientHeight = 554
-  ClientWidth = 845
+  ClientHeight = 831
+  ClientWidth = 1268
   Color = clBtnFace
   CustomTitleBar.Control = brTitle
   CustomTitleBar.Enabled = True
-  CustomTitleBar.Height = 31
+  CustomTitleBar.Height = 45
   CustomTitleBar.SystemColors = False
   CustomTitleBar.SystemButtons = False
   CustomTitleBar.BackgroundColor = 13924352
@@ -24,51 +28,66 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
   CustomTitleBar.ButtonInactiveBackgroundColor = clWhite
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
+  Font.Height = -18
   Font.Name = 'Segoe UI'
   Font.Style = []
   GlassFrame.Enabled = True
-  GlassFrame.Top = 31
+  GlassFrame.Top = 45
   Position = poScreenCenter
   StyleElements = []
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  TextHeight = 15
+  PixelsPerInch = 144
+  TextHeight = 25
   object brTitle: TTitleBarPanel
     Left = 0
     Top = 0
-    Width = 845
-    Height = 30
+    Width = 1268
+    Height = 44
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     CustomButtons = <>
   end
   object pnlMenuButtons: TCWSSettingsPanel
     Left = 0
-    Top = 67
-    Width = 845
-    Height = 67
+    Top = 100
+    Width = 1268
+    Height = 100
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Align = alTop
     DoubleBuffered = True
     RoundedCorners = []
     BorderEdges = []
     object pnlRight: TCWSSettingsPanel
-      Left = 495
+      Left = 743
       Top = 0
-      Width = 339
-      Height = 67
+      Width = 508
+      Height = 100
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       Align = alLeft
       DoubleBuffered = True
       RoundedCorners = []
       BorderEdges = [beRight]
       object btnStudentName: TscGPButton
         AlignWithMargins = True
-        Left = 8
-        Top = 3
-        Width = 60
-        Height = 61
-        Margins.Left = 8
-        Margins.Right = 5
+        Left = 12
+        Top = 5
+        Width = 90
+        Height = 90
+        Margins.Left = 12
+        Margins.Top = 5
+        Margins.Right = 8
+        Margins.Bottom = 5
         Align = alLeft
         ParentShowHint = False
         FluentUIOpaque = False
@@ -80,7 +99,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Badge.ColorAlpha = 255
         Badge.Font.Charset = DEFAULT_CHARSET
         Badge.Font.Color = clWhite
-        Badge.Font.Height = -11
+        Badge.Font.Height = -17
         Badge.Font.Name = 'Tahoma'
         Badge.Font.Style = [fsBold]
         Badge.Visible = False
@@ -120,7 +139,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.FramePressedColor = clHighlight
         Options.FrameFocusedColor = clHighlight
         Options.FrameDisabledColor = clBtnShadow
-        Options.FrameWidth = 1
+        Options.FrameWidth = 2
         Options.FrameNormalColorAlpha = 255
         Options.FrameHotColorAlpha = 255
         Options.FramePressedColorAlpha = 255
@@ -134,10 +153,10 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.ShapeFillGradientAngle = 90
         Options.ShapeFillGradientPressedAngle = -90
         Options.ShapeFillGradientColorOffset = 25
-        Options.ShapeCornerRadius = 11
+        Options.ShapeCornerRadius = 17
         Options.ShapeStyle = scgpRect
         Options.ShapeStyleLineSize = 0
-        Options.ArrowSize = 9
+        Options.ArrowSize = 14
         Options.ArrowAreaSize = 0
         Options.ArrowType = scgpatDefault
         Options.ArrowThickness = 2
@@ -192,12 +211,14 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       end
       object btnChildcareLevel: TscGPButton
         AlignWithMargins = True
-        Left = 268
-        Top = 3
-        Width = 60
-        Height = 61
+        Left = 404
+        Top = 5
+        Width = 90
+        Height = 90
         Margins.Left = 0
-        Margins.Right = 5
+        Margins.Top = 5
+        Margins.Right = 8
+        Margins.Bottom = 5
         Align = alLeft
         ParentShowHint = False
         FluentUIOpaque = False
@@ -209,7 +230,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Badge.ColorAlpha = 255
         Badge.Font.Charset = DEFAULT_CHARSET
         Badge.Font.Color = clWhite
-        Badge.Font.Height = -11
+        Badge.Font.Height = -17
         Badge.Font.Name = 'Tahoma'
         Badge.Font.Style = [fsBold]
         Badge.Visible = False
@@ -249,7 +270,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.FramePressedColor = clHighlight
         Options.FrameFocusedColor = clHighlight
         Options.FrameDisabledColor = clBtnShadow
-        Options.FrameWidth = 1
+        Options.FrameWidth = 2
         Options.FrameNormalColorAlpha = 255
         Options.FrameHotColorAlpha = 255
         Options.FramePressedColorAlpha = 255
@@ -263,10 +284,10 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.ShapeFillGradientAngle = 90
         Options.ShapeFillGradientPressedAngle = -90
         Options.ShapeFillGradientColorOffset = 25
-        Options.ShapeCornerRadius = 11
+        Options.ShapeCornerRadius = 17
         Options.ShapeStyle = scgpRect
         Options.ShapeStyleLineSize = 0
-        Options.ArrowSize = 9
+        Options.ArrowSize = 14
         Options.ArrowAreaSize = 0
         Options.ArrowType = scgpatDefault
         Options.ArrowThickness = 2
@@ -321,12 +342,14 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       end
       object btnTeacherName: TscGPButton
         AlignWithMargins = True
-        Left = 73
-        Top = 3
-        Width = 60
-        Height = 61
+        Left = 110
+        Top = 5
+        Width = 90
+        Height = 90
         Margins.Left = 0
-        Margins.Right = 5
+        Margins.Top = 5
+        Margins.Right = 8
+        Margins.Bottom = 5
         Align = alLeft
         ParentShowHint = False
         FluentUIOpaque = False
@@ -338,7 +361,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Badge.ColorAlpha = 255
         Badge.Font.Charset = DEFAULT_CHARSET
         Badge.Font.Color = clWhite
-        Badge.Font.Height = -11
+        Badge.Font.Height = -17
         Badge.Font.Name = 'Tahoma'
         Badge.Font.Style = [fsBold]
         Badge.Visible = False
@@ -378,7 +401,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.FramePressedColor = clHighlight
         Options.FrameFocusedColor = clHighlight
         Options.FrameDisabledColor = clBtnShadow
-        Options.FrameWidth = 1
+        Options.FrameWidth = 2
         Options.FrameNormalColorAlpha = 255
         Options.FrameHotColorAlpha = 255
         Options.FramePressedColorAlpha = 255
@@ -392,10 +415,10 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.ShapeFillGradientAngle = 90
         Options.ShapeFillGradientPressedAngle = -90
         Options.ShapeFillGradientColorOffset = 25
-        Options.ShapeCornerRadius = 11
+        Options.ShapeCornerRadius = 17
         Options.ShapeStyle = scgpRect
         Options.ShapeStyleLineSize = 0
-        Options.ArrowSize = 9
+        Options.ArrowSize = 14
         Options.ArrowAreaSize = 0
         Options.ArrowType = scgpatDefault
         Options.ArrowThickness = 2
@@ -450,12 +473,14 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       end
       object btnClassLevel: TscGPButton
         AlignWithMargins = True
-        Left = 203
-        Top = 3
-        Width = 60
-        Height = 61
+        Left = 306
+        Top = 5
+        Width = 90
+        Height = 90
         Margins.Left = 0
-        Margins.Right = 5
+        Margins.Top = 5
+        Margins.Right = 8
+        Margins.Bottom = 5
         Align = alLeft
         ParentShowHint = False
         FluentUIOpaque = False
@@ -467,7 +492,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Badge.ColorAlpha = 255
         Badge.Font.Charset = DEFAULT_CHARSET
         Badge.Font.Color = clWhite
-        Badge.Font.Height = -11
+        Badge.Font.Height = -17
         Badge.Font.Name = 'Tahoma'
         Badge.Font.Style = [fsBold]
         Badge.Visible = False
@@ -507,7 +532,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.FramePressedColor = clHighlight
         Options.FrameFocusedColor = clHighlight
         Options.FrameDisabledColor = clBtnShadow
-        Options.FrameWidth = 1
+        Options.FrameWidth = 2
         Options.FrameNormalColorAlpha = 255
         Options.FrameHotColorAlpha = 255
         Options.FramePressedColorAlpha = 255
@@ -521,10 +546,10 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.ShapeFillGradientAngle = 90
         Options.ShapeFillGradientPressedAngle = -90
         Options.ShapeFillGradientColorOffset = 25
-        Options.ShapeCornerRadius = 11
+        Options.ShapeCornerRadius = 17
         Options.ShapeStyle = scgpRect
         Options.ShapeStyleLineSize = 0
-        Options.ArrowSize = 9
+        Options.ArrowSize = 14
         Options.ArrowAreaSize = 0
         Options.ArrowType = scgpatDefault
         Options.ArrowThickness = 2
@@ -579,12 +604,14 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       end
       object btnRoomNumber: TscGPButton
         AlignWithMargins = True
-        Left = 138
-        Top = 3
-        Width = 60
-        Height = 61
+        Left = 208
+        Top = 5
+        Width = 90
+        Height = 90
         Margins.Left = 0
-        Margins.Right = 5
+        Margins.Top = 5
+        Margins.Right = 8
+        Margins.Bottom = 5
         Align = alLeft
         ParentShowHint = False
         FluentUIOpaque = False
@@ -596,7 +623,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Badge.ColorAlpha = 255
         Badge.Font.Charset = DEFAULT_CHARSET
         Badge.Font.Color = clWhite
-        Badge.Font.Height = -11
+        Badge.Font.Height = -17
         Badge.Font.Name = 'Tahoma'
         Badge.Font.Style = [fsBold]
         Badge.Visible = False
@@ -636,7 +663,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.FramePressedColor = clHighlight
         Options.FrameFocusedColor = clHighlight
         Options.FrameDisabledColor = clBtnShadow
-        Options.FrameWidth = 1
+        Options.FrameWidth = 2
         Options.FrameNormalColorAlpha = 255
         Options.FrameHotColorAlpha = 255
         Options.FramePressedColorAlpha = 255
@@ -650,10 +677,10 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.ShapeFillGradientAngle = 90
         Options.ShapeFillGradientPressedAngle = -90
         Options.ShapeFillGradientColorOffset = 25
-        Options.ShapeCornerRadius = 11
+        Options.ShapeCornerRadius = 17
         Options.ShapeStyle = scgpRect
         Options.ShapeStyleLineSize = 0
-        Options.ArrowSize = 9
+        Options.ArrowSize = 14
         Options.ArrowAreaSize = 0
         Options.ArrowType = scgpatDefault
         Options.ArrowThickness = 2
@@ -710,20 +737,26 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
     object pnlLeft: TCWSSettingsPanel
       Left = 0
       Top = 0
-      Width = 153
-      Height = 67
+      Width = 230
+      Height = 100
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       Align = alLeft
       DoubleBuffered = True
       RoundedCorners = []
       BorderEdges = [beRight]
       object btnSave: TscGPButton
         AlignWithMargins = True
-        Left = 16
-        Top = 3
-        Width = 60
-        Height = 61
-        Margins.Left = 16
-        Margins.Right = 5
+        Left = 24
+        Top = 5
+        Width = 90
+        Height = 90
+        Margins.Left = 24
+        Margins.Top = 5
+        Margins.Right = 8
+        Margins.Bottom = 5
         Align = alLeft
         ParentShowHint = False
         FluentUIOpaque = False
@@ -735,7 +768,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Badge.ColorAlpha = 255
         Badge.Font.Charset = DEFAULT_CHARSET
         Badge.Font.Color = clWhite
-        Badge.Font.Height = -11
+        Badge.Font.Height = -17
         Badge.Font.Name = 'Tahoma'
         Badge.Font.Style = [fsBold]
         Badge.Visible = False
@@ -775,7 +808,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.FramePressedColor = clHighlight
         Options.FrameFocusedColor = clHighlight
         Options.FrameDisabledColor = clBtnShadow
-        Options.FrameWidth = 1
+        Options.FrameWidth = 2
         Options.FrameNormalColorAlpha = 255
         Options.FrameHotColorAlpha = 255
         Options.FramePressedColorAlpha = 255
@@ -789,10 +822,10 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.ShapeFillGradientAngle = 90
         Options.ShapeFillGradientPressedAngle = -90
         Options.ShapeFillGradientColorOffset = 25
-        Options.ShapeCornerRadius = 11
+        Options.ShapeCornerRadius = 17
         Options.ShapeStyle = scgpRect
         Options.ShapeStyleLineSize = 0
-        Options.ArrowSize = 9
+        Options.ArrowSize = 14
         Options.ArrowAreaSize = 0
         Options.ArrowType = scgpatDefault
         Options.ArrowThickness = 2
@@ -847,12 +880,14 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       end
       object btnExit: TscGPButton
         AlignWithMargins = True
-        Left = 81
-        Top = 3
-        Width = 60
-        Height = 61
+        Left = 122
+        Top = 5
+        Width = 90
+        Height = 90
         Margins.Left = 0
-        Margins.Right = 8
+        Margins.Top = 5
+        Margins.Right = 12
+        Margins.Bottom = 5
         Align = alLeft
         ParentShowHint = False
         FluentUIOpaque = False
@@ -864,7 +899,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Badge.ColorAlpha = 255
         Badge.Font.Charset = DEFAULT_CHARSET
         Badge.Font.Color = clWhite
-        Badge.Font.Height = -11
+        Badge.Font.Height = -17
         Badge.Font.Name = 'Tahoma'
         Badge.Font.Style = [fsBold]
         Badge.Visible = False
@@ -904,7 +939,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.FramePressedColor = clHighlight
         Options.FrameFocusedColor = clHighlight
         Options.FrameDisabledColor = clBtnShadow
-        Options.FrameWidth = 1
+        Options.FrameWidth = 2
         Options.FrameNormalColorAlpha = 255
         Options.FrameHotColorAlpha = 255
         Options.FramePressedColorAlpha = 255
@@ -918,10 +953,10 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.ShapeFillGradientAngle = 90
         Options.ShapeFillGradientPressedAngle = -90
         Options.ShapeFillGradientColorOffset = 25
-        Options.ShapeCornerRadius = 11
+        Options.ShapeCornerRadius = 17
         Options.ShapeStyle = scgpRect
         Options.ShapeStyleLineSize = 0
-        Options.ArrowSize = 9
+        Options.ArrowSize = 14
         Options.ArrowAreaSize = 0
         Options.ArrowType = scgpatDefault
         Options.ArrowThickness = 2
@@ -976,22 +1011,28 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       end
     end
     object pnlCenter: TCWSSettingsPanel
-      Left = 153
+      Left = 230
       Top = 0
-      Width = 342
-      Height = 67
+      Width = 513
+      Height = 100
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       Align = alLeft
       DoubleBuffered = True
       RoundedCorners = []
       BorderEdges = [beRight]
       object btnUndo: TscGPButton
         AlignWithMargins = True
-        Left = 8
-        Top = 3
-        Width = 60
-        Height = 61
-        Margins.Left = 8
-        Margins.Right = 5
+        Left = 12
+        Top = 5
+        Width = 90
+        Height = 90
+        Margins.Left = 12
+        Margins.Top = 5
+        Margins.Right = 8
+        Margins.Bottom = 5
         Align = alLeft
         ParentShowHint = False
         FluentUIOpaque = False
@@ -1003,7 +1044,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Badge.ColorAlpha = 255
         Badge.Font.Charset = DEFAULT_CHARSET
         Badge.Font.Color = clWhite
-        Badge.Font.Height = -11
+        Badge.Font.Height = -17
         Badge.Font.Name = 'Tahoma'
         Badge.Font.Style = [fsBold]
         Badge.Visible = False
@@ -1043,7 +1084,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.FramePressedColor = clHighlight
         Options.FrameFocusedColor = clHighlight
         Options.FrameDisabledColor = clBtnShadow
-        Options.FrameWidth = 1
+        Options.FrameWidth = 2
         Options.FrameNormalColorAlpha = 255
         Options.FrameHotColorAlpha = 255
         Options.FramePressedColorAlpha = 255
@@ -1057,10 +1098,10 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.ShapeFillGradientAngle = 90
         Options.ShapeFillGradientPressedAngle = -90
         Options.ShapeFillGradientColorOffset = 25
-        Options.ShapeCornerRadius = 11
+        Options.ShapeCornerRadius = 17
         Options.ShapeStyle = scgpRect
         Options.ShapeStyleLineSize = 0
-        Options.ArrowSize = 9
+        Options.ArrowSize = 14
         Options.ArrowAreaSize = 0
         Options.ArrowType = scgpatDefault
         Options.ArrowThickness = 2
@@ -1115,12 +1156,14 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       end
       object btnPaste: TscGPButton
         AlignWithMargins = True
-        Left = 268
-        Top = 3
-        Width = 62
-        Height = 61
+        Left = 404
+        Top = 5
+        Width = 93
+        Height = 90
         Margins.Left = 0
-        Margins.Right = 8
+        Margins.Top = 5
+        Margins.Right = 12
+        Margins.Bottom = 5
         Align = alLeft
         ParentShowHint = False
         FluentUIOpaque = False
@@ -1132,7 +1175,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Badge.ColorAlpha = 255
         Badge.Font.Charset = DEFAULT_CHARSET
         Badge.Font.Color = clWhite
-        Badge.Font.Height = -11
+        Badge.Font.Height = -17
         Badge.Font.Name = 'Tahoma'
         Badge.Font.Style = [fsBold]
         Badge.Visible = False
@@ -1172,7 +1215,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.FramePressedColor = clHighlight
         Options.FrameFocusedColor = clHighlight
         Options.FrameDisabledColor = clBtnShadow
-        Options.FrameWidth = 1
+        Options.FrameWidth = 2
         Options.FrameNormalColorAlpha = 255
         Options.FrameHotColorAlpha = 255
         Options.FramePressedColorAlpha = 255
@@ -1186,10 +1229,10 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.ShapeFillGradientAngle = 90
         Options.ShapeFillGradientPressedAngle = -90
         Options.ShapeFillGradientColorOffset = 25
-        Options.ShapeCornerRadius = 11
+        Options.ShapeCornerRadius = 17
         Options.ShapeStyle = scgpRect
         Options.ShapeStyleLineSize = 0
-        Options.ArrowSize = 9
+        Options.ArrowSize = 14
         Options.ArrowAreaSize = 0
         Options.ArrowType = scgpatDefault
         Options.ArrowThickness = 2
@@ -1244,12 +1287,14 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       end
       object btnRedo: TscGPButton
         AlignWithMargins = True
-        Left = 73
-        Top = 3
-        Width = 60
-        Height = 61
+        Left = 110
+        Top = 5
+        Width = 90
+        Height = 90
         Margins.Left = 0
-        Margins.Right = 5
+        Margins.Top = 5
+        Margins.Right = 8
+        Margins.Bottom = 5
         Align = alLeft
         ParentShowHint = False
         FluentUIOpaque = False
@@ -1261,7 +1306,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Badge.ColorAlpha = 255
         Badge.Font.Charset = DEFAULT_CHARSET
         Badge.Font.Color = clWhite
-        Badge.Font.Height = -11
+        Badge.Font.Height = -17
         Badge.Font.Name = 'Tahoma'
         Badge.Font.Style = [fsBold]
         Badge.Visible = False
@@ -1301,7 +1346,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.FramePressedColor = clHighlight
         Options.FrameFocusedColor = clHighlight
         Options.FrameDisabledColor = clBtnShadow
-        Options.FrameWidth = 1
+        Options.FrameWidth = 2
         Options.FrameNormalColorAlpha = 255
         Options.FrameHotColorAlpha = 255
         Options.FramePressedColorAlpha = 255
@@ -1315,10 +1360,10 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.ShapeFillGradientAngle = 90
         Options.ShapeFillGradientPressedAngle = -90
         Options.ShapeFillGradientColorOffset = 25
-        Options.ShapeCornerRadius = 11
+        Options.ShapeCornerRadius = 17
         Options.ShapeStyle = scgpRect
         Options.ShapeStyleLineSize = 0
-        Options.ArrowSize = 9
+        Options.ArrowSize = 14
         Options.ArrowAreaSize = 0
         Options.ArrowType = scgpatDefault
         Options.ArrowThickness = 2
@@ -1373,12 +1418,14 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       end
       object btnCopy: TscGPButton
         AlignWithMargins = True
-        Left = 203
-        Top = 3
-        Width = 60
-        Height = 61
+        Left = 306
+        Top = 5
+        Width = 90
+        Height = 90
         Margins.Left = 0
-        Margins.Right = 5
+        Margins.Top = 5
+        Margins.Right = 8
+        Margins.Bottom = 5
         Align = alLeft
         ParentShowHint = False
         FluentUIOpaque = False
@@ -1390,7 +1437,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Badge.ColorAlpha = 255
         Badge.Font.Charset = DEFAULT_CHARSET
         Badge.Font.Color = clWhite
-        Badge.Font.Height = -11
+        Badge.Font.Height = -17
         Badge.Font.Name = 'Tahoma'
         Badge.Font.Style = [fsBold]
         Badge.Visible = False
@@ -1430,7 +1477,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.FramePressedColor = clHighlight
         Options.FrameFocusedColor = clHighlight
         Options.FrameDisabledColor = clBtnShadow
-        Options.FrameWidth = 1
+        Options.FrameWidth = 2
         Options.FrameNormalColorAlpha = 255
         Options.FrameHotColorAlpha = 255
         Options.FramePressedColorAlpha = 255
@@ -1444,10 +1491,10 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.ShapeFillGradientAngle = 90
         Options.ShapeFillGradientPressedAngle = -90
         Options.ShapeFillGradientColorOffset = 25
-        Options.ShapeCornerRadius = 11
+        Options.ShapeCornerRadius = 17
         Options.ShapeStyle = scgpRect
         Options.ShapeStyleLineSize = 0
-        Options.ArrowSize = 9
+        Options.ArrowSize = 14
         Options.ArrowAreaSize = 0
         Options.ArrowType = scgpatDefault
         Options.ArrowThickness = 2
@@ -1502,12 +1549,14 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       end
       object btnCut: TscGPButton
         AlignWithMargins = True
-        Left = 138
-        Top = 3
-        Width = 60
-        Height = 61
+        Left = 208
+        Top = 5
+        Width = 90
+        Height = 90
         Margins.Left = 0
-        Margins.Right = 5
+        Margins.Top = 5
+        Margins.Right = 8
+        Margins.Bottom = 5
         Align = alLeft
         ParentShowHint = False
         FluentUIOpaque = False
@@ -1519,7 +1568,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Badge.ColorAlpha = 255
         Badge.Font.Charset = DEFAULT_CHARSET
         Badge.Font.Color = clWhite
-        Badge.Font.Height = -11
+        Badge.Font.Height = -17
         Badge.Font.Name = 'Tahoma'
         Badge.Font.Style = [fsBold]
         Badge.Visible = False
@@ -1559,7 +1608,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.FramePressedColor = clHighlight
         Options.FrameFocusedColor = clHighlight
         Options.FrameDisabledColor = clBtnShadow
-        Options.FrameWidth = 1
+        Options.FrameWidth = 2
         Options.FrameNormalColorAlpha = 255
         Options.FrameHotColorAlpha = 255
         Options.FramePressedColorAlpha = 255
@@ -1573,10 +1622,10 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
         Options.ShapeFillGradientAngle = 90
         Options.ShapeFillGradientPressedAngle = -90
         Options.ShapeFillGradientColorOffset = 25
-        Options.ShapeCornerRadius = 11
+        Options.ShapeCornerRadius = 17
         Options.ShapeStyle = scgpRect
         Options.ShapeStyleLineSize = 0
-        Options.ArrowSize = 9
+        Options.ArrowSize = 14
         Options.ArrowAreaSize = 0
         Options.ArrowType = scgpatDefault
         Options.ArrowThickness = 2
@@ -1633,31 +1682,31 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
   end
   object pnlMessageTemplate: TCWSSettingsPanel
     AlignWithMargins = True
-    Left = 16
-    Top = 195
-    Width = 813
-    Height = 331
-    Margins.Left = 16
+    Left = 24
+    Top = 292
+    Width = 1220
+    Height = 497
+    Margins.Left = 24
     Margins.Top = 0
-    Margins.Right = 16
-    Margins.Bottom = 8
+    Margins.Right = 24
+    Margins.Bottom = 12
     Align = alClient
     DoubleBuffered = True
     CornerRadius = 6
     object edtMessageTemplate: TSynEdit
       AlignWithMargins = True
-      Left = 5
-      Top = 5
-      Width = 803
-      Height = 321
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Left = 8
+      Top = 8
+      Width = 1204
+      Height = 481
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -16
+      Font.Height = -24
       Font.Name = 'Consolas'
       Font.Style = []
       Font.Quality = fqClearTypeNatural
@@ -1666,9 +1715,8 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       CodeFolding.FolderBarLinesColor = clNone
       CodeFolding.ShowHintMark = False
       UseCodeFolding = False
-      BookmarkOptions.LeftMargin = 1
+      BookmarkOptions.Xoffset = 18
       BorderStyle = bsNone
-      ExtraLineSpacing = 1
       Gutter.Font.Charset = DEFAULT_CHARSET
       Gutter.Font.Color = clWindowText
       Gutter.Font.Height = -11
@@ -1721,9 +1769,13 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
   end
   object sbMain: TRzStatusBar
     Left = 0
-    Top = 534
-    Width = 845
-    Height = 20
+    Top = 801
+    Width = 1268
+    Height = 30
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     AutoStyle = False
     SimpleFrameStyle = fsNone
     BorderColor = clSilver
@@ -1740,17 +1792,28 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
     object stpSpacer: TRzStatusPane
       Left = 1
       Top = 1
-      Width = 16
-      Height = 18
+      Width = 24
+      Height = 28
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       FrameStyle = fsNone
       Align = alLeft
       Caption = ''
+      ExplicitLeft = 2
+      ExplicitTop = 2
+      ExplicitHeight = 27
     end
     object stpLeft: TRzStatusPane
-      Left = 17
+      Left = 25
       Top = 1
-      Width = 496
-      Height = 18
+      Width = 744
+      Height = 28
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       BorderWidth = 0
       FillColor = clWhite
       FlatColor = clWhite
@@ -1759,33 +1822,49 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       Align = alLeft
       StyleElements = [seFont, seClient]
       Caption = ''
+      ExplicitLeft = 26
+      ExplicitTop = 2
+      ExplicitHeight = 27
     end
     object stpRight: TRzStatusPane
-      Left = 513
+      Left = 769
       Top = 1
-      Width = 282
-      Height = 18
+      Width = 423
+      Height = 28
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       FrameStyle = fsNone
       Align = alLeft
       Caption = ''
+      ExplicitLeft = 770
+      ExplicitTop = 2
+      ExplicitHeight = 27
     end
   end
   object pnlPopup: TCWSSettingsPanel
     Left = 0
-    Top = 30
-    Width = 845
-    Height = 37
+    Top = 44
+    Width = 1268
+    Height = 56
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Align = alTop
     DoubleBuffered = True
     BorderEdges = []
     object btnPopup: TscGPButton
       AlignWithMargins = True
-      Left = 16
-      Top = 3
-      Width = 81
-      Height = 33
-      Margins.Left = 16
-      Margins.Bottom = 1
+      Left = 24
+      Top = 5
+      Width = 122
+      Height = 49
+      Margins.Left = 24
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 2
       Align = alLeft
       FluentUIOpaque = False
       TabOrder = 0
@@ -1795,7 +1874,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       Badge.ColorAlpha = 255
       Badge.Font.Charset = DEFAULT_CHARSET
       Badge.Font.Color = clWhite
-      Badge.Font.Height = -11
+      Badge.Font.Height = -17
       Badge.Font.Name = 'Tahoma'
       Badge.Font.Style = [fsBold]
       Badge.Visible = False
@@ -1836,7 +1915,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       Options.FramePressedColor = clHighlight
       Options.FrameFocusedColor = clHighlight
       Options.FrameDisabledColor = clBtnShadow
-      Options.FrameWidth = 1
+      Options.FrameWidth = 2
       Options.FrameNormalColorAlpha = 255
       Options.FrameHotColorAlpha = 255
       Options.FramePressedColorAlpha = 255
@@ -1850,10 +1929,10 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       Options.ShapeFillGradientAngle = 90
       Options.ShapeFillGradientPressedAngle = -90
       Options.ShapeFillGradientColorOffset = 25
-      Options.ShapeCornerRadius = 10
+      Options.ShapeCornerRadius = 15
       Options.ShapeStyle = scgpRect
       Options.ShapeStyleLineSize = 0
-      Options.ArrowSize = 9
+      Options.ArrowSize = 14
       Options.ArrowAreaSize = 0
       Options.ArrowType = scgpatDefault
       Options.ArrowThickness = 2
@@ -1909,23 +1988,26 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
   object CWSSettingsPanel1: TCWSSettingsPanel
     AlignWithMargins = True
     Left = 0
-    Top = 150
-    Width = 845
-    Height = 42
+    Top = 224
+    Width = 1268
+    Height = 63
     Margins.Left = 0
-    Margins.Top = 16
+    Margins.Top = 24
     Margins.Right = 0
+    Margins.Bottom = 5
     Align = alTop
     DoubleBuffered = True
     BorderEdges = []
     object lblInstructions: TRzLabel
       AlignWithMargins = True
-      Left = 16
+      Left = 24
       Top = 0
-      Width = 826
-      Height = 40
-      Margins.Left = 16
+      Width = 1239
+      Height = 62
+      Margins.Left = 24
       Margins.Top = 0
+      Margins.Right = 5
+      Margins.Bottom = 5
       Align = alTop
       Caption = 
         'Copy the contents of the message template from the source docume' +
@@ -1934,17 +2016,17 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       Color = clWhite
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -15
+      Font.Height = -23
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentColor = False
       ParentFont = False
-      ExplicitWidth = 584
+      ExplicitWidth = 900
     end
   end
   object SVGIconImageList1: TSVGIconImageList
     ColorDepth = cd16Bit
-    Size = 32
+    Size = 48
     SVGIconItems = <
       item
         IconName = 'cut-svgrepo-com'

@@ -1,10 +1,12 @@
-unit DMMainu;
+﻿unit DMMainu;
 
 interface
 
 uses
   System.SysUtils,
   System.Classes,
+
+  Vcl.Forms,
 
   FireDAC.Stan.Intf,
   FireDAC.Stan.Option,
@@ -139,6 +141,7 @@ type
     FSQL: String;
     FCountSQL: String;
     FESLAdminIniFileHandler: TESLAdminIniFileHandler;
+    FParentForm: TForm;
     procedure SetHasErrors(const Value: Boolean);
     procedure SetErrorMsg(const Value: String);
   public
@@ -179,6 +182,8 @@ implementation
 uses
   Vcl.Dialogs,
   System.IOUtils,
+
+  Mainu,
   EmailProcessoru;
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
@@ -193,11 +198,27 @@ constructor TdmMain.Create(
   AIniFileHandler: TESLAdminIniFileHandler);
 begin
   inherited Create(AOwner);
-  FESLAdminIniFileHandler := AIniFileHandler;
-  FLogger := ALogger;
-  FHasErrors := False;
-  FErrorMsg := '';
-  qryStudents.SQL.Text := StudentsGetSql;
+  try
+    FESLAdminIniFileHandler := AIniFileHandler;
+    FParentForm := TForm(AOwner);
+    FLogger := ALogger;
+    FHasErrors := False;
+    FErrorMsg := '';
+    qryStudents.SQL.Text := StudentsGetSql;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      TFrmMain(FParentForm).ShowErrorMessage(
+        'Error',
+        'TdmMain.Create',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TdmMain.ChangeAllRecords(
@@ -222,10 +243,18 @@ begin
     end;
     FMemTable.Edit;
   except
-    On E:Exception do begin
-      FLogger.WriteLog(TLogLevel.llError, 'DMMainu.ChangeAllRecords: ' + E.Message);
-      raise;
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      TFrmMain(FParentForm).ShowErrorMessage(
+        'Error',
+        'TdmMain.ChangeAllRecords',
+        E.Message,
+        E.StackTrace
+        );
     end;
+    {$ENDIF}
   end;
 end;
 
@@ -278,13 +307,18 @@ begin
       end;
       LLines.SaveToFile(AFullCheckpointFileName, TEncoding.UTF8);
     except
-      On E:Exception do begin
-        FLogger.WriteLog(
-          TLogLevel.llError,
-          'DMMainu.GenerateCheckpointFile: ' +
-          E.Message);
-        raise;
+      {$IFDEF MadExceptOn}
+      raise;
+      {$ELSE}
+      On E: Exception do begin
+        TFrmMain(FParentForm).ShowErrorMessage(
+          'Error',
+          'TdmMain.GenerateCheckpointFile',
+          E.Message,
+          E.StackTrace
+          );
       end;
+      {$ENDIF}
     end;
   finally
     qryStudents.Close;
@@ -364,10 +398,18 @@ begin
         qryStudents.SQL.Text := FSQL;
       end;
     except
-      On E:Exception do begin
-        FLogger.WriteLog(TLogLevel.llError, 'DMMainu.GenerateSQL: ' + E.Message);
-        raise;
+      {$IFDEF MadExceptOn}
+      raise;
+      {$ELSE}
+      On E: Exception do begin
+        TFrmMain(FParentForm).ShowErrorMessage(
+          'Error',
+          'TdmMain.GenerateSQL',
+          E.Message,
+          E.StackTrace
+          );
       end;
+      {$ENDIF}
     end;
   finally
     LItems.Free;
@@ -378,19 +420,35 @@ function TdmMain.GetStudentCount_Bak: Integer;
 var
   LCount: Integer;
 begin
-  qryStudents.Active := False;
-  qryStudents.SQL.Text := FSQL;
+  try
+    qryStudents.Active := False;
+    qryStudents.SQL.Text := FSQL;
 
-  // Count students (original method - enumerate through query)
-  qryStudents.Active := True;
-  LCount := 0;
-  qryStudents.First;
-  while Not(qryStudents.EOF) do begin
-    Inc(LCount);
-    qryStudents.Next;
+    // Count students (original method - enumerate through query)
+    qryStudents.Active := True;
+    LCount := 0;
+    qryStudents.First;
+    while Not(qryStudents.EOF) do begin
+      Inc(LCount);
+      qryStudents.Next;
+    end;
+    qryStudents.First;
+    Result := LCount;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      TFrmMain(FParentForm).ShowErrorMessage(
+        'Error',
+        'TdmMain.GetStudentCount_Bak',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
-  qryStudents.First;
-  Result := LCount;
+
 end;
 
 function TdmMain.GetStudentCount: Integer;
@@ -407,10 +465,18 @@ begin
       else
         Result := 0;
     except
-      On E:Exception do begin
-        FLogger.WriteLog(TLogLevel.llError, 'DMMainu.GetStudentCount: ' + E.Message);
-        raise;
+      {$IFDEF MadExceptOn}
+      raise;
+      {$ELSE}
+      On E: Exception do begin
+        TFrmMain(FParentForm).ShowErrorMessage(
+          'Error',
+          'TdmMain.GetStudentCount',
+          E.Message,
+          E.StackTrace
+          );
       end;
+      {$ENDIF}
     end;
   finally
     qryStudentCount.Active := False;
@@ -442,10 +508,18 @@ begin
         qryClassLevels.Next;
       end;
     except
-      On E:Exception do begin
-        FLogger.WriteLog(TLogLevel.llError, 'DMMainu.LoadClassLevelsTable: ' + E.Message);
-        raise;
+      {$IFDEF MadExceptOn}
+      raise;
+      {$ELSE}
+      On E: Exception do begin
+        TFrmMain(FParentForm).ShowErrorMessage(
+          'Error',
+          'TdmMain.LoadClassLevelsTable',
+          E.Message,
+          E.StackTrace
+          );
       end;
+      {$ENDIF}
     end;
   finally
     qryClassLevels.Active := False;
@@ -482,10 +556,18 @@ begin
         qryCountries.Next;
       end;
     except
-      On E:Exception do begin
-        FLogger.WriteLog(TLogLevel.llError, 'DMMainu.LoadCountriesTable: ' + E.Message);
-        raise;
+      {$IFDEF MadExceptOn}
+      raise;
+      {$ELSE}
+      On E: Exception do begin
+        TFrmMain(FParentForm).ShowErrorMessage(
+          'Error',
+          'TdmMain.LoadCountriesTable',
+          E.Message,
+          E.StackTrace
+          );
       end;
+      {$ENDIF}
     end;
   finally
     qryCountries.Active := False;
@@ -516,10 +598,18 @@ begin
         qryCountries.Next;
       end;
     except
-      On E:Exception do begin
-        FLogger.WriteLog(TLogLevel.llError, 'DMMainu.InternalLoadLanguagesorFiles: ' + E.Message);
-        raise;
+      {$IFDEF MadExceptOn}
+      raise;
+      {$ELSE}
+      On E: Exception do begin
+        TFrmMain(FParentForm).ShowErrorMessage(
+          'Error',
+          'TdmMain.InternalLoadLanguagesorFiles',
+          E.Message,
+          E.StackTrace
+          );
       end;
+      {$ENDIF}
     end;
   finally
     qryCountries.Active := False;
@@ -529,12 +619,44 @@ end;
 
 procedure TdmMain.LoadLanguageFiles(AList: TStrings);
 begin
-  InternalLoadLanguagesorFiles(ltFile, AList);
+  try
+    InternalLoadLanguagesorFiles(ltFile, AList);
+
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      TFrmMain(FParentForm).ShowErrorMessage(
+        'Error',
+        'TdmMain.LoadLanguageFiles',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TdmMain.LoadLanguages(AList: TStrings);
 begin
-  InternalLoadLanguagesorFiles(ltLanguage, AList);
+  try
+    InternalLoadLanguagesorFiles(ltLanguage, AList);
+
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      TFrmMain(FParentForm).ShowErrorMessage(
+        'Error',
+        'TdmMain.LoadLanguages',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TdmMain.SetErrorMsg(const Value: String);
@@ -577,10 +699,18 @@ begin
       conMain.LoginPrompt := False;
       conMain.Connected := True;
     except
-      On E:Exception do begin
-        FLogger.WriteLog(TLogLevel.llError, 'DMMainu.Setup: ' + E.Message);
-        raise;
+      {$IFDEF MadExceptOn}
+      raise;
+      {$ELSE}
+      On E: Exception do begin
+        TFrmMain(FParentForm).ShowErrorMessage(
+          'Error',
+          'TdmMain.Setup',
+          E.Message,
+          E.StackTrace
+          );
       end;
+      {$ENDIF}
     end;
   finally
     if Assigned(LParams) then
@@ -604,10 +734,18 @@ begin
       end;
       LList.SaveToFile(ACSVFileFullPath);
     except
-      On E:Exception do begin
-        FLogger.WriteLog(TLogLevel.llError, 'DMMainu.WriteRecipientsByClassLevelsCsv: ' + E.Message);
-        raise;
+      {$IFDEF MadExceptOn}
+      raise;
+      {$ELSE}
+      On E: Exception do begin
+        TFrmMain(FParentForm).ShowErrorMessage(
+          'Error',
+          'TdmMain.WriteRecipientsByClassLevelsCsv',
+          E.Message,
+          E.StackTrace
+          );
       end;
+      {$ENDIF}
     end;
   finally
     LList.Free;
@@ -630,10 +768,18 @@ begin
       end;
       LList.SaveToFile(ACSVFileFullPath);
     except
-      On E:Exception do begin
-        FLogger.WriteLog(TLogLevel.llError, 'DMMainu.WriteRecipientsByCountryCsv: ' + E.Message);
-        raise;
+      {$IFDEF MadExceptOn}
+      raise;
+      {$ELSE}
+      On E: Exception do begin
+        TFrmMain(FParentForm).ShowErrorMessage(
+          'Error',
+          'TdmMain.WriteRecipientsByCountryCsv',
+          E.Message,
+          E.StackTrace
+          );
       end;
+      {$ENDIF}
     end;
   finally
     LList.Free;

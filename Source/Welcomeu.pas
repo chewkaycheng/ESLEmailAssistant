@@ -1,4 +1,4 @@
-unit Welcomeu;
+﻿unit Welcomeu;
 
 interface
 
@@ -88,7 +88,7 @@ begin
     On E: Exception do begin
       FParentForm.ShowErrorMessage(
         'Error',
-        'ProcName',
+        'TfrmWelcome.FormCreate',
         E.Message,
         E.StackTrace
         );
@@ -109,7 +109,7 @@ begin
     On E: Exception do begin
       FParentForm.ShowErrorMessage(
         'Error',
-        'ProcName',
+        'TfrmWelcome.FormDestroy',
         E.Message,
         E.StackTrace
         );
@@ -136,7 +136,7 @@ begin
     On E: Exception do begin
       FParentForm.ShowErrorMessage(
         'Error',
-        'ProcName',
+        'TfrmWelcome.FormShow',
         E.Message,
         E.StackTrace
         );
@@ -179,7 +179,7 @@ begin
     On E: Exception do begin
       FParentForm.ShowErrorMessage(
         'Error',
-        'ProcName',
+        'TfrmWelcome.ApplyTheme',
         E.Message,
         E.StackTrace
         );
@@ -239,7 +239,7 @@ begin
     On E: Exception do begin
       FParentForm.ShowErrorMessage(
         'Error',
-        'ProcName',
+        'TfrmWelcome.btnNewSessionClick',
         E.Message,
         E.StackTrace
         );
@@ -269,7 +269,7 @@ begin
     On E: Exception do begin
       FParentForm.ShowErrorMessage(
         'Error',
-        'ProcName',
+        'TfrmWelcome.btnResumeSessionClick',
         E.Message,
         E.StackTrace
         );
@@ -315,7 +315,7 @@ begin
     On E: Exception do begin
       FParentForm.ShowErrorMessage(
         'Error',
-        'ProcName',
+        'TfrmWelcome.RelevantSessionFilesExist',
         E.Message,
         E.StackTrace
         );

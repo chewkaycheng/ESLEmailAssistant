@@ -74,8 +74,23 @@ uses
 
 procedure TfrmAuthorize.FormCreate(Sender: TObject);
 begin
-  inherited FormCreate(Sender);
-  TUtils.AdjustButtonsPanel(pnlButtons);
+  try
+    inherited FormCreate(Sender);
+    TUtils.AdjustButtonsPanel(pnlButtons);
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmAuthorize.FormCreate',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmAuthorize.FormDestroy(Sender: TObject);
@@ -85,9 +100,24 @@ end;
 
 procedure TfrmAuthorize.FormShow(Sender: TObject);
 begin
-  FParentForm.SVGimgSteps.ImageIndex := 4;
-  btnNext.Enabled := FParentForm.IsAuthorized;
-  btnAuthorize.Enabled := Not(FParentForm.IsAuthorized);
+  try
+    FParentForm.SVGimgSteps.ImageIndex := 4;
+    btnNext.Enabled := FParentForm.IsAuthorized;
+    btnAuthorize.Enabled := Not(FParentForm.IsAuthorized);
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmAuthorize.FormShow',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmAuthorize.ApplyTheme;
@@ -95,49 +125,94 @@ var
   I: Integer;
   LComp: TComponent;
 begin
-  Self.Color := flNeutralBackground1;
+  try
+    Self.Color := flNeutralBackground1;
 
-  TUtils.SetStatusBarColor(sbMain);
-  TUtils.SetTPanelsColor(Self);
-  TUtils.SetPanelColor(pnlButtons);
+    TUtils.SetStatusBarColor(sbMain);
+    TUtils.SetTPanelsColor(Self);
+    TUtils.SetPanelColor(pnlButtons);
 
-  for I := 0 to ComponentCount - 1 do  begin
-    LComp := Components[I];
-    if LComp is TCWSSettingsPanel then begin
-      TUtils.SetPanelColor(TCWSSettingsPanel(LComp));
+    for I := 0 to ComponentCount - 1 do  begin
+      LComp := Components[I];
+      if LComp is TCWSSettingsPanel then begin
+        TUtils.SetPanelColor(TCWSSettingsPanel(LComp));
+      end;
+
+      if LComp is TRzLabel then begin
+        TUtils.SetLabelColor(LComp as TRzLabel)
+      end;
+
+      if LComp is TCWSButton then begin
+        TUtils.SetButtonColors(LComp as TCWSButton);
+      end;
     end;
-
-    if LComp is TRzLabel then begin
-      TUtils.SetLabelColor(LComp as TRzLabel)
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmAuthorize.ApplyTheme',
+        E.Message,
+        E.StackTrace
+        );
     end;
-
-    if LComp is TCWSButton then begin
-      TUtils.SetButtonColors(LComp as TCWSButton);
-    end;
+    {$ENDIF}
   end;
 end;
 
 procedure TfrmAuthorize.CheckAuthorization;
 begin
-  btnAuthorize.Enabled := Not(FParentForm.IsAuthorized);
-  btnNext.Enabled := FParentForm.IsAuthorized;
+  try
+    btnAuthorize.Enabled := Not(FParentForm.IsAuthorized);
+    btnNext.Enabled := FParentForm.IsAuthorized;
 
-  if FParentForm.IsAuthorized then begin
-    stpLeft.Caption :=  '✓ Authorization successful! You may proceed.';
-  end else begin
-    stpLeft.Caption :=  'Click "Authorize" to connect to Gmail.';
+    if FParentForm.IsAuthorized then begin
+      stpLeft.Caption :=  '✓ Authorization successful! You may proceed.';
+    end else begin
+      stpLeft.Caption :=  'Click "Authorize" to connect to Gmail.';
+    end;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmAuthorize.CheckAuthorization',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
 end;
 
 procedure TfrmAuthorize.CWSButton1Click(Sender: TObject);
 begin
-  FParentForm.ShowSendEmailsForm;
+  try
+    FParentForm.ShowSendEmailsForm;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmAuthorize.CWSButton1Click',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmAuthorize.btnAuthorizeClick(Sender: TObject);
 begin
-  FAuthorizationError := '';
   try
+    FAuthorizationError := '';
     FAuthorization := FParentForm.iOAuthMain.GetAuthorization();
     FRefreshToken := FParentForm.iOAuthMain.RefreshToken;
     FParentForm.ismtpMain.AuthMechanism := TipwAuthMechanisms.amXOAUTH2;
@@ -145,16 +220,39 @@ begin
     FParentForm.IsAuthorized := True;
     CheckAuthorization;
   except
-    On E:Exception do begin
-      FParentForm.IsAuthorized := False;
-      ShowMessage('Unable to authorize: ' + E.Message);
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmAuthorize.btnAuthorizeClick',
+        E.Message,
+        E.StackTrace
+        );
     end;
+    {$ENDIF}
   end;
 end;
 
 procedure TfrmAuthorize.btnBackClick(Sender: TObject);
 begin
-  FParentForm.ShowPreviewForm;
+  try
+    FParentForm.ShowPreviewForm;  
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmAuthorize.btnBackClick',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 end.

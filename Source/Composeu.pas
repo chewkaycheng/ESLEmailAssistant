@@ -1,4 +1,4 @@
-unit Composeu;
+﻿unit Composeu;
 
 interface
 
@@ -130,62 +130,107 @@ uses
 
 procedure TfrmCompose.FormCreate(Sender: TObject);
 begin
-  ScaleForPPI(CurrentPPI);
-  RegisterThemeChange(Self.ApplyTheme);
-  FluentApplySystemTheme;
-  FSelectedFile := '';
-  FEditing := False;
-  cboLanguage.Font.Size := InputFontSize;
-  edtSubject.Font.Size := InputFontSize;
-  lstTemplates.Font.Size := InputFontSize;
-  TUtils.AdjustButtonsPanel(pnlButtons);
-  FLanguageFileList := TStringList.Create;
+  try
+    ScaleForPPI(CurrentPPI);
+    RegisterThemeChange(Self.ApplyTheme);
+    FluentApplySystemTheme;
+    FSelectedFile := '';
+    FEditing := False;
+    cboLanguage.Font.Size := InputFontSize;
+    edtSubject.Font.Size := InputFontSize;
+    lstTemplates.Font.Size := InputFontSize;
+    TUtils.AdjustButtonsPanel(pnlButtons);
+    FLanguageFileList := TStringList.Create;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.FormCreate',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmCompose.FormDestroy(Sender: TObject);
 begin
-  if Assigned(FLanguageFileList) then begin
-    FreeAndNil(FLanguageFileList);
+  try
+    if Assigned(FLanguageFileList) then begin
+      FreeAndNil(FLanguageFileList);
+    end;
+    FStopRefresh := True;
+    UnregisterThemeChange(Self.ApplyTheme);
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.FormDestroy',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
-  FStopRefresh := True;
-  UnregisterThemeChange(Self.ApplyTheme);
 end;
 
 procedure TfrmCompose.FormShow(Sender: TObject);
 var
   I: Integer;
 begin
-  FParentForm.SVGimgSteps.ImageIndex := 2;
+  try
+    FParentForm.SVGimgSteps.ImageIndex := 2;
 
-  if cboLanguage.ItemCount = 0 then begin
-    FParentForm.DmMain.LoadLanguages(FLanguageFileList);
-    cboLanguage.Items.Text := FLanguageFileList.Text;
-    for i := 0 to FLanguageFileList.Count - 1 do begin
-      FLanguageFileList[i] := FLanguageFileList[i] + '.txt';
+    if cboLanguage.ItemCount = 0 then begin
+      FParentForm.DmMain.LoadLanguages(FLanguageFileList);
+      cboLanguage.Items.Text := FLanguageFileList.Text;
+      for i := 0 to FLanguageFileList.Count - 1 do begin
+        FLanguageFileList[i] := FLanguageFileList[i] + '.txt';
+      end;
+
+      cboLanguage.ItemIndex :=
+        cboLanguage.Items.IndexOf('English');
     end;
 
-    cboLanguage.ItemIndex :=
-      cboLanguage.Items.IndexOf('English');
-  end;
+    // Set up file system monitor
+    if Not(Assigned(FMonitor)) then begin
+      FStopRefresh := False;
+      FMonitor := CreateFileSystemMonitor;
+      FMonitor.AddDirectory(
+        FParentForm.FullSourceFilesDir,
+        False,
+        OnFileChange);
+    end;
 
-  // Set up file system monitor
-  if Not(Assigned(FMonitor)) then begin
-    FStopRefresh := False;
-    FMonitor := CreateFileSystemMonitor;
-    FMonitor.AddDirectory(
-      FParentForm.FullSourceFilesDir,
-      False,
-      OnFileChange);
+    FLoading := True;
+    try
+      edtSubject.Text := FParentForm.SessionIniValues.Subject;
+      aniArrow.Visible := Length(Trim(edtSubject.Text)) < 2;
+    finally
+      FLoading := False;
+    end;
+    RefreshFileList;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.FormShow',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
-
-  FLoading := True;
-  try
-    edtSubject.Text := FParentForm.SessionIniValues.Subject;
-    aniArrow.Visible := Length(Trim(edtSubject.Text)) < 2;
-  finally
-    FLoading := False;
-  end;
-  RefreshFileList;
 end;
 
 
@@ -193,10 +238,25 @@ procedure TfrmCompose.SetCreateBtnEnabled;
 var
   LCreated: Boolean;
 begin
-  LCreated := TFileUtils.LanguageContentCreated(
-    cboLanguage.Items[cboLanguage.ItemIndex],
-      FParentForm.FullSourceFilesDir);
-  btnCreateTemplate.Enabled := Not(LCreated);
+  try
+    LCreated := TFileUtils.LanguageContentCreated(
+      cboLanguage.Items[cboLanguage.ItemIndex],
+        FParentForm.FullSourceFilesDir);
+    btnCreateTemplate.Enabled := Not(LCreated);
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.SetCreateBtnEnabled',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmCompose.SetParentForm(AParent: TfrmMain);
@@ -206,10 +266,26 @@ end;
 
 procedure TfrmCompose.ShowEditMessageTemplateForm(ALanguage: String);
 begin
-  frmEditMessageTemplate.Language :=
-    ALanguage;
-  frmEditMessageTemplate.ShowModal;
-  SetCreateBtnEnabled;
+  try
+    frmEditMessageTemplate.Language :=
+      ALanguage;
+    frmEditMessageTemplate.ShowModal;
+    SetCreateBtnEnabled;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.ShowEditMessageTemplateForm',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
+
 end;
 
 procedure TfrmCompose.ApplyTheme;
@@ -217,43 +293,74 @@ var
   I: Integer;
   LComp: TComponent;
 begin
-  Self.Color := flNeutralBackground1;
+  try
+    Self.Color := flNeutralBackground1;
 
-  TUtils.SetStatusBarColor(sbMain);
-  TUtils.SetTPanelsColor(Self);
-  TUtils.SetPanelColor(pnlButtons);
+    TUtils.SetStatusBarColor(sbMain);
+    TUtils.SetTPanelsColor(Self);
+    TUtils.SetPanelColor(pnlButtons);
 
-  for I := 0 to ComponentCount - 1 do  begin
-    LComp := Components[I];
-    if LComp is TCWSButton then begin
-      TUtils.SetButtonColors(LComp as TCWSButton);
+    for I := 0 to ComponentCount - 1 do  begin
+      LComp := Components[I];
+      if LComp is TCWSButton then begin
+        TUtils.SetButtonColors(LComp as TCWSButton);
+      end;
+
+      if LComp is TCWSSettingsPanel then begin
+        TUtils.SetPanelColor(TCWSSettingsPanel(LComp));
+      end;
+
+      if LComp is TRzLabel then begin
+        TUtils.SetLabelColor(LComp as TRzLabel)
+      end;
+
+      if LComp is TCWSEdit then begin
+        TUtils.SetEditColor(LComp as TCWSEdit);
+      end;
+
+      if LComp is TCWSComboBox then begin
+        TUtils.SetComboBoxColor(LComp as TCWSComboBox);
+      end;
+
+      if LComp is TCWSListBox then begin
+        TUtils.SetListBoxColor(LComp as TCWSListBox);
+      end;
     end;
-
-    if LComp is TCWSSettingsPanel then begin
-      TUtils.SetPanelColor(TCWSSettingsPanel(LComp));
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.ApplyTheme',
+        E.Message,
+        E.StackTrace
+        );
     end;
-
-    if LComp is TRzLabel then begin
-      TUtils.SetLabelColor(LComp as TRzLabel)
-    end;
-
-    if LComp is TCWSEdit then begin
-      TUtils.SetEditColor(LComp as TCWSEdit);
-    end;
-
-    if LComp is TCWSComboBox then begin
-      TUtils.SetComboBoxColor(LComp as TCWSComboBox);
-    end;
-
-    if LComp is TCWSListBox then begin
-      TUtils.SetListBoxColor(LComp as TCWSListBox);
-    end;
+    {$ENDIF}
   end;
+
 end;
 
 procedure TfrmCompose.btnBackClick(Sender: TObject);
 begin
-  FParentForm.ShowRecipientsForm;
+  try
+    FParentForm.ShowRecipientsForm;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.btnBackClick',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmCompose.btnCreateTemplateClick(Sender: TObject);
@@ -266,13 +373,28 @@ begin
 //  dlgInfo.ShowModal;
   FEditing := True;
   try
-    LLanguage :=
-      cboLanguage.Items[cboLanguage.ItemIndex];
-    ShowEditMessageTemplateForm(LLanguage);
-    LIndex := lstTemplates.Items.IndexOf(LLanguage + '.txt');
-    if LIndex >= 0 then begin
-      FSelectedFile := LLanguage + '.txt';
-      lstTemplates.ItemIndex := LIndex;
+    try
+      LLanguage :=
+        cboLanguage.Items[cboLanguage.ItemIndex];
+      ShowEditMessageTemplateForm(LLanguage);
+      LIndex := lstTemplates.Items.IndexOf(LLanguage + '.txt');
+      if LIndex >= 0 then begin
+        FSelectedFile := LLanguage + '.txt';
+        lstTemplates.ItemIndex := LIndex;
+      end;
+    except
+      {$IFDEF MadExceptOn}
+      raise;
+      {$ELSE}
+      On E: Exception do begin
+        FParentForm.ShowErrorMessage(
+          'Error',
+          'TfrmCompose.btnCreateTemplateClick',
+          E.Message,
+          E.StackTrace
+          );
+      end;
+      {$ENDIF}
     end;
   finally
     FEditing := False;
@@ -284,25 +406,40 @@ var
   LFileName: String;
   LFullFileName: String;
 begin
-  if (lstTemplates.ItemIndex = -1) then begin
-      ShowMessage('Select a file by clicking on the file name.');
-      Exit;
-    end;
-
-    LFileName :=  lstTemplates.Items[
-      lstTemplates.ItemIndex];
-    LFullFileName :=
-      IncludeTrailingPathDelimiter(FParentForm.FullSourceFilesDir) +
-        LFileName;
-    if MessageDlg(
-         Format('Are you sure you want to delete "%s"?', [LFileName]),
-         mtConfirmation,
-         [mbYes, mbNo], 0) = mrYes then begin
-      if Not(DeleteFile(LFullFileName)) then begin
-        ShowMessage('Could not delete the file: ' + SysErrorMessage(GetLastError));
+  try
+    if (lstTemplates.ItemIndex = -1) then begin
+        ShowMessage('Select a file by clicking on the file name.');
+        Exit;
       end;
+  
+      LFileName :=  lstTemplates.Items[
+        lstTemplates.ItemIndex];
+      LFullFileName :=
+        IncludeTrailingPathDelimiter(FParentForm.FullSourceFilesDir) +
+          LFileName;
+      if MessageDlg(
+           Format('Are you sure you want to delete "%s"?', [LFileName]),
+           mtConfirmation,
+           [mbYes, mbNo], 0) = mrYes then begin
+        if Not(DeleteFile(LFullFileName)) then begin
+          ShowMessage('Could not delete the file: ' + SysErrorMessage(GetLastError));
+        end;
+      end;
+      SetCreateBtnEnabled;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.btnDeleteTemplateClick',
+        E.Message,
+        E.StackTrace
+        );
     end;
-    SetCreateBtnEnabled;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmCompose.btnEditTemplateClick(Sender: TObject);
@@ -314,55 +451,148 @@ begin
     Exit;
   end;
 
-  ALanguage := lstTemplates.Items[
-        lstTemplates.ItemIndex];
-  ShowEditMessageTemplateForm(ALanguage);
+  try
+    ALanguage := lstTemplates.Items[
+          lstTemplates.ItemIndex];
+    ShowEditMessageTemplateForm(ALanguage);
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.btnEditTemplateClick',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
+
 end;
 
 procedure TfrmCompose.btnNextClick(Sender: TObject);
 begin
-  FParentForm.ShowPreviewForm;
+  try
+    FParentForm.ShowPreviewForm;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.btnNextClick',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmCompose.cboLanguageChange(Sender: TObject);
 begin
-  SetCreateBtnEnabled;
+  try
+    SetCreateBtnEnabled;
+  
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.cboLanguageChange',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmCompose.edtSubjectChange(Sender: TObject);
 var
   LIniValues: TSessionIniValues;
 begin
-  if FLoading then begin
-    Exit;
+  try
+    if FLoading then begin
+      Exit;
+    end;
+  
+    LIniValues := FParentForm.SessionIniValues;
+    LIniValues.Subject := edtSubject.Text;
+    FParentForm.SessionIniValues := LIniValues;
+  
+    aniArrow.Visible := Length(Trim(edtSubject.Text)) < 2;
+    RefreshFileList;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.edtSubjectChange',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
 
-  LIniValues := FParentForm.SessionIniValues;
-  LIniValues.Subject := edtSubject.Text;
-  FParentForm.SessionIniValues := LIniValues;
-
-  aniArrow.Visible := Length(Trim(edtSubject.Text)) < 2;
-  RefreshFileList;
 end;
 
 procedure TfrmCompose.OnFileChange(Sender: TObject; const APath: String;
   AChangeType: TFileChangeType);
 begin
-  if FStopRefresh then Exit;
-
-  case AChangeType of
-    TFileChangeType.fcAdded,
-    TFileChangeType.fcModified,
-    TFileChangeType.fcRenamedOld,
-    TFileChangeType.fcRemoved:
-      RefreshFileList;
+  try
+    if FStopRefresh then Exit;
+  
+    case AChangeType of
+      TFileChangeType.fcAdded,
+      TFileChangeType.fcModified,
+      TFileChangeType.fcRenamedOld,
+      TFileChangeType.fcRemoved:
+        RefreshFileList;
+    end;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.OnFileChange',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
 end;
 
 procedure TfrmCompose.OnSetEditDelBtnSEnabled(var Msg: TMessage);
 begin
-  btnEditTemplate.Enabled := lstTemplates.Items.Count > 0;
-  btnDeleteTemplate.Enabled := lstTemplates.Items.Count > 0;
+  try
+    btnEditTemplate.Enabled := lstTemplates.Items.Count > 0;
+    btnDeleteTemplate.Enabled := lstTemplates.Items.Count > 0;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.OnSetEditDelBtnSEnabled',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmCompose.OnSetNextBtnEnabled(var Msg: TMessage);
@@ -372,40 +602,85 @@ end;
 
 procedure TfrmCompose.OnSetSelectedFile(var Msg: TMessage);
 begin
-  SetSelectedFile;
+  try
+    SetSelectedFile;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.OnSetSelectedFile',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmCompose.SetSelectedFile;
 var
   LIndex: Integer;
 begin
-  if FEditing then begin
-    Exit;
-  end;
-
-  if lstTemplates.Items.Count = 0 then begin
-    FSelectedFile := '';
-    Exit;
-  end;
-
-  if Length(Trim(FSelectedFile)) = 0 then begin
-    lstTemplates.ItemIndex := 0;
-    Exit;
-  end;
-
-  LIndex :=  lstTemplates.Items.IndexOf(FSelectedFile);
-  if LIndex = -1 then begin
-    FSelectedFile := lstTemplates.Items[0];
-    lstTemplates.ItemIndex := 0;
-  end else begin
-    lstTemplates.ItemIndex := LIndex;
+  try
+    if FEditing then begin
+      Exit;
+    end;
+  
+    if lstTemplates.Items.Count = 0 then begin
+      FSelectedFile := '';
+      Exit;
+    end;
+  
+    if Length(Trim(FSelectedFile)) = 0 then begin
+      lstTemplates.ItemIndex := 0;
+      Exit;
+    end;
+  
+    LIndex :=  lstTemplates.Items.IndexOf(FSelectedFile);
+    if LIndex = -1 then begin
+      FSelectedFile := lstTemplates.Items[0];
+      lstTemplates.ItemIndex := 0;
+    end else begin
+      lstTemplates.ItemIndex := LIndex;
+    end;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.SetSelectedFile',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
 end;
 
 procedure TfrmCompose.lstTemplatesClick(Sender: TObject);
 begin
-  if lstTemplates.ItemIndex <> -1 then begin
-    FSelectedFile := lstTemplates.Items[lstTemplates.ItemIndex];
+  try
+    if lstTemplates.ItemIndex <> -1 then begin
+      FSelectedFile := lstTemplates.Items[lstTemplates.ItemIndex];
+    end;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.lstTemplatesClick',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
 end;
 
@@ -416,25 +691,40 @@ var
   LFileName: String;
   LEnabled: Boolean;
 begin
-  if FStopRefresh then Exit;
-
-  lstTemplates.Items.BeginUpdate;
   try
-    lstTemplates.Clear;
-
-    LEnabled := TFileUtils.RefreshList(
-      lstTemplates.Items,
-      FParentForm.FullSourceFilesDir,
-      FParentForm.ExcludedFileList,
-      FLanguageFileList) and
-      (Length(Trim(edtSubject.Text)) >= 2); // At least 2 characters
-                                            // in the edtSubject field before
-                                            // next button is enabled
-    PostMessage(Self.Handle, WM_SET_NEXT_ENABLED, Integer(LEnabled), 0);
-    PostMessage(Self.Handle, WM_SET_EDITDEL_BTNS_ENABLED, 0, 0);
-    PostMessage(Self.Handle, WM_SET_SELECTED_FILE, 0, 0);
-  finally
-    lstTemplates.Items.EndUpdate;
+    if FStopRefresh then Exit;
+  
+    lstTemplates.Items.BeginUpdate;
+    try
+      lstTemplates.Clear;
+  
+      LEnabled := TFileUtils.RefreshList(
+        lstTemplates.Items,
+        FParentForm.FullSourceFilesDir,
+        FParentForm.ExcludedFileList,
+        FLanguageFileList) and
+        (Length(Trim(edtSubject.Text)) >= 2); // At least 2 characters
+                                              // in the edtSubject field before
+                                              // next button is enabled
+      PostMessage(Self.Handle, WM_SET_NEXT_ENABLED, Integer(LEnabled), 0);
+      PostMessage(Self.Handle, WM_SET_EDITDEL_BTNS_ENABLED, 0, 0);
+      PostMessage(Self.Handle, WM_SET_SELECTED_FILE, 0, 0);
+    finally
+      lstTemplates.Items.EndUpdate;
+    end;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmCompose.RefreshFileList',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
 end;
 

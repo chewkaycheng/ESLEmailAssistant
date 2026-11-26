@@ -60,7 +60,6 @@ object frmMessage: TfrmMessage
     ParentFont = False
     Layout = tlCenter
     WordWrap = True
-    ExplicitTop = 208
     ExplicitWidth = 120
     ExplicitHeight = 32
   end
@@ -74,7 +73,6 @@ object frmMessage: TfrmMessage
     Margins.Right = 5
     Margins.Bottom = 5
     CustomButtons = <>
-    ExplicitWidth = 780
   end
   object MessageImage: TscGPCharImage
     AlignWithMargins = True
@@ -124,7 +122,6 @@ object frmMessage: TfrmMessage
     AnimationAcceleration = False
     RotateAnimation = False
     Transparent = True
-    ExplicitHeight = 250
   end
   object pnlButtons: TCWSSettingsPanel
     Left = 0
@@ -140,8 +137,6 @@ object frmMessage: TfrmMessage
     CornerRadius = 0
     RoundedCorners = []
     BorderEdges = [beTop]
-    ExplicitTop = 443
-    ExplicitWidth = 780
     object btnCancel: TCWSButton
       AlignWithMargins = True
       Left = 653
@@ -179,7 +174,6 @@ object frmMessage: TfrmMessage
       ImageIndex = 1
       ImageIndexPressed = 1
       OnClick = btnCancelClick
-      ExplicitLeft = 347
     end
     object btnOk: TCWSButton
       AlignWithMargins = True
@@ -219,7 +213,6 @@ object frmMessage: TfrmMessage
       ImageIndex = 0
       ImageIndexPressed = 0
       OnClick = btnOkClick
-      ExplicitLeft = 558
     end
     object btnCopy: TCWSButton
       AlignWithMargins = True
@@ -258,7 +251,6 @@ object frmMessage: TfrmMessage
       ImageIndex = 2
       ImageIndexPressed = 2
       OnClick = btnCopyClick
-      ExplicitLeft = -17
     end
     object btnYes: TCWSButton
       AlignWithMargins = True
@@ -297,7 +289,6 @@ object frmMessage: TfrmMessage
       ImageIndex = 1
       ImageIndexPressed = 1
       OnClick = btnYesClick
-      ExplicitLeft = 347
     end
     object BtnNo: TCWSButton
       AlignWithMargins = True
@@ -336,7 +327,6 @@ object frmMessage: TfrmMessage
       ImageIndex = 1
       ImageIndexPressed = 1
       OnClick = BtnNoClick
-      ExplicitLeft = 347
     end
   end
   object pnlTitle: TCWSSettingsPanel
@@ -352,7 +342,6 @@ object frmMessage: TfrmMessage
     DoubleBuffered = True
     RoundedCorners = []
     BorderEdges = [beBottom]
-    ExplicitWidth = 780
     object lblCaption: TCWSLabelColumn
       AlignWithMargins = True
       Left = 30
@@ -403,8 +392,6 @@ object frmMessage: TfrmMessage
     CornerRadius = 4.00000000000000000
     Align = alClient
     TabOrder = 4
-    ExplicitWidth = 606
-    ExplicitHeight = 232
   end
   object sbMain: TRzStatusBar
     Left = 0
@@ -428,8 +415,6 @@ object frmMessage: TfrmMessage
     StyleElements = [seFont, seClient]
     TabOrder = 5
     VisualStyle = vsClassic
-    ExplicitTop = 413
-    ExplicitWidth = 780
     object stpLeft: TRzStatusPane
       Left = 1
       Top = 1

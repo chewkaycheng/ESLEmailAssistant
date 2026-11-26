@@ -311,19 +311,15 @@ end;
 
 class procedure TUtils.SetMemoColor(AMemo: TCWSMemo);
 begin
-  AMemo.BackgroundColor := flNeutralBackground2;
-  AMemo.BackgroundFocusColor := flNeutralBackground2;
-  AMemo.BackgroundHoverColor := flNeutralBackground1Hover;
-  AMemo.BorderColor := flNeutralStroke1;
-
-  AMemo.DisabledColor := flNeutralBackgroundDisabled;
-  AMemo.DisabledBorderColor := flNeutralStrokeDisabled;
-
-  AMemo.LabelColor := flNeutralForeground2;
-
-  AMemo.AccentColor := flNeutralForeground2BrandPressed;
-
-  AMemo.Font.Color := flNeutralForeground1;
+  TCWSMemo(AMemo).BackgroundColor := flNeutralBackground2;
+  TCWSMemo(AMemo).BackgroundFocusColor := flNeutralBackground2;
+  TCWSMemo(AMemo).BackgroundHoverColor := flNeutralBackground1Hover;
+  TCWSMemo(AMemo).BorderColor := flNeutralStroke1;
+  TCWSMemo(AMemo).DisabledColor := flNeutralBackgroundDisabled;
+  TCWSMemo(AMemo).DisabledBorderColor := flNeutralStrokeDisabled;
+  TCWSMemo(AMemo).LabelColor := flNeutralForeground2;
+  TCWSMemo(AMemo).AccentColor := flNeutralForeground2BrandPressed;
+  TCWSMemo(AMemo).Font.Color := flNeutralForeground1;
 end;
 
 class procedure TUtils.SetMenuButtonColor(AButton: TscGPButton);

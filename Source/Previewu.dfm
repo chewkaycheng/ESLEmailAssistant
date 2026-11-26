@@ -249,7 +249,6 @@ object frmPreview: TfrmPreview
       ParentFont = False
       Layout = tlCenter
       CenterPoint = cpLowerRight
-      ExplicitLeft = 26
       ExplicitHeight = 31
     end
     object cboStudent: TCWSComboBox
