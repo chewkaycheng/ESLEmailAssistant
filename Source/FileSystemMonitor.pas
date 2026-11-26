@@ -68,8 +68,16 @@ type
       AWatchSubtree: Boolean): TDirectoryHandlerInfo; static;
   end;
 
-  PMonitorInfo = ^TMonitorInfo;
-  TMonitorInfo = record
+  TMonitorInfo = class
+  // Reference counted.  The object is kept alive by:
+  //   * the entry in TFileSystemMonitor.FMonitorList,
+  //   * every pending ReadDirectoryChangesW request,
+  //   * every change notification that has been queued but not yet executed.
+  // The OVERLAPPED structure submitted to the I/O subsystem lives inside the
+  // object, so the object must not be destroyed while a request is pending.
+  private
+    FRefCount: Integer;
+  public
     Overlapped: TOverlapped;
     Directory: string;
     DirectoryHandle: THandle;
@@ -77,27 +85,52 @@ type
     NotifyFilter: DWORD;
     DirectoryHandlers: TList<TDirectoryHandlerInfo>;
     FileHandlers: TDictionary<string, TArray<TMonitorChangeHandler>>;
+    constructor Create(const ADirectory: string; ADirectoryHandle: THandle;
+      BufferSize: Integer);
+    destructor Destroy; override;
+    function AddRef: Integer;
+    function Release: Integer;
     function WatchSubtree: Boolean;
-    class function NewMonitorInfo: PMonitorInfo; static;
-    class procedure FreeMonitorInfo(MonitorInfo: PMonitorInfo); static;
+  end;
+
+  TMonitorLifetime = class
+  // Shared token held by every queued change notification.  It answers the one
+  // question a notification still has to ask: does the monitor that queued me
+  // still exist?  The monitor closes the token in its destructor; the token frees
+  // itself once the last notification holding it has finished.
+  private
+    FLock: TCriticalSection;
+    FClosed: Boolean;
+    FRefCount: Integer;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function AddRef: Integer;
+    procedure Release;
+    function BeginUse: Boolean;
+    procedure EndUse;
+    procedure Close;
   end;
 
   TFileSystemMonitor = class(TInterfacedObject, IFileSystemMonitor)
   private
     FCompletionPort: THandle;
-    FMonitorList: TList<PMonitorInfo>;
+    FMonitorList: TList<TMonitorInfo>;
     FWorkerThread: TThread;
     FSync: TCriticalSection;
+    FTerminating: Boolean;
+    FPendingIoCount: Integer;
+    FLifetime: TMonitorLifetime;
     class var FBufferSize: Integer; // default 65536
-    procedure HandleChange(MonitorInfo: PMonitorInfo; NumBytes: DWORD);
+    procedure HandleChange(MonitorInfo: TMonitorInfo; NumBytes: DWORD);
     procedure WorkerThreadMethod;
-    procedure MonitoredDirectoryRemoved(MonitorInfo: PMonitorInfo);
+    procedure MonitoredDirectoryRemoved(MonitorInfo: TMonitorInfo);
     function NormalizePath(const Path: string): string;
     function AddDirectoryMonitor(const Directory: string; WatchSubtree: Boolean;
         NotifyFlags: TNotifyFlags; const FilePath: string; OnChange:
         TMonitorChangeHandler): Boolean;
     function NotifyFlagsToDWORD(const Flags: TNotifyFlags): DWORD;
-    function StartDirectoryMonitoring(MonitorInfo: PMonitorInfo): Boolean;
+    function StartDirectoryMonitoring(MonitorInfo: TMonitorInfo): Boolean;
     procedure Start;
     procedure Stop;
     // IFileSystemMonitor implementation
@@ -143,8 +176,11 @@ constructor TFileSystemMonitor.Create;
 begin
   inherited Create;
   FBufferSize := 65536;
-  FMonitorList := TList<PMonitorInfo>.Create;
+  FMonitorList := TList<TMonitorInfo>.Create;
   FSync := TCriticalSection.Create;
+  FLifetime := TMonitorLifetime.Create;
+  FTerminating := False;
+  FPendingIoCount := 0;
 
   // Create empty Completion port
   FCompletionPort := CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
@@ -154,12 +190,18 @@ end;
 
 destructor TFileSystemMonitor.Destroy;
 var
-  MonitorInfo: PMonitorInfo;
+  MonitorInfo: TMonitorInfo;
 begin
-  Stop;
+  // Tell every change notification that is still waiting that the monitor is on
+  // its way out.  This also waits for a notification that is running right now.
+  // It has to happen before Stop, because stopping the worker pumps the queue of
+  // waiting notifications on the calling thread.
+  if Assigned(FLifetime) then FLifetime.Close;
+
+  Stop; // Drains all pending I/O, so only the list references are left
 
   for MonitorInfo in FMonitorList do
-    TMonitorInfo.FreeMonitorInfo(MonitorInfo);
+    MonitorInfo.Release;
 
   FreeAndNil(FMonitorList);
 
@@ -170,6 +212,10 @@ begin
   end;
 
   FreeAndNil(FSync);
+
+  // The token stays alive until the last waiting notification has noticed the
+  // close and let go of its reference.
+  if Assigned(FLifetime) then FLifetime.Release;
   inherited;
 end;
 
@@ -214,7 +260,7 @@ function TFileSystemMonitor.AddDirectoryMonitor(const Directory: string;
   WatchSubtree: Boolean; NotifyFlags: TNotifyFlags; const FilePath: string;
   OnChange: TMonitorChangeHandler): Boolean;
 var
-  MonitorInfo: PMonitorInfo;
+  MonitorInfo: TMonitorInfo;
   DirectoryHandle: THandle;
   NormalizedDir, NormalizedFile: string;
   HandlerList: TArray<TMonitorChangeHandler>;
@@ -276,10 +322,8 @@ begin
     if DirectoryHandle = INVALID_HANDLE_VALUE then
       Exit;
 
-    MonitorInfo := TMonitorInfo.NewMonitorInfo;
+    MonitorInfo := TMonitorInfo.Create(NormalizedDir, DirectoryHandle, FBufferSize);
     try
-      MonitorInfo.Directory := NormalizedDir;
-      MonitorInfo.DirectoryHandle := DirectoryHandle;
       MonitorInfo.NotifyFilter := NotifyFlagsToDWORD(NotifyFlags);
       if FilePath = '' then begin
         MonitorInfo.DirectoryHandlers.Add(TDirectoryHandlerInfo.Create(OnChange, WatchSubtree));
@@ -290,19 +334,19 @@ begin
       end;
 
       if (CreateIoCompletionPort(DirectoryHandle, FCompletionPort,
-        ULONG_PTR(MonitorInfo), 0) <> FCompletionPort) or
+        ULONG_PTR(Pointer(MonitorInfo)), 0) <> FCompletionPort) or
         not StartDirectoryMonitoring(MonitorInfo)
       then
         raise EOSError.Create('Failed to start directory monitoring.');
 
-      FMonitorList.Add(MonitorInfo);
-
       if not IsMonitoring then
         Start;
 
+      FMonitorList.Add(MonitorInfo); // The list owns the initial reference
+
       Result := True;
     except
-      TMonitorInfo.FreeMonitorInfo(MonitorInfo);
+      MonitorInfo.Release;
     end;
 
   finally
@@ -310,10 +354,14 @@ begin
   end;
 end;
 
-function TFileSystemMonitor.StartDirectoryMonitoring(MonitorInfo: PMonitorInfo): Boolean;
+function TFileSystemMonitor.StartDirectoryMonitoring(MonitorInfo: TMonitorInfo): Boolean;
 begin
   ZeroMemory(@MonitorInfo.Overlapped, SizeOf(TOverlapped));
 
+  // The pending request owns a reference to MonitorInfo.  It keeps the object
+  // (and its OVERLAPPED structure) alive until the completion packet has been
+  // processed by the worker thread.  Must be called with FSync held.
+  MonitorInfo.AddRef;
   Result := ReadDirectoryChangesW(
     MonitorInfo.DirectoryHandle,
     @MonitorInfo.Buffer[0],
@@ -321,18 +369,34 @@ begin
     MonitorInfo.WatchSubtree,
     MonitorInfo.NotifyFilter,
     nil,
-    POverlapped(MonitorInfo),
+    @MonitorInfo.Overlapped,
     nil
   );
+
+  if Result then
+    Inc(FPendingIoCount)
+  else
+    MonitorInfo.Release;
 end;
 
-procedure TFileSystemMonitor.HandleChange(MonitorInfo: PMonitorInfo; NumBytes: DWORD);
+procedure TFileSystemMonitor.HandleChange(MonitorInfo: TMonitorInfo; NumBytes: DWORD);
 
   procedure LaunchHandlers(const Path: string; ChangeType: TFileChangeType);
-  // The anonymous mehtod is contained in a function, so that we capture values
+  // The anonymous method is contained in a function, so that we capture values
   // and not variables which may change by the time the method is executed
+  var
+    Lifetime: TMonitorLifetime;
   begin
-    TThread.Queue(FWorkerThread,
+    // The queued method owns a reference to MonitorInfo, so the record stays
+    // alive until the notification has been delivered, even if the folder is
+    // removed meanwhile.  It also owns a reference to the monitor's lifetime
+    // token, which tells it whether the monitor itself is still there.
+    MonitorInfo.AddRef;
+    Lifetime := FLifetime;
+    Lifetime.AddRef;
+    // The notification is not tied to the worker thread: queuing it for the
+    // worker would make it disappear silently when the worker is freed.
+    TThread.Queue(nil,
       procedure
       var
         FullPath: string;
@@ -341,24 +405,36 @@ procedure TFileSystemMonitor.HandleChange(MonitorInfo: PMonitorInfo; NumBytes: D
         Handler: TMonitorChangeHandler;
         FileHandlerList: TArray<TMonitorChangeHandler>;
       begin
-        FSync.Enter;
         try
-          // Make sure MonitorInfo is valid
-          if FMonitorList.IndexOf(MonitorInfo) < 0 then Exit;
+          // If the monitor has been destroyed, nothing here may be touched
+          if not Lifetime.BeginUse then
+            Exit;
+          try
+            FSync.Enter;
+            try
+              // Make sure MonitorInfo is still monitored
+              if FMonitorList.IndexOf(MonitorInfo) < 0 then Exit;
 
-          FullPath := TPath.Combine(MonitorInfo.Directory, Path);
-          IsSubdirectoryChange := not SameText(MonitorInfo.Directory,
-            TPath.GetDirectoryName(FullPath));
+              FullPath := TPath.Combine(MonitorInfo.Directory, Path);
+              IsSubdirectoryChange := not SameText(MonitorInfo.Directory,
+                TPath.GetDirectoryName(FullPath));
 
-          for HandlerInfo in MonitorInfo.DirectoryHandlers do
-            if HandlerInfo.WatchSubtree or not IsSubdirectoryChange then
-              HandlerInfo.Handler(Self, FullPath, ChangeType);
+              for HandlerInfo in MonitorInfo.DirectoryHandlers do
+                if HandlerInfo.WatchSubtree or not IsSubdirectoryChange then
+                  HandlerInfo.Handler(Self, FullPath, ChangeType);
 
-          if MonitorInfo.FileHandlers.TryGetValue(FullPath, FileHandlerList) then
-            for Handler in FileHandlerList do
-              Handler(Self, FullPath, ChangeType);
+              if MonitorInfo.FileHandlers.TryGetValue(FullPath, FileHandlerList) then
+                for Handler in FileHandlerList do
+                  Handler(Self, FullPath, ChangeType);
+            finally
+              FSync.Leave;
+            end;
+          finally
+            Lifetime.EndUse;
+          end;
         finally
-          FSync.Leave;
+          Lifetime.Release;
+          MonitorInfo.Release;
         end;
       end);
   end;
@@ -401,7 +477,9 @@ begin
       Break;
   until False;
 
-  StartDirectoryMonitoring(MonitorInfo);
+  // Re-arm the request, unless the monitor is shutting down or has been removed
+  if not FTerminating and (FMonitorList.IndexOf(MonitorInfo) >= 0) then
+    StartDirectoryMonitoring(MonitorInfo);
 end;
 
 procedure TFileSystemMonitor.WorkerThreadMethod;
@@ -409,12 +487,13 @@ var
   NumBytes: DWORD;
   CompletionKey: ULONG_PTR;
   Overlapped: POverlapped;
-  MonitorInfo: PMonitorInfo;
+  MonitorInfo: TMonitorInfo;
   Success: Boolean;
-  MonitorEntry: PMonitorInfo;
-  DirectoriesToDelete: TArray<PMonitorInfo>;
+  MonitorEntry: TMonitorInfo;
+  DirectoriesToDelete: TArray<TMonitorInfo>;
+  AllIdle: Boolean;
 begin
-  while not TThread.CheckTerminated do
+  while True do
   begin
     NumBytes := 0;
     CompletionKey := 0;
@@ -428,18 +507,27 @@ begin
       500 // 5-second timeout
     );
 
-    if Success then
+    // A failed request (for example ERROR_OPERATION_ABORTED after CancelIoEx)
+    // still produces a completion packet: the call returns False but fills in
+    // Overlapped, CompletionKey and NumBytes.  It must be counted down and
+    // released like any other packet, otherwise FPendingIoCount never reaches
+    // zero and Stop waits forever.
+    if Success or (Overlapped <> nil) then
     begin
-      if (NumBytes = 0) and (CompletionKey = 0) and (Overlapped = nil) then
-        // Empty Completion status posted signalling to exit the thread
-        Break;
-
-      // Handle the Change
-      FSync.Enter;
-      try
-        HandleChange(PMonitorInfo(Overlapped), NumBytes);
-      finally
-        FSync.Leave;
+      // A zero CompletionKey is the wake-up packet posted by Stop
+      MonitorInfo := TMonitorInfo(Pointer(CompletionKey));
+      if MonitorInfo <> nil then
+      begin
+        // Handle the Change, then drop the reference owned by the request
+        FSync.Enter;
+        try
+          if Success and not FTerminating then
+            HandleChange(MonitorInfo, NumBytes);
+          Dec(FPendingIoCount);
+        finally
+          FSync.Leave;
+        end;
+        MonitorInfo.Release;
       end;
     end
     else if GetLastError = WAIT_TIMEOUT then
@@ -462,11 +550,30 @@ begin
           MonitoredDirectoryRemoved(MonitorInfo);
           // Stop monitoring this directory
           FMonitorList.Remove(MonitorInfo);
-          TMonitorInfo.FreeMonitorInfo(MonitorInfo);
+          // Complete the pending request, so that its reference is released
+          CancelIoEx(MonitorInfo.DirectoryHandle, @MonitorInfo.Overlapped);
+          MonitorInfo.Release;
         end;
       finally
         FSync.Leave;
       end;
+    end
+    else
+      // The completion port is no longer usable (for example it was closed),
+      // so no more packets can arrive.  Leave instead of spinning forever.
+      Break;
+
+    // Exit only after every pending request has been completed and released
+    if FTerminating then
+    begin
+      FSync.Enter;
+      try
+        AllIdle := FPendingIoCount <= 0;
+      finally
+        FSync.Leave;
+      end;
+      if AllIdle then
+        Break;
     end;
   end;
 end;
@@ -483,6 +590,7 @@ begin
     if (FWorkerThread <> nil) then
       Exit;
 
+    FTerminating := False;
     FWorkerThread := TThread.CreateAnonymousThread(WorkerThreadMethod);
     FWorkerThread.FreeOnTerminate := False;
     FWorkerThread.NameThreadForDebugging('File System Monitor');
@@ -493,11 +601,24 @@ begin
 end;
 
 procedure TFileSystemMonitor.Stop;
+var
+  MonitorInfo: TMonitorInfo;
 begin
   FSync.Enter;
   try
     if IsMonitoring then
+    begin
+      FTerminating := True;
+
+      // Cancel every pending request.  Each one posts a completion packet,
+      // which lets the worker thread release the reference it holds and then
+      // exit (see WorkerThreadMethod).
+      for MonitorInfo in FMonitorList do
+        CancelIoEx(MonitorInfo.DirectoryHandle, @MonitorInfo.Overlapped);
+
+      // Wake up the worker so that it re-evaluates the exit condition
       PostQueuedCompletionStatus(FCompletionPort, 0, 0, nil);
+    end;
   finally
     FSync.Leave;
   end;
@@ -508,7 +629,7 @@ end;
 function TFileSystemMonitor.RemoveDirectory(const Directory: string; OnChange:
     TMonitorChangeHandler): Boolean;
 var
-  MonitorInfo: PMonitorInfo;
+  MonitorInfo: TMonitorInfo;
   NormalizedDir: string;
   I: Integer;
   OldWatchSubtree: Boolean;
@@ -532,8 +653,10 @@ begin
             if (MonitorInfo.DirectoryHandlers.Count = 0) and
               (MonitorInfo.FileHandlers.Count = 0) then
             begin
-              TMonitorInfo.FreeMonitorInfo(MonitorInfo);
               FMonitorList.Remove(MonitorInfo);
+              // Complete the pending request, so that its reference is released
+              CancelIoEx(MonitorInfo.DirectoryHandle, @MonitorInfo.Overlapped);
+              MonitorInfo.Release;
             end
             else if OldWatchSubtree <> MonitorInfo.WatchSubtree then
             begin
@@ -554,7 +677,7 @@ end;
 function TFileSystemMonitor.RemoveFile(const FilePath: string; OnChange:
     TMonitorChangeHandler): Boolean;
 var
-  MonitorInfo: PMonitorInfo;
+  MonitorInfo: TMonitorInfo;
   NormalizedFile, Directory: string;
   HandlerList: TArray<TMonitorChangeHandler>;
   HandlerIndex: Integer;
@@ -582,8 +705,10 @@ begin
             if (MonitorInfo.DirectoryHandlers.Count = 0) and
               (MonitorInfo.FileHandlers.Count = 0) then
             begin
-              TMonitorInfo.FreeMonitorInfo(MonitorInfo);
               FMonitorList.Remove(MonitorInfo);
+              // Complete the pending request, so that its reference is released
+              CancelIoEx(MonitorInfo.DirectoryHandle, @MonitorInfo.Overlapped);
+              MonitorInfo.Release;
             end;
 
             Break;
@@ -607,19 +732,25 @@ begin
 end;
 
 procedure TFileSystemMonitor.MonitoredDirectoryRemoved(
-  MonitorInfo: PMonitorInfo);
+  MonitorInfo: TMonitorInfo);
 // Called when a monitored directory was deleted/renamed
 // Notifies all handlers about the removal
-// We need to be carefull because MonitorInfo will be destroyed
-// before the anonymous method gets executed
+// Everything the notification needs is copied out of MonitorInfo here, and the
+// queued method keeps a reference of its own, so it never touches a stale object
 var
+  Directory: string;
   DirectoryHandlers: TArray<TDirectoryHandlerInfo>;
   FileHandlers: TArray<TPair<string, TArray<TMonitorChangeHandler>>>;
+  Lifetime: TMonitorLifetime;
 begin
+  Directory := MonitorInfo.Directory;
   DirectoryHandlers := MonitorInfo.DirectoryHandlers.ToArray;
   FileHandlers := MonitorInfo.FileHandlers.ToArray;
 
-  TThread.Queue(FWorkerThread,
+  MonitorInfo.AddRef;
+  Lifetime := FLifetime;
+  Lifetime.AddRef;
+  TThread.Queue(nil,
     procedure
     var
       FileName: string;
@@ -628,33 +759,125 @@ begin
       Pair: TPair<string, TArray<TMonitorChangeHandler>>;
       FileHandlerList: TArray<TMonitorChangeHandler>;
     begin
-      FSync.Enter;
       try
-        for HandlerInfo in DirectoryHandlers do
-          HandlerInfo.Handler(Self, MonitorInfo.Directory, fcRemoved);
+        // If the monitor has been destroyed, nothing here may be touched
+        if not Lifetime.BeginUse then
+          Exit;
+        try
+          FSync.Enter;
+          try
+            for HandlerInfo in DirectoryHandlers do
+              HandlerInfo.Handler(Self, Directory, fcRemoved);
 
-        for Pair in FileHandlers do
-        begin
-          FileName := Pair.Key;
-          FileHandlerList := Pair.Value;
-          for Handler in FileHandlerList do
-            Handler(Self, FileName, fcRemoved);
+            for Pair in FileHandlers do
+            begin
+              FileName := Pair.Key;
+              FileHandlerList := Pair.Value;
+              for Handler in FileHandlerList do
+                Handler(Self, FileName, fcRemoved);
+            end;
+          finally
+            FSync.Leave;
+          end;
+        finally
+          Lifetime.EndUse;
         end;
       finally
-        FSync.Leave;
+        Lifetime.Release;
+        MonitorInfo.Release;
       end;
     end);
 end;
 
+{ TMonitorLifetime }
+
+constructor TMonitorLifetime.Create;
+begin
+  inherited Create;
+  FLock := TCriticalSection.Create;
+  FRefCount := 1; // the reference owned by the monitor
+end;
+
+destructor TMonitorLifetime.Destroy;
+begin
+  FLock.Free;
+  inherited;
+end;
+
+function TMonitorLifetime.AddRef: Integer;
+begin
+  Result := TInterlocked.Increment(FRefCount);
+end;
+
+procedure TMonitorLifetime.Release;
+begin
+  if TInterlocked.Decrement(FRefCount) = 0 then
+    Free;
+end;
+
+function TMonitorLifetime.BeginUse: Boolean;
+// Keeps the lock while the caller works, so that Close cannot return in the
+// middle of a notification.  The caller must pair a True result with EndUse.
+begin
+  FLock.Enter;
+  Result := not FClosed;
+  if not Result then
+    FLock.Leave;
+end;
+
+procedure TMonitorLifetime.EndUse;
+begin
+  FLock.Leave;
+end;
+
+procedure TMonitorLifetime.Close;
+// Called from the monitor's destructor
+begin
+  FLock.Enter; // waits for a notification that is running on another thread
+  try
+    FClosed := True;
+  finally
+    FLock.Leave;
+  end;
+end;
+
 { TMonitorInfo }
 
-class function TMonitorInfo.NewMonitorInfo: PMonitorInfo;
+constructor TMonitorInfo.Create(const ADirectory: string;
+  ADirectoryHandle: THandle; BufferSize: Integer);
 begin
-  New(Result);
-  Result.DirectoryHandlers := TList<TDirectoryHandlerInfo>.Create;
-  Result.FileHandlers := TDictionary<string,
-        TArray<TMonitorChangeHandler>>.Create;
-  SetLength(Result.Buffer, TFileSystemMonitor.FBufferSize);
+  inherited Create;
+  FRefCount := 1; // the reference owned by the creator
+  Directory := ADirectory;
+  DirectoryHandle := ADirectoryHandle;
+  SetLength(Buffer, BufferSize);
+  DirectoryHandlers := TList<TDirectoryHandlerInfo>.Create;
+  FileHandlers := TDictionary<string, TArray<TMonitorChangeHandler>>.Create;
+end;
+
+destructor TMonitorInfo.Destroy;
+begin
+  if DirectoryHandle <> INVALID_HANDLE_VALUE then
+  begin
+    CancelIoEx(DirectoryHandle, @Overlapped);
+    CloseHandle(DirectoryHandle);
+    DirectoryHandle := INVALID_HANDLE_VALUE;
+  end;
+  DirectoryHandlers.Free;
+  FileHandlers.Free;
+  inherited;
+end;
+
+function TMonitorInfo.AddRef: Integer;
+begin
+  Result := TInterlocked.Increment(FRefCount);
+end;
+
+function TMonitorInfo.Release: Integer;
+begin
+  Result := TInterlocked.Decrement(FRefCount);
+  if Result = 0 then
+    Free;
 end;
 
 function TMonitorInfo.WatchSubtree: Boolean;
@@ -665,21 +888,6 @@ begin
   for HandlerInfo in DirectoryHandlers do
     if HandlerInfo.WatchSubtree then
       Exit(True);
-end;
-
-class procedure TMonitorInfo.FreeMonitorInfo(MonitorInfo: PMonitorInfo);
-begin
-  if Assigned(MonitorInfo) then
-  begin
-    if MonitorInfo.DirectoryHandle <> INVALID_HANDLE_VALUE then
-    begin
-      CancelIoEx(MonitorInfo.DirectoryHandle, @MonitorInfo.Overlapped);
-      CloseHandle(MonitorInfo.DirectoryHandle);
-    end;
-    MonitorInfo.DirectoryHandlers.Free;
-    MonitorInfo.FileHandlers.Free;
-    Dispose(MonitorInfo);
-  end;
 end;
 
 function CreateFileSystemMonitor: IFileSystemMonitor;

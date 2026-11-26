@@ -521,7 +521,6 @@ object frmCompose: TfrmCompose
       Margins.Right = 5
       Margins.Bottom = 5
       Delay = 300
-      ImageIndex = 1
       ImageList = SVGIconImageList2
     end
   end
