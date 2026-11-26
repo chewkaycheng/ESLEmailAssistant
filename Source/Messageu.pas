@@ -25,11 +25,16 @@ type
     stpRight: TRzStatusPane;
     btnCopy: TCWSButton;
     SVGIconImageList1: TSVGIconImageList;
+    btnYes: TCWSButton;
+    BtnNo: TCWSButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnOkClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
     procedure btnCopyClick(Sender: TObject);
+    procedure btnYesClick(Sender: TObject);
+    procedure BtnNoClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     procedure ApplyTheme;
   public
@@ -63,6 +68,11 @@ end;
 procedure TfrmMessage.FormDestroy(Sender: TObject);
 begin
   UnregisterThemeChange(Self.ApplyTheme);
+end;
+
+procedure TfrmMessage.FormShow(Sender: TObject);
+begin
+  Caption := lblCaption.LeftText;
 end;
 
 procedure TfrmMessage.ApplyTheme;
@@ -207,9 +217,19 @@ begin
   end;
 end;
 
+procedure TfrmMessage.BtnNoClick(Sender: TObject);
+begin
+  ModalResult := mrNo;
+end;
+
 procedure TfrmMessage.btnOkClick(Sender: TObject);
 begin
   ModalResult := mrOK;
+end;
+
+procedure TfrmMessage.btnYesClick(Sender: TObject);
+begin
+  ModalResult := mrYes;
 end;
 
 end.

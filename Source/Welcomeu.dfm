@@ -1,28 +1,35 @@
 object frmWelcome: TfrmWelcome
   Left = 0
   Top = 0
+  Margins.Left = 5
+  Margins.Top = 5
+  Margins.Right = 5
+  Margins.Bottom = 5
   BorderStyle = bsNone
   Caption = 'WELCOME'
-  ClientHeight = 407
-  ClientWidth = 791
+  ClientHeight = 611
+  ClientWidth = 1187
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
+  Font.Height = -18
   Font.Name = 'Segoe UI'
   Font.Style = []
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  TextHeight = 15
+  PixelsPerInch = 144
+  TextHeight = 25
   object lblWelcome_Message: TRzLabel
     AlignWithMargins = True
-    Left = 16
-    Top = 3
-    Width = 763
-    Height = 333
-    Margins.Left = 16
-    Margins.Right = 12
+    Left = 24
+    Top = 5
+    Width = 1145
+    Height = 499
+    Margins.Left = 24
+    Margins.Top = 5
+    Margins.Right = 18
+    Margins.Bottom = 5
     Align = alClient
     Caption = 
       'The ESL Mail Processing Assistant will help you send personalize' +
@@ -36,20 +43,24 @@ object frmWelcome: TfrmWelcome
     Color = clWhite
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -16
+    Font.Height = -24
     Font.Name = 'Segoe UI'
     Font.Style = []
     ParentColor = False
     ParentFont = False
     WordWrap = True
-    ExplicitWidth = 759
-    ExplicitHeight = 168
+    ExplicitWidth = 1136
+    ExplicitHeight = 256
   end
   object sbMain: TRzStatusBar
     Left = 0
-    Top = 387
-    Width = 791
-    Height = 20
+    Top = 509
+    Width = 1187
+    Height = 30
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     AutoStyle = False
     SimpleFrameStyle = fsNone
     BorderColor = clSilver
@@ -65,17 +76,28 @@ object frmWelcome: TfrmWelcome
     object stpLeft: TRzStatusPane
       Left = 1
       Top = 1
-      Width = 496
-      Height = 18
+      Width = 744
+      Height = 28
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       FrameStyle = fsNone
       Align = alLeft
       Caption = ''
+      ExplicitLeft = 2
+      ExplicitTop = 2
+      ExplicitHeight = 27
     end
     object stpRight: TRzStatusPane
-      Left = 497
+      Left = 745
       Top = 1
-      Width = 281
-      Height = 18
+      Width = 421
+      Height = 28
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       BorderWidth = 0
       FillColor = clWhite
       FlatColor = clWhite
@@ -84,26 +106,34 @@ object frmWelcome: TfrmWelcome
       Align = alLeft
       StyleElements = [seFont, seClient]
       Caption = ''
+      ExplicitLeft = 746
+      ExplicitTop = 2
+      ExplicitHeight = 27
     end
   end
   object pnlButtons: TCWSSettingsPanel
     Left = 0
-    Top = 339
-    Width = 791
-    Height = 48
+    Top = 539
+    Width = 1187
+    Height = 72
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Align = alBottom
     DoubleBuffered = True
     CornerRadius = 0
     BorderEdges = [beTop]
     object btnNewSession: TCWSButton
       AlignWithMargins = True
-      Left = 502
-      Top = 7
-      Width = 133
-      Height = 34
-      Margins.Top = 7
-      Margins.Right = 4
-      Margins.Bottom = 7
+      Left = 753
+      Top = 11
+      Width = 200
+      Height = 50
+      Margins.Left = 5
+      Margins.Top = 11
+      Margins.Right = 6
+      Margins.Bottom = 11
       Align = alRight
       TabOrder = 0
       ButtonStyle = bsCustom
@@ -133,14 +163,14 @@ object frmWelcome: TfrmWelcome
     end
     object btnResumeSession: TCWSButton
       AlignWithMargins = True
-      Left = 643
-      Top = 7
-      Width = 132
-      Height = 34
-      Margins.Left = 4
-      Margins.Top = 7
-      Margins.Right = 16
-      Margins.Bottom = 7
+      Left = 965
+      Top = 11
+      Width = 198
+      Height = 50
+      Margins.Left = 6
+      Margins.Top = 11
+      Margins.Right = 24
+      Margins.Bottom = 11
       Align = alRight
       TabOrder = 1
       ButtonStyle = bsCustom
@@ -171,6 +201,7 @@ object frmWelcome: TfrmWelcome
     end
   end
   object SVGIconImageList1: TSVGIconImageList
+    Size = 24
     SVGIconItems = <
       item
         IconName = 'add-black'

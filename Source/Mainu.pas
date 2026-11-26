@@ -229,43 +229,86 @@ uses
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  // Set the Width and Height of the main window
-  Width := MulDiv(FormWidth, Screen.PixelsPerInch, 96);
-  Height := MulDiv(FormHeight, Screen.PixelsPerInch, 96);
-
-  Initialize;
-  FMessageForm := TfrmMessage.Create(Self);
+  try
+    // Set the Width and Height of the main window
+    Width := MulDiv(FormWidth, Screen.PixelsPerInch, 96);
+    Height := MulDiv(FormHeight, Screen.PixelsPerInch, 96);
+  
+    Initialize;
+    FMessageForm := TfrmMessage.Create(Self);
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      ShowErrorMessage(
+        'Error',
+        'TfrmMain.FormCreate',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmMain.FormShow(Sender: TObject);
 begin
-  InitializeChildForms;
-//  !!!!!!!!!!!!!!!!!!!
-  ShowChildForm(frmWelcome);
-//  ShowChildForm(frmGridTest);
+  try
+    InitializeChildForms;
+    ShowChildForm(frmWelcome);
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      ShowErrorMessage(
+        'Error',
+        'TfrmMain.FormShow',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  if TFile.Exists(FFullCheckpointCSVFileName) then begin
-    FSessionIniFileHandler.WriteSessionIniValues;
+  try
+    if TFile.Exists(FFullCheckpointCSVFileName) then begin
+      FSessionIniFileHandler.WriteSessionIniValues;
+    end;
+  
+    frmCompose.StopRefresh := True;
+  
+    //SaveSubjectToFile;
+    UnregisterThemeChange(Self.ApplyTheme);
+    //FAppIniFileHandler.AppIniValues.DarkMode := FDarkMode;
+    FAppIniFileHandler.WriteAppIniValues;
+  
+    FAppIniFileHandler.Free;
+    FESLAdminIniFileHandler.Free;
+    FSessionIniFileHandler.Free;
+  
+    FDmMain.Free;
+    ExcludedFileList.Free;
+    FMessageForm.Free;
+    FLogger.Free;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      ShowErrorMessage(
+        'Error',
+        'TfrmMain.FormClose',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
-
-  frmCompose.StopRefresh := True;
-
-  //SaveSubjectToFile;
-  UnregisterThemeChange(Self.ApplyTheme);
-  //FAppIniFileHandler.AppIniValues.DarkMode := FDarkMode;
-  FAppIniFileHandler.WriteAppIniValues;
-
-  FAppIniFileHandler.Free;
-  FESLAdminIniFileHandler.Free;
-  FSessionIniFileHandler.Free;
-
-  FDmMain.Free;
-  ExcludedFileList.Free;
-  FMessageForm.Free;
-  FLogger.Free;
 end;
 
 
@@ -314,69 +357,129 @@ end;
 
 procedure TfrmMain.CreateFilesAndDirectories;
 begin
-  TUtils.EnsureDirectoryCreated(FFullSourceFilesDir);
-  TUtils.EnsureDirectoryCreated(FFullBackupFilesDir);
-  FAppIniFileHandler := TAppIniFileHandler.Create(FFullAppIniFileName);
-  FESLAdminIniFileHandler := TESLAdminIniFileHandler.Create;
-  FSessionIniFileHandler :=
+  try
+    TUtils.EnsureDirectoryCreated(FFullSourceFilesDir);
+    TUtils.EnsureDirectoryCreated(FFullBackupFilesDir);
+    FAppIniFileHandler := TAppIniFileHandler.Create(FFullAppIniFileName);
+    FESLAdminIniFileHandler := TESLAdminIniFileHandler.Create;
+    FSessionIniFileHandler :=
     TSessionIniFileHandler.Create(FFullSessionIniFileName);
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      ShowErrorMessage(
+        'Error',
+        'TfrmMain.CreateFilesAndDirectories',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmMain.Initialize;
 begin
-  // Set up file and directory names
-  SetupPathsAndFileNames;
-
-  // Create directories and files as required
-  CreateFilesAndDirectories;
-
-  // Read session Ini Values
-  //FAppIniFileHandler.ReadAppIniValues;
-  FESLAdminIniFileHandler.ReadESLAdminIniValues;
-
-  // Set the theme controller and apply the theme
-  RegisterThemeChange(Self.ApplyTheme);
-  FluentApplySystemTheme;
-  if FluentIsWindowsDarkMode then
-  begin
-    FDarkMode := True;
-    SetThemeBtnDarkMode;
-  end else
-  begin
-    FDarkMode := False;
-    SetThemeBtnLightMode;
+  try
+    // Set up file and directory names
+    SetupPathsAndFileNames;
+  
+    // Create directories and files as required
+    CreateFilesAndDirectories;
+  
+    // Read session Ini Values
+    //FAppIniFileHandler.ReadAppIniValues;
+    FESLAdminIniFileHandler.ReadESLAdminIniValues;
+  
+    // Set the theme controller and apply the theme
+    RegisterThemeChange(Self.ApplyTheme);
+    FluentApplySystemTheme;
+    if FluentIsWindowsDarkMode then
+    begin
+      FDarkMode := True;
+      SetThemeBtnDarkMode;
+    end else
+    begin
+      FDarkMode := False;
+      SetThemeBtnLightMode;
+    end;
+  
+    SetupLogger;
+    // Countries table and Class levels table are loaded in the
+    // SetupDataModule procedure
+    SetupDataModule;
+    SetupEmail;
+  
+    // Create and populate the excluded file list
+    ExcludedFileList := TStringList.Create;
+    ExcludedFileList.Add(SubjectFile);
+  
+    // Load subject from file
+    //LoadSubjectFromFile;
+  
+    FSelectedFile := '';
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      ShowErrorMessage(
+        'Error',
+        'TfrmMain.Initialize',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
-
-  SetupLogger;
-  // Countries table and Class levels table are loaded in the
-  // SetupDataModule procedure
-  SetupDataModule;
-  SetupEmail;
-
-  // Create and populate the excluded file list
-  ExcludedFileList := TStringList.Create;
-  ExcludedFileList.Add(SubjectFile);
-
-  // Load subject from file
-  //LoadSubjectFromFile;
-
-  FSelectedFile := '';
 end;
 
 procedure TfrmMain.SetupLogger;
 begin
-  FLogger := TSimpleLogger.Create(AppLogFile);
-  FLogger.WriteLog(TLogLevel.llInfo, 'ESL EMail Assistant started.');
+  try
+    FLogger := TSimpleLogger.Create(AppLogFile);
+    FLogger.WriteLog(TLogLevel.llInfo, 'ESL EMail Assistant started.');
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+     ShowErrorMessage(
+        'Error',
+        'TfrmMain.SetupLogger',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmMain.SetupDataModule;
 begin
-  FDmMain := TDmMain.Create(Nil, FLogger, FESLAdminIniFileHandler);
-  FDmMain.Setup;
-  // Load Countries table
-  FdMMain.LoadCountriesTable(FFullRecipientsByCountriesCSVFileName);
-  // Load Class Levels table
-  FdmMain.LoadClassLevelsTable(FFullRecipientsByClassLevelsCSVFileName);
+  try
+    FDmMain := TDmMain.Create(Nil, FLogger, FESLAdminIniFileHandler);
+    FDmMain.Setup;
+    // Load Countries table
+    FdMMain.LoadCountriesTable(FFullRecipientsByCountriesCSVFileName);
+    // Load Class Levels table
+    FdmMain.LoadClassLevelsTable(FFullRecipientsByClassLevelsCSVFileName);
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      ShowErrorMessage(
+        'Error',
+        'TfrmMain.SetupDataModule',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmMain.SetupEmail;
@@ -396,41 +499,85 @@ begin
     iOAuthMain.ServerTokenURL     := IniServerTokenUrl;
     iOAuthMain.RefreshToken       := '';
     iOAuthMain.AuthorizationScope := IniAuthorizationScope;
-
+  
     if Length(Trim(LEmlUserName)) > 0 then begin
       ismtpMain.User := LEmlUserName;
       ismtpMain.From := LEmlUserName;
       ismtpMain.MailServer := IniGoogleMailServer;
     end;
+  
   except
-    On E:Exception do begin
-
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      ShowErrorMessage(
+        'Error',
+        'TfrmMain.SetupEmail',
+        E.Message,
+        E.StackTrace
+        );
     end;
+    {$ENDIF}
   end;
 end;
 
 procedure TfrmMain.InitializeChildForms;
 begin
-  frmWelcome.SetParentForm(Self);
-  frmRecipients.SetParentForm(Self);
-  frmCompose.SetParentForm(Self);
-  frmPreview.ParentForm := Self;
-  frmAuthorize.ParentForm := Self;
-  frmSendEmails.ParentForm := Self;
-  frmEditMessageTemplate.SetParentForm(Self);
+  try
+    frmWelcome.SetParentForm(Self);
+    frmRecipients.SetParentForm(Self);
+    frmCompose.SetParentForm(Self);
+    frmPreview.ParentForm := Self;
+    frmAuthorize.ParentForm := Self;
+    frmSendEmails.ParentForm := Self;
+    frmEditMessageTemplate.SetParentForm(Self);
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E:Exception do begin
+      ShowErrorMessage(
+        'Error',
+        'TfrmMain.InitializeChildForms',
+        E.Message,
+        E.StackTrace
+      );
+    end;
+    {$ENDIF}
+  end
 end;
 
 procedure TfrmMain.iOAuthMainError(Sender: TObject; ErrorCode: Integer;
   const Description: string);
 begin
-  ShowMessage('OAuth Error ' + IntToStr(ErrorCode) + ': ' + Description);
+  ShowErrorMessage(
+    'Error',
+    'TfrmMain.iOAuthMainError',
+    'OAuth Error ' + IntToStr(ErrorCode) + ': ' + Description,
+    '');
 end;
 
 procedure TfrmMain.iOAuthMainLaunchBrowser(Sender: TObject; var URL,
   Command: string);
 begin
-  Command := '';
-  ShellExecute(0, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
+  try
+    Command := '';
+    ShellExecute(0, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);  
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E:Exception do begin
+      ShowErrorMessage(
+        'Error',
+        'TfrmMain.iOAuthMainLaunchBrowser',
+        E.Message,
+        E.StackTrace
+      );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmMain.iOAuthMainReturnURL(Sender: TObject; const URLPath,
@@ -439,10 +586,25 @@ var
   LSList: TStringList;
 begin
   LSList := TStringList.Create;
-  try
-    LSList.LoadFromFile('./auth.html', TEncoding.UTF8);
-    ResponseHeaders := 'Content-Type: text/html; charset=utf-8';
-    ResponseBody := LSList.Text;
+  try  
+    try
+      LSList.LoadFromFile('./auth.html', TEncoding.UTF8);
+      ResponseHeaders := 'Content-Type: text/html; charset=utf-8';
+      ResponseBody := LSList.Text;
+    except
+      {$IFDEF MadExceptOn}
+      raise;
+      {$ELSE}
+      On E:Exception do begin
+        ShowErrorMessage(
+          'Error',
+          'TfrmMain.iOAuthMainReturnURL',
+          E.Message,
+          E.StackTrace
+        );
+      end;
+      {$ENDIF}
+    end;    
   finally
     LSList.Free;
   end;
@@ -450,11 +612,26 @@ end;
 
 procedure TfrmMain.SetThemeBtnLightMode;
 begin
-  btnTheme.IconGlyph := '';
-  btnTheme.IconGlyphPressed := '';
-  btnTheme.IconOffsetX := 3;
-  btnTheme.IconOffsetY := 0;
-  SVGimgSteps.ImageList := SVGimlSteps;
+  try
+    btnTheme.IconGlyph := '';
+    btnTheme.IconGlyphPressed := '';
+    btnTheme.IconOffsetX := 3;
+    btnTheme.IconOffsetY := 0;
+    SVGimgSteps.ImageList := SVGimlSteps;
+  except
+    {$IFDEF MadExceptOn}
+      raise;
+    {$ELSE}
+    On E:Exception do begin
+      ShowErrorMessage(
+        'Error',
+        'TfrmMain.SetThemeBtnLightMode',
+        E.Message,
+        E.StackTrace
+      );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 function TfrmMain.GetSessionIniValues: TSessionIniValues;
@@ -469,11 +646,26 @@ end;
 
 procedure TfrmMain.SetThemeBtnDarkMode;
 begin
-  btnTheme.IconGlyph := '';
-  btnTheme.IconGlyphPressed := '';
-  btnTheme.IconOffsetX := 3;
-  btnTheme.IconOffsetY := 1;
-  SVGimgSteps.ImageList := SVGimlStepsDarkMode;
+  try
+    btnTheme.IconGlyph := '';
+    btnTheme.IconGlyphPressed := '';
+    btnTheme.IconOffsetX := 3;
+    btnTheme.IconOffsetY := 1;
+    SVGimgSteps.ImageList := SVGimlStepsDarkMode;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+  {$ELSE}
+    On E: Exception do begin
+      ShowErrorMessage(
+        'Error',
+        'TfrmMain.SetThemeBtnDarkMode',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+  {$ENDIF}
+  end;
 end;
 
 procedure TfrmMain.ApplyTheme;
@@ -481,18 +673,34 @@ var
   I: Integer;
   Comp: TComponent;
 begin
-  //Set colors to form and title bar
-  Self.Color := flNeutralBackground1;
-  lblTitle.Font.Color := flNeutralForeground1;
-  TUtils.SetTitlebarColor(Self.CustomTitleBar);
-  TUtils.SetThemeButtonColor(btnTheme);
-
-  TUtils.SetPanelColor(pnlMain);
-  TUtils.SetPanelColor(pnlImage);
-  TUtils.SetTPanelsColor(Self);
-
-  CWSSettingsPanel1.FillColor := flNeutralBackground2;
-  CWSSettingsPanel1.BorderColor := flNeutralStroke1;
+  try
+    //Set colors to form and title bar
+    Self.Color := flNeutralBackground1;
+    lblTitle.Font.Color := flNeutralForeground1;
+    TUtils.SetTitlebarColor(Self.CustomTitleBar);
+    TUtils.SetThemeButtonColor(btnTheme);
+  
+    TUtils.SetPanelColor(pnlMain);
+    TUtils.SetPanelColor(pnlImage);
+    TUtils.SetTPanelsColor(Self);
+  
+    CWSSettingsPanel1.FillColor := flNeutralBackground2;
+    CWSSettingsPanel1.BorderColor := flNeutralStroke1;
+    
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      ShowErrorMessage(
+        'Error',
+        'TfrmMain.ApplyTheme',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 
 //  pnlContentForm.Color := flNeutralBackground2;
 //  pnlTitle.Color := flNeutralBackground1;
@@ -503,15 +711,31 @@ end;
 
 procedure TfrmMain.btnThemeClick(Sender: TObject);
 begin
-  if FDarkMode then  begin
-    FDarkMode := False;
-    FluentApplyTheme(ftmLight);
-    SetThemeBtnLightMode;
-  end else begin
-    FDarkMode := True;
-    FluentApplyTheme(ftmDark);
-    SetThemeBtnDarkMode;
+  try
+    if FDarkMode then  begin
+      FDarkMode := False;
+      FluentApplyTheme(ftmLight);
+      SetThemeBtnLightMode;
+    end else begin
+      FDarkMode := True;
+      FluentApplyTheme(ftmDark);
+      SetThemeBtnDarkMode;
+    end;  
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      ShowErrorMessage(
+        'Error',
+        'TfrmMain.btnThemeClick',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
+
 end;
 
 procedure TfrmMain.ShowRecipientsForm;
@@ -534,7 +758,6 @@ begin
   ShowChildForm(frmCompose);
 end;
 
-
 procedure TfrmMain.ShowPreviewForm;
 begin
   ShowChildForm(frmPreview);
@@ -547,20 +770,36 @@ end;
 
 procedure TfrmMain.ShowChildForm(AForm: TForm);
 begin
-  if FActiveForm = AForm then begin
-    Exit;
+  try
+    if FActiveForm = AForm then begin
+      Exit;
+    end;
+  
+    if Assigned(FActiveForm) then begin
+      FActiveForm.Close;
+      FActiveForm := Nil;
+    end;
+  
+    AForm.Parent := pnlContentForm;
+    AForm.Align := alClient;
+    AForm.Show;
+    lblTitle.Caption := AForm.Caption;
+    FActiveForm := AForm;
+  
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      ShowErrorMessage(
+        'Error',
+        'TfrmMain.ShowChildForm',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
-
-  if Assigned(FActiveForm) then begin
-    FActiveForm.Close;
-    FActiveForm := Nil;
-  end;
-
-  AForm.Parent := pnlContentForm;
-  AForm.Align := alClient;
-  AForm.Show;
-  lblTitle.Caption := AForm.Caption;
-  FActiveForm := AForm;
 end;
 
 procedure TfrmMain.ShowErrorMessage(
@@ -572,24 +811,37 @@ var
   LErrorMsg: String;
 begin
   LErrorMsg := TUtils.FormatErrorMessage(AProcName, AErrorMsg, ACallStack);
+  
+  // 1. Log the error
+  FLogger.WriteLog(llError, LErrorMsg);
+  
   FMessageForm.lblCaption.LeftText := AMsgCaption;
   FMessageForm.MessageImage.ImageIndex := 87;
   FMessageForm.MessageImage.ImageColor := $004040FF;
+  
   FMessageForm.memError.Visible := True;
   FMessageForm.lblMessage.Visible := False;
   FMessageForm.memError.Text := LErrorMsg;
+  FMessageForm.btnOK.Visible := True;
   FMessageForm.btnCancel.Visible := False;
-  FMessageForm.ShowModal;
+  FMessageForm.btnYes.Visible := False;
+  FMessageForm.btnNo.Visible := False;
+  FMessageForm.btnCopy.Visible := True;
+  FMessageForm.ShowModal;  
 end;
 
 procedure TfrmMain.ShowInfoMessage(const AMsgCaption, AMsg: String);
 begin
   FMessageForm.lblCaption.LeftText := AMsgCaption;
   FMessageForm.lblMessage.Caption := AMsg;
-  FMessageForm.btnCancel.Visible := False;
   FMessageForm.memError.Visible := False;
   FMessageForm.lblMessage.Visible := True;
   FMessageForm.ShowModal;
+  FMessageForm.btnOK.Visible := True;
+  FMessageForm.btnCancel.Visible := True;
+  FMessageForm.btnYes.Visible := False;
+  FMessageForm.btnNo.Visible := False;
+  FMessageForm.btnCopy.Visible := False;
 end;
 
 function TfrmMain.ShowQuestionMessage(const AMsgCaption, AMsg: String): Integer;
@@ -600,6 +852,11 @@ begin
   FMessageForm.lblMessage.Caption := AMsg;
   FMessageForm.memError.Visible := False;
   FMessageForm.lblMessage.Visible := True;
+  FMessageForm.btnOK.Visible := False;
+  FMessageForm.btnCancel.Visible := False;
+  FMessageForm.btnYes.Visible := True;
+  FMessageForm.btnNo.Visible := True;
+  FMessageForm.btnCopy.Visible := False;
   FMessageForm.ShowModal;
   Result := FMessageForm.ModalResult;
 end;
