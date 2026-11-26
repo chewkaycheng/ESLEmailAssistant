@@ -117,6 +117,8 @@ type
     FCompletionPort: THandle;
     FMonitorList: TList<TMonitorInfo>;
     FWorkerThread: TThread;
+    FKillThreadEvent: TEvent;
+    FThreadEndedEvent: TEvent;
     FSync: TCriticalSection;
     FTerminating: Boolean;
     FPendingIoCount: Integer;
@@ -172,6 +174,11 @@ end;
 
 { TFileSystemMonitor }
 
+const
+  // Completion key posted by Stop when the worker must leave the loop regardless
+  // of how many requests are still pending.
+  FORCE_EXIT_KEY = ULONG_PTR($DEADBEEF);
+
 constructor TFileSystemMonitor.Create;
 begin
   inherited Create;
@@ -181,7 +188,8 @@ begin
   FLifetime := TMonitorLifetime.Create;
   FTerminating := False;
   FPendingIoCount := 0;
-
+  FKillThreadEvent := TEvent.Create(Nil, True, False, '');
+  FThreadEndedEvent := TEvent.Create(Nil, True, False, '');
   // Create empty Completion port
   FCompletionPort := CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
   if FCompletionPort = 0 then
@@ -216,6 +224,12 @@ begin
   // The token stays alive until the last waiting notification has noticed the
   // close and let go of its reference.
   if Assigned(FLifetime) then FLifetime.Release;
+  if Assigned(FKillThreadEvent) then begin
+    FreeAndNil(FKillThreadEvent);
+  end;
+  if Assigned(FThreadEndedEvent) then begin
+    FreeAndNil(FThreadEndedEvent);
+  end;
   inherited;
 end;
 
@@ -478,7 +492,7 @@ begin
   until False;
 
   // Re-arm the request, unless the monitor is shutting down or has been removed
-  if not FTerminating and (FMonitorList.IndexOf(MonitorInfo) >= 0) then
+  if not (FKillThreadEvent.WaitFor(0) = TWaitResult.wrSignaled) and (FMonitorList.IndexOf(MonitorInfo) >= 0) then
     StartDirectoryMonitoring(MonitorInfo);
 end;
 
@@ -493,88 +507,95 @@ var
   DirectoriesToDelete: TArray<TMonitorInfo>;
   AllIdle: Boolean;
 begin
-  while True do
-  begin
-    NumBytes := 0;
-    CompletionKey := 0;
-    Overlapped := nil;
-
-    Success := GetQueuedCompletionStatus(
-      FCompletionPort,
-      NumBytes,
-      CompletionKey,
-      Overlapped,
-      500 // 5-second timeout
-    );
-
-    // A failed request (for example ERROR_OPERATION_ABORTED after CancelIoEx)
-    // still produces a completion packet: the call returns False but fills in
-    // Overlapped, CompletionKey and NumBytes.  It must be counted down and
-    // released like any other packet, otherwise FPendingIoCount never reaches
-    // zero and Stop waits forever.
-    if Success or (Overlapped <> nil) then
+  try
+    while True do
     begin
-      // A zero CompletionKey is the wake-up packet posted by Stop
-      MonitorInfo := TMonitorInfo(Pointer(CompletionKey));
-      if MonitorInfo <> nil then
+      NumBytes := 0;
+      CompletionKey := 0;
+      Overlapped := nil;
+
+      Success := GetQueuedCompletionStatus(
+        FCompletionPort,
+        NumBytes,
+        CompletionKey,
+        Overlapped,
+        500 // 5-second timeout
+      );
+
+      // Forced stop: leave before the pending requests are accounted for
+      if CompletionKey = FORCE_EXIT_KEY then Break;
+
+      // A failed request (for example ERROR_OPERATION_ABORTED after CancelIoEx)
+      // still produces a completion packet: the call returns False but fills in
+      // Overlapped, CompletionKey and NumBytes.  It must be counted down and
+      // released like any other packet, otherwise FPendingIoCount never reaches
+      // zero and Stop waits forever.
+      if Success or (Overlapped <> nil) then
       begin
-        // Handle the Change, then drop the reference owned by the request
+        // A zero CompletionKey is the wake-up packet posted by Stop
+        MonitorInfo := TMonitorInfo(Pointer(CompletionKey));
+        if MonitorInfo <> nil then
+        begin
+          // Handle the Change, then drop the reference owned by the request
+          FSync.Enter;
+          try
+            if Success and not (FKillThreadEvent.WaitFor(0) = TWaitResult.wrSignaled) then
+              HandleChange(MonitorInfo, NumBytes);
+            Dec(FPendingIoCount);
+          finally
+            FSync.Leave;
+          end;
+          MonitorInfo.Release;
+        end;
+      end
+      else if GetLastError = WAIT_TIMEOUT then
+      begin
+        // If a monitored directory gets deleted/renamed we get no notification.
+        // So periodically we need to check whether the monitored directories
+        // still exist.
+        DirectoriesToDelete := [];
         FSync.Enter;
         try
-          if Success and not FTerminating then
-            HandleChange(MonitorInfo, NumBytes);
-          Dec(FPendingIoCount);
+          for MonitorEntry in FMonitorList do
+          begin
+            if not TDirectory.Exists(MonitorEntry.Directory) then
+              DirectoriesToDelete := DirectoriesToDelete + [MonitorEntry];
+          end;
+
+          for MonitorInfo in DirectoriesToDelete do
+          begin
+            // Send remove notifications
+            MonitoredDirectoryRemoved(MonitorInfo);
+            // Stop monitoring this directory
+            FMonitorList.Remove(MonitorInfo);
+            // Complete the pending request, so that its reference is released
+            CancelIoEx(MonitorInfo.DirectoryHandle, @MonitorInfo.Overlapped);
+            MonitorInfo.Release;
+          end;
         finally
           FSync.Leave;
         end;
-        MonitorInfo.Release;
-      end;
-    end
-    else if GetLastError = WAIT_TIMEOUT then
-    begin
-      // If a monitored directory gets deleted/renamed we get no notification.
-      // So periodically we need to check whether the monitored directories
-      // still exist.
-      DirectoriesToDelete := [];
-      FSync.Enter;
-      try
-        for MonitorEntry in FMonitorList do
-        begin
-          if not TDirectory.Exists(MonitorEntry.Directory) then
-            DirectoriesToDelete := DirectoriesToDelete + [MonitorEntry];
-        end;
-
-        for MonitorInfo in DirectoriesToDelete do
-        begin
-          // Send remove notifications
-          MonitoredDirectoryRemoved(MonitorInfo);
-          // Stop monitoring this directory
-          FMonitorList.Remove(MonitorInfo);
-          // Complete the pending request, so that its reference is released
-          CancelIoEx(MonitorInfo.DirectoryHandle, @MonitorInfo.Overlapped);
-          MonitorInfo.Release;
-        end;
-      finally
-        FSync.Leave;
-      end;
-    end
-    else
-      // The completion port is no longer usable (for example it was closed),
-      // so no more packets can arrive.  Leave instead of spinning forever.
-      Break;
-
-    // Exit only after every pending request has been completed and released
-    if FTerminating then
-    begin
-      FSync.Enter;
-      try
-        AllIdle := FPendingIoCount <= 0;
-      finally
-        FSync.Leave;
-      end;
-      if AllIdle then
+      end
+      else
+        // The completion port is no longer usable (for example it was closed),
+        // so no more packets can arrive.  Leave instead of spinning forever.
         Break;
+
+      // Exit only after every pending request has been completed and released
+      if (FKillThreadEvent.WaitFor(0) = TWaitResult.wrSignaled) then
+      begin
+        FSync.Enter;
+        try
+          AllIdle := FPendingIoCount <= 0;
+        finally
+          FSync.Leave;
+        end;
+        if AllIdle then
+          Break;
+      end;
     end;
+  finally
+    FThreadEndedEvent.SetEvent;
   end;
 end;
 
@@ -603,12 +624,13 @@ end;
 procedure TFileSystemMonitor.Stop;
 var
   MonitorInfo: TMonitorInfo;
+  WaitResult: TWaitResult;
 begin
   FSync.Enter;
   try
     if IsMonitoring then
     begin
-      FTerminating := True;
+      FKillThreadEvent.SetEvent;
 
       // Cancel every pending request.  Each one posts a completion packet,
       // which lets the worker thread release the reference it holds and then
@@ -621,6 +643,17 @@ begin
     end;
   finally
     FSync.Leave;
+  end;
+
+  // Give the worker 5 seconds to drain its pending requests
+  WaitResult := FThreadEndedEvent.WaitFor(5000);
+  if WaitResult <> TWaitResult.wrSignaled then
+  begin
+    // The pending requests may never complete (for example if their packets were
+    // lost).  The sentinel makes the worker leave at once instead of waiting for
+    // FPendingIoCount to reach zero, so the FreeAndNil below cannot block forever.
+    PostQueuedCompletionStatus(FCompletionPort, 0, FORCE_EXIT_KEY, nil);
+    FThreadEndedEvent.WaitFor(2000);
   end;
 
   FreeAndNil(FWorkerThread); // Waits for termination

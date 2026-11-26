@@ -803,7 +803,6 @@ var
     finally
       LStreamWriter.Free;
     end;
-
   end;
 begin
 
