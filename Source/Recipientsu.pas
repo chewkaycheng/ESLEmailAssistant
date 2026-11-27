@@ -320,7 +320,9 @@ begin
     LCount := FParentForm.DmMain.GetStudentCount;
 
     if LCount = 0 then begin
-      ShowMessage('No students match your selection. Please reselect again.');
+      FParentForm.ShowInfoMessage(
+        'Information',
+        'No students match your selection. Please reselect again.');
       stpLeft.Caption := '';
       Exit;
     end else begin

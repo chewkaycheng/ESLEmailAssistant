@@ -99,7 +99,7 @@ begin
   TUtils.AdjustButtonsPanel(pnlButtons);
   FEmailProcessor := TEmailProcessor.Create(
     Self,
-    FEmailException);
+    FThreadException);
 end;
 
 procedure TfrmPreview.FormDestroy(Sender: TObject);

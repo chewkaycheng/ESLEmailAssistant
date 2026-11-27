@@ -354,7 +354,9 @@ begin
         end;
 
         if LItems.Count = 0 then begin
-          ShowMessage('You need to select at least one Country');
+          TFrmMain(FParentForm).ShowInfoMessage(
+            'Information',
+            'You need to select at least one Country.');
           Result := False;
           Exit;
         end;
@@ -381,7 +383,9 @@ begin
         end;
 
         if LItems.Count = 0 then begin
-          ShowMessage('You need to select at least one Class Level');
+          TfrmMain(FParentForm).ShowInfoMessage(
+            'Information',
+            'You need to select at least one Class Level.');
           Result := False;
           Exit;
         end;

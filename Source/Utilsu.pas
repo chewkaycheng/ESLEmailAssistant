@@ -9,6 +9,7 @@ uses
   System.Variants,
   System.Classes,
   System.ImageList,
+  System.SyncObjs,
 
   Vcl.ImgList,
   Vcl.Graphics,
@@ -50,6 +51,25 @@ uses
   Constsu;
 
 type
+  TThreadException = class
+  private
+    FProcName: String;
+    FErrorMsg: String;
+    FStackTrace: String;
+    FCriticalSection: TCriticalSection;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure GetErrorInfo(
+      var AProcName: String;
+      var AErrorMsg: String;
+      var AStackTrace: String);
+    procedure SetErrorInfo(
+      AProcName: String;
+      AErrorMsg: String;
+      AStackTrace: String);
+  end;
+
   TUtils = class
   private
   public
@@ -338,6 +358,50 @@ begin
   AButton.Options.FrameWidth := 0;
 
   AButton.Options.DisabledColor := flNeutralBackground1;
+end;
+
+{ TThreadException }
+
+constructor TThreadException.Create;
+begin
+  FCriticalSection := TCriticalSection.Create;
+end;
+
+destructor TThreadException.Destroy;
+begin
+  if Assigned(FCriticalSection) then begin
+    FreeAndNil(FCriticalSection);
+  end;
+end;
+
+procedure TThreadException.GetErrorInfo(
+  var AProcName: String;
+  var AErrorMsg: String;
+  var AStackTrace: String);
+begin
+  FCriticalSection.Enter;
+  try
+    AProcName := FProcName;
+    AErrorMsg := FErrorMsg;
+    AStackTrace := FStackTrace;
+  finally
+    FCriticalSection.Leave;
+  end;
+end;
+
+procedure TThreadException.SetErrorInfo(
+  AProcName: String;
+  AErrorMsg: String;
+  AStackTrace: String);
+begin
+  FCriticalSection.Enter;
+  try
+    FProcName := AProcName;
+    FErrorMsg := AErrorMsg;
+    FStackTrace := AStackTrace;
+  finally
+    FCriticalSection.Leave;
+  end;
 end;
 
 end.

@@ -223,7 +223,7 @@ object frmRecipients: TfrmRecipients
         Left = 17
         Top = 1
         Width = 397
-        Height = 22
+        Height = 20
         Align = alLeft
         Caption = 'Choose which students to include in the Email Recipient List:'
         Color = clWhite
@@ -235,7 +235,6 @@ object frmRecipients: TfrmRecipients
         ParentColor = False
         ParentFont = False
         Layout = tlBottom
-        ExplicitHeight = 20
       end
     end
     object pnlSelectBtns: TPanel
@@ -574,7 +573,7 @@ object frmRecipients: TfrmRecipients
         Left = 17
         Top = 1
         Width = 328
-        Height = 19
+        Height = 20
         Margins.Left = 16
         Margins.Top = 0
         Align = alLeft
@@ -587,7 +586,6 @@ object frmRecipients: TfrmRecipients
         Font.Style = []
         ParentColor = False
         ParentFont = False
-        ExplicitHeight = 20
       end
     end
   end

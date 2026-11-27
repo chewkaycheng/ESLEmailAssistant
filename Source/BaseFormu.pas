@@ -25,6 +25,7 @@ uses
 
   EmailProcessoru,
   Mainu,
+  Utilsu,
   Constsu;
 
 
@@ -35,7 +36,7 @@ type
   protected
     { Private declarations }
     FParentForm: TfrmMain;
-    FEmailException: TEmailException;
+    FThreadException: TThreadException;
     procedure ApplyTheme; virtual; abstract;
   public
     { Public declarations }
@@ -58,7 +59,6 @@ uses
   CWSFluentColorsMulti,
   RzCommon,
 
-  Utilsu,
   IniFileHandleru;
 
 {$R *.dfm}
@@ -74,15 +74,15 @@ begin
   RegisterThemeChange(Self.ApplyTheme);
   FluentApplySystemTheme;
 
-  FEmailException := TEmailException.Create;
-  Self.Scaled := False;
-  Self.Scaled := True;
+  FThreadException := TThreadException.Create;
+//  Self.Scaled := False;
+//  Self.Scaled := True;
 end;
 
 procedure TfrmBase.FormDestroy(Sender: TObject);
 begin
-  if Assigned(FEmailException) then begin
-    FreeAndNil(FEmailException);
+  if Assigned(FThreadException) then begin
+    FreeAndNil(FThreadException);
   end;
   UnregisterThemeChange(Self.ApplyTheme);
 end;
@@ -94,7 +94,7 @@ var
   LStackTrace: String;
 begin
   BeforeShowMessage;
-  FEmailException.GetErrorInfo(
+  FThreadException.GetErrorInfo(
     LProcName,
     LErrorMsg,
     LStackTrace);

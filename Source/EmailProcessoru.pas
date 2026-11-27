@@ -20,9 +20,14 @@ uses
   System.SysUtils,
   System.IOUtils,
   System.Generics.Collections,
+  System.SyncObjs,
+
   FireDAC.Comp.Client,
   RzStatus,
-  ipwsmtp, System.SyncObjs;
+
+  ipwsmtp,
+
+  Utilsu;
 
 const
   MaxRetryCount       = 3;
@@ -50,25 +55,6 @@ type
     FailedEmails: TObjectList<TFailedEmail>;
     procedure Clear;
     function GetSummary: String;
-  end;
-
-  TEmailException = class
-  private
-    FProcName: String;
-    FErrorMsg: String;
-    FStackTrace: String;
-    FCriticalSection: TCriticalSection;
-  public
-    constructor Create;
-    destructor Destroy; override;
-    procedure GetErrorInfo(
-      var AProcName: String;
-      var AErrorMsg: String;
-      var AStackTrace: String);
-    procedure SetErrorInfo(
-      AProcName: String;
-      AErrorMsg: String;
-      AStackTrace: String);
   end;
 
   TCurrentInfo = class
@@ -109,7 +95,7 @@ type
     FOnStatusMessage: TProc<String>;
     FMailDirectory: String;
     FParent: TComponent;
-    FEmailException: TEmailException;
+    FThreadException: TThreadException;
     procedure LogMessage(const AMsg: String);
   public
     property MailDirectory: String
@@ -123,7 +109,7 @@ type
 
     constructor Create(
       AComponent: TComponent;
-      AEmailException: TEmailException);
+      AThreadException: TThreadException);
     destructor Destroy; override;
 
     procedure ProcessCheckpointFile(
@@ -154,7 +140,7 @@ type
     FCheckpointFile: String;
     FSendErrorFile: String;
     FCurrentInfo: TCurrentInfo;
-    FEmailException: TEmailException;
+    FThreadException: TThreadException;
     FEmailProcessor: TEmailProcessor;
     FSubject: String;
     FSmtp: TipwSMTP;
@@ -174,7 +160,7 @@ type
       ASendErrorFile: String;
       AEmailProcessor: TEmailProcessor;
       var ACurrentInfo: TCurrentInfo;
-      var AEmailException: TEmailException;
+      var AThreadException: TThreadException;
       ASubject: String;
       ASmtp: TipwSMTP
       ); reintroduce;
@@ -213,10 +199,10 @@ end;
 
 constructor TEmailProcessor.Create(
   AComponent: TComponent;
-  AEmailException: TEmailException);
+  AThreadException: TThreadException);
 begin
   FParent := AComponent;
-  FEmailException := AEmailException;
+  FThreadException := AThreadException;
   try
     FEmailDirectory := TPath.Combine(
       TPath.GetDirectoryName(
@@ -232,7 +218,7 @@ begin
     raise;
     {$ELSE}
     On E: Exception do begin
-      FEmailException.SetErrorInfo(
+      FThreadException.SetErrorInfo(
         'TEmailProcessor.Create',
         E.Message,
         E.StackTrace);
@@ -251,7 +237,7 @@ begin
     raise;
     {$ELSE}
     On E: Exception do begin
-      FEmailException.SetErrorInfo(
+      FThreadException.SetErrorInfo(
         'TEmailProcessor.Destroy',
         E.Message,
         E.StackTrace);
@@ -273,7 +259,7 @@ begin
     raise;
     {$ELSE}
     On E: Exception do begin
-      FEmailException.SetErrorInfo(
+      FThreadException.SetErrorInfo(
         'TEmailProcessor.LogMessage',
         E.Message,
         E.StackTrace);
@@ -489,7 +475,7 @@ begin
     raise;
     {$ELSE}
     On E: Exception do begin
-      FEmailException.SetErrorInfo(
+      FThreadException.SetErrorInfo(
         'TEmailProcessor.ProcessMailMessage',
         E.Message,
         E.StackTrace);
@@ -536,7 +522,7 @@ begin
     raise;
     {$ELSE}
     On E: Exception do begin
-      FEmailException.SetErrorInfo(
+      FThreadException.SetErrorInfo(
         'TEmailProcessor.ProcessMailMessage',
         E.Message,
         E.StackTrace);
@@ -573,7 +559,7 @@ begin
     raise;
     {$ELSE}
     On E: Exception do begin
-      FEmailException.SetErrorInfo(
+      FThreadException.SetErrorInfo(
         'TEmailProcessor.TemplateReplace',
         E.Message,
         E.StackTrace);
@@ -610,7 +596,7 @@ begin
     raise;
     {$ELSE}
     On E: Exception do begin
-      FEmailException.SetErrorInfo(
+      FThreadException.SetErrorInfo(
         'TEmailProcessor.GetFailedEmailsAsText',
         E.Message,
         E.StackTrace);
@@ -741,7 +727,7 @@ constructor TEmailProcessThread.Create(
   ASendErrorFile: String;
   AEmailProcessor: TEmailProcessor;
   var ACurrentInfo: TCurrentInfo;
-  var AEmailException: TEmailException;
+  var AThreadException: TThreadException;
   ASubject: String;
   ASmtp: TipwSMTP);
 begin
@@ -753,7 +739,7 @@ begin
   FSendErrorFile := ASendErrorFile;
   FEmailProcessor := AEmailProcessor;
   FCurrentInfo := ACurrentInfo;
-  FEmailException := AEmailException;
+  FThreadException := AThreadException;
   FSubject := ASubject;
   FSmtp := ASmtp;
 end;
@@ -952,7 +938,7 @@ begin
       PostMessage(FParentHandle, WM_SEND_EMAILS_COMPLETED, 0, 0);
     except
       On E:Exception do begin
-        FEmailException.SetErrorInfo(
+        FThreadException.SetErrorInfo(
           'TEmailProcessThread.Execute',
           E.Message,
           E.StackTrace);
@@ -967,48 +953,5 @@ begin
   end;
 end;
 
-{ TEmailException }
-
-constructor TEmailException.Create;
-begin
-  FCriticalSection := TCriticalSection.Create;
-end;
-
-destructor TEmailException.Destroy;
-begin
-  if Assigned(FCriticalSection) then begin
-    FreeAndNil(FCriticalSection);
-  end;
-end;
-
-procedure TEmailException.GetErrorInfo(
-  var AProcName: String;
-  var AErrorMsg: String;
-  var AStackTrace: String);
-begin
-  FCriticalSection.Enter;
-  try
-    AProcName := FProcName;
-    AErrorMsg := FErrorMsg;
-    AStackTrace := FStackTrace;
-  finally
-    FCriticalSection.Leave;
-  end;
-end;
-
-procedure TEmailException.SetErrorInfo(
-  AProcName: String;
-  AErrorMsg: String;
-  AStackTrace: String);
-begin
-  FCriticalSection.Enter;
-  try
-    FProcName := AProcName;
-    FErrorMsg := AErrorMsg;
-    FStackTrace := AStackTrace;
-  finally
-    FCriticalSection.Leave;
-  end;
-end;
 
 end.

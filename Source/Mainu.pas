@@ -460,7 +460,7 @@ end;
 procedure TfrmMain.SetupDataModule;
 begin
   try
-    FDmMain := TDmMain.Create(Nil, FLogger, FESLAdminIniFileHandler);
+    FDmMain := TDmMain.Create(Self, FLogger, FESLAdminIniFileHandler);
     FDmMain.Setup;
     // Load Countries table
     FdMMain.LoadCountriesTable(FFullRecipientsByCountriesCSVFileName);
@@ -836,12 +836,12 @@ begin
   FMessageForm.lblMessage.Caption := AMsg;
   FMessageForm.memError.Visible := False;
   FMessageForm.lblMessage.Visible := True;
-  FMessageForm.ShowModal;
   FMessageForm.btnOK.Visible := True;
-  FMessageForm.btnCancel.Visible := True;
+  FMessageForm.btnCancel.Visible := False;
   FMessageForm.btnYes.Visible := False;
   FMessageForm.btnNo.Visible := False;
   FMessageForm.btnCopy.Visible := False;
+  FMessageForm.ShowModal;
 end;
 
 function TfrmMain.ShowQuestionMessage(const AMsgCaption, AMsg: String): Integer;

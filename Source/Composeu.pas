@@ -31,8 +31,10 @@ uses
   SVGIconImageListBase,
   SVGIconImageList,
 
+  BaseFormu,
   FileSystemMonitor,
-  Mainu, RzAnimtr;
+  Mainu,
+  RzAnimtr;
 
 const
   WM_SET_NEXT_ENABLED = WM_USER + 0;
@@ -40,7 +42,7 @@ const
   WM_SET_SELECTED_FILE = WM_USER + 2;
 
 type
-  TfrmCompose = class(TForm)
+  TfrmCompose = class(TfrmBase)
     pnlButtons: TCWSSettingsPanel;
     sbMain: TRzStatusBar;
     stpLeft: TRzStatusPane;
@@ -91,7 +93,6 @@ type
       Sender: TObject; const
       APath: String;
       AChangeType: TFileChangeType);
-    procedure ApplyTheme;
     procedure SetCreateBtnEnabled;
     procedure OnSetNextBtnEnabled(var Msg: TMessage);
       message WM_SET_NEXT_ENABLED;
@@ -100,6 +101,8 @@ type
     procedure OnSetSelectedFile(var Msg: TMessage);
       message WM_SET_SELECTED_FILE;
     procedure SetSelectedFile;
+  protected
+    procedure ApplyTheme; override;
   public
     { Public declarations }
     procedure SetParentForm(AParent: TfrmMain);
@@ -130,10 +133,8 @@ uses
 
 procedure TfrmCompose.FormCreate(Sender: TObject);
 begin
+  inherited FormCreate(Sender);
   try
-    ScaleForPPI(CurrentPPI);
-    RegisterThemeChange(Self.ApplyTheme);
-    FluentApplySystemTheme;
     FSelectedFile := '';
     FEditing := False;
     cboLanguage.Font.Size := InputFontSize;
@@ -164,7 +165,6 @@ begin
       FreeAndNil(FLanguageFileList);
     end;
     FStopRefresh := True;
-    UnregisterThemeChange(Self.ApplyTheme);
   except
     {$IFDEF MadExceptOn}
     raise;
@@ -202,7 +202,9 @@ begin
     // Set up file system monitor
     if Not(Assigned(FMonitor)) then begin
       FStopRefresh := False;
-      FMonitor := CreateFileSystemMonitor;
+      FMonitor := CreateFileSystemMonitor(
+        Self,
+        FThreadException);
       FMonitor.AddDirectory(
         FParentForm.FullSourceFilesDir,
         False,
@@ -408,21 +410,27 @@ var
 begin
   try
     if (lstTemplates.ItemIndex = -1) then begin
-        ShowMessage('Select a file by clicking on the file name.');
+        FParentForm.ShowInfoMessage(
+          'Information',
+          'Select a file by clicking on the file name.');
         Exit;
       end;
-  
+
       LFileName :=  lstTemplates.Items[
         lstTemplates.ItemIndex];
       LFullFileName :=
         IncludeTrailingPathDelimiter(FParentForm.FullSourceFilesDir) +
           LFileName;
-      if MessageDlg(
-           Format('Are you sure you want to delete "%s"?', [LFileName]),
-           mtConfirmation,
-           [mbYes, mbNo], 0) = mrYes then begin
+      if FParentForm.ShowQuestionMessage(
+        'Confirm',
+        Format(
+          'Are you sure you want to delete "%s"?',
+          [LFileName])) = mrYes then begin
         if Not(DeleteFile(LFullFileName)) then begin
-          ShowMessage('Could not delete the file: ' + SysErrorMessage(GetLastError));
+          FParentForm.ShowInfoMessage(
+            'Information',
+            Format('Could not delete %s - ', [LFileName]) +
+            SysErrorMessage(GetLastError));
         end;
       end;
       SetCreateBtnEnabled;
@@ -447,7 +455,9 @@ var
   ALanguage: String;
 begin
   if (lstTemplates.ItemIndex = -1) then begin
-    ShowMessage('Select a file by clicking on the file name.');
+    FParentForm.ShowInfoMessage(
+      'Infromation',
+      'Select a file by clicking on the file name.');
     Exit;
   end;
 
@@ -469,7 +479,6 @@ begin
     end;
     {$ENDIF}
   end;
-
 end;
 
 procedure TfrmCompose.btnNextClick(Sender: TObject);
@@ -496,7 +505,7 @@ procedure TfrmCompose.cboLanguageChange(Sender: TObject);
 begin
   try
     SetCreateBtnEnabled;
-  
+
   except
     {$IFDEF MadExceptOn}
     raise;
@@ -521,11 +530,11 @@ begin
     if FLoading then begin
       Exit;
     end;
-  
+
     LIniValues := FParentForm.SessionIniValues;
     LIniValues.Subject := edtSubject.Text;
     FParentForm.SessionIniValues := LIniValues;
-  
+
     aniArrow.Visible := Length(Trim(edtSubject.Text)) < 2;
     RefreshFileList;
   except

@@ -108,10 +108,9 @@ begin
   inherited FormCreate(Sender);
   try
     FCurrentInfo := TCurrentInfo.Create;
-    FEmailException := TEmailException.Create;
     FEmailProcessor := TEmailProcessor.Create(
       Self,
-      FEmailException);
+      FThreadException);
 
     TUtils.AdjustButtonsPanel(pnlButtons);
   except
@@ -136,9 +135,6 @@ begin
   try
     if Assigned(FCurrentInfo) then begin
       FreeAndNil(FCurrentInfo);
-    end;
-    if Assigned(FEmailException) then begin
-      FreeAndNil(FEmailException);
     end;
     if Assigned(FEmailProcessor) then begin
       FreeAndNil(FEmailProcessor);
@@ -367,7 +363,7 @@ begin
         FParentForm.FullSendErrorFileName,
         FEmailProcessor,
         FCurrentInfo,
-        FEmailException,
+        FThreadException,
         FParentForm.SessionIniValues.Subject,
         FParentForm.ismtpMain);
       FEmailProcessThread.Start;
