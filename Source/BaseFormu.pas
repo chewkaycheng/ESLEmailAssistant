@@ -70,21 +70,51 @@ end;
 
 procedure TfrmBase.FormCreate(Sender: TObject);
 begin
-  ScaleForPPI(CurrentPPI);
-  RegisterThemeChange(Self.ApplyTheme);
-  FluentApplySystemTheme;
+  try
+    ScaleForPPI(CurrentPPI);
+    RegisterThemeChange(Self.ApplyTheme);
+    FluentApplySystemTheme;
 
-  FThreadException := TThreadException.Create;
-//  Self.Scaled := False;
-//  Self.Scaled := True;
+    FThreadException := TThreadException.Create;
+    Self.Scaled := False;
+    Self.Scaled := True;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmBase.FormCreate',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmBase.FormDestroy(Sender: TObject);
 begin
-  if Assigned(FThreadException) then begin
-    FreeAndNil(FThreadException);
+  try
+    if Assigned(FThreadException) then begin
+      FreeAndNil(FThreadException);
+    end;
+    UnregisterThemeChange(Self.ApplyTheme);
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmBase.FormDestroy',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
-  UnregisterThemeChange(Self.ApplyTheme);
 end;
 
 procedure TfrmBase.OnShowErrorMsg(var Msg: TMessage);

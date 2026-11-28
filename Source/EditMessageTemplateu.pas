@@ -211,14 +211,15 @@ begin
   try
     if FUserEdited then begin
       if Length(Trim(edtMessageTemplate.Text)) = 0 then begin
-        ShowMessage('There is no content in the email message. The file will not be saved.');
+        FParentForm.ShowInfoMessage(
+          'Information',
+          'There is no content in the email message. The file will not be saved.');
         Close;
       end else begin
-        if (MessageDlg(
+        if FParentForm.ShowQuestionMessage(
+          'Confirmation',
           'The file ' + FLanguage + '.txt has been modified. ' +  #10#13 +
-          'Do you wish to save the file?',
-         TMsgDlgType.mtConfirmation,
-         [mbYes, mbNo], 0, mbNo)) = mrYes then begin
+          'Do you wish to save the file?') = mrYes then begin
           edtMessageTemplate.Lines.SaveToFile(FSourceFile, TEncoding.UTF8);
           FUserEdited := False;
         end;

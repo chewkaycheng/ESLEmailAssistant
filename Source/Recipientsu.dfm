@@ -1,25 +1,34 @@
 object frmRecipients: TfrmRecipients
   Left = 0
   Top = 0
+  Margins.Left = 5
+  Margins.Top = 5
+  Margins.Right = 5
+  Margins.Bottom = 5
   BorderStyle = bsNone
   Caption = 'RECIPIENTS'
-  ClientHeight = 480
-  ClientWidth = 640
+  ClientHeight = 720
+  ClientWidth = 960
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
+  Font.Height = -18
   Font.Name = 'Segoe UI'
   Font.Style = []
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  TextHeight = 15
+  PixelsPerInch = 144
+  TextHeight = 25
   object sbMain: TRzStatusBar
     Left = 0
-    Top = 460
-    Width = 640
-    Height = 20
+    Top = 618
+    Width = 960
+    Height = 30
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     AutoStyle = False
     SimpleFrameStyle = fsNone
     BorderColor = clSilver
@@ -33,20 +42,30 @@ object frmRecipients: TfrmRecipients
     TabOrder = 0
     VisualStyle = vsClassic
     object stpLeft: TRzStatusPane
-      Left = 17
+      Left = 25
       Top = 1
-      Width = 496
-      Height = 18
+      Width = 744
+      Height = 28
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       FrameStyle = fsNone
       Align = alLeft
       Caption = ''
-      ExplicitHeight = 17
+      ExplicitLeft = 26
+      ExplicitTop = 2
+      ExplicitHeight = 27
     end
     object stpRight: TRzStatusPane
-      Left = 513
+      Left = 769
       Top = 1
-      Width = 281
-      Height = 18
+      Width = 421
+      Height = 28
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       BorderWidth = 0
       FillColor = clWhite
       FlatColor = clWhite
@@ -55,38 +74,50 @@ object frmRecipients: TfrmRecipients
       Align = alLeft
       StyleElements = [seFont, seClient]
       Caption = ''
-      ExplicitHeight = 17
+      ExplicitLeft = 770
+      ExplicitTop = 2
+      ExplicitHeight = 27
     end
     object stpSpacer: TRzStatusPane
       Left = 1
       Top = 1
-      Width = 16
-      Height = 18
+      Width = 24
+      Height = 28
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       FrameStyle = fsNone
       Align = alLeft
       Caption = ''
-      ExplicitHeight = 17
+      ExplicitLeft = 2
+      ExplicitTop = 2
+      ExplicitHeight = 27
     end
   end
   object pnlButtons: TCWSSettingsPanel
     Left = 0
-    Top = 412
-    Width = 640
-    Height = 48
+    Top = 648
+    Width = 960
+    Height = 72
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Align = alBottom
     DoubleBuffered = True
     CornerRadius = 0
     BorderEdges = [beTop]
-    ExplicitTop = 414
     object btnGenerateList: TCWSButton
       AlignWithMargins = True
-      Left = 211
-      Top = 7
-      Width = 133
-      Height = 34
-      Margins.Left = 4
-      Margins.Top = 7
-      Margins.Bottom = 7
+      Left = 317
+      Top = 11
+      Width = 199
+      Height = 50
+      Margins.Left = 6
+      Margins.Top = 11
+      Margins.Right = 5
+      Margins.Bottom = 11
       Align = alRight
       TabOrder = 0
       ButtonStyle = bsCustom
@@ -116,13 +147,14 @@ object frmRecipients: TfrmRecipients
     end
     object btnBack: TCWSButton
       AlignWithMargins = True
-      Left = 351
-      Top = 7
-      Width = 133
-      Height = 34
-      Margins.Left = 4
-      Margins.Top = 7
-      Margins.Bottom = 7
+      Left = 527
+      Top = 11
+      Width = 199
+      Height = 50
+      Margins.Left = 6
+      Margins.Top = 11
+      Margins.Right = 5
+      Margins.Bottom = 11
       Align = alRight
       TabOrder = 1
       ButtonStyle = bsCustom
@@ -153,14 +185,14 @@ object frmRecipients: TfrmRecipients
     end
     object btnNext: TCWSButton
       AlignWithMargins = True
-      Left = 491
-      Top = 7
-      Width = 133
-      Height = 34
-      Margins.Left = 4
-      Margins.Top = 7
-      Margins.Right = 16
-      Margins.Bottom = 7
+      Left = 737
+      Top = 11
+      Width = 199
+      Height = 50
+      Margins.Left = 6
+      Margins.Top = 11
+      Margins.Right = 24
+      Margins.Bottom = 11
       Align = alRight
       TabOrder = 2
       ButtonStyle = bsCustom
@@ -193,8 +225,8 @@ object frmRecipients: TfrmRecipients
   object pnlRecipients: TPanel
     Left = 0
     Top = 0
-    Width = 640
-    Height = 412
+    Width = 960
+    Height = 618
     Margins.Left = 0
     Margins.Top = 0
     Margins.Right = 0
@@ -205,75 +237,86 @@ object frmRecipients: TfrmRecipients
     Color = clWhite
     ParentBackground = False
     TabOrder = 2
-    ExplicitHeight = 414
     object pnlChoose: TPanel
       Left = 1
       Top = 1
-      Width = 638
-      Height = 24
-      Margins.Left = 8
+      Width = 958
+      Height = 36
+      Margins.Left = 12
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       Align = alTop
       BevelOuter = bvNone
       BorderWidth = 1
       Color = clWhite
-      Padding.Left = 16
+      Padding.Left = 24
       ParentBackground = False
       TabOrder = 0
       object lblChoose: TRzLabel
-        Left = 17
+        Left = 25
         Top = 1
-        Width = 397
-        Height = 20
+        Width = 616
+        Height = 34
+        Margins.Left = 5
+        Margins.Top = 5
+        Margins.Right = 5
+        Margins.Bottom = 5
         Align = alLeft
         Caption = 'Choose which students to include in the Email Recipient List:'
         Color = clWhite
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -15
+        Font.Height = -23
         Font.Name = 'Segoe UI'
         Font.Style = []
         ParentColor = False
         ParentFont = False
         Layout = tlBottom
+        ExplicitLeft = 26
+        ExplicitTop = 2
+        ExplicitHeight = 31
       end
     end
     object pnlSelectBtns: TPanel
-      Left = 482
-      Top = 101
-      Width = 157
-      Height = 310
-      Margins.Left = 8
+      Left = 723
+      Top = 151
+      Width = 236
+      Height = 466
+      Margins.Left = 12
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 1
       Color = clWhite
       ParentBackground = False
       TabOrder = 1
-      ExplicitHeight = 312
       object pnlClearAllBtn: TPanel
         Left = 1
-        Top = 35
-        Width = 155
-        Height = 43
-        Margins.Left = 8
+        Top = 52
+        Width = 234
+        Height = 64
+        Margins.Left = 12
         Margins.Top = 0
+        Margins.Right = 5
+        Margins.Bottom = 5
         Align = alTop
         BevelOuter = bvNone
         BorderWidth = 1
         Color = clWhite
         ParentBackground = False
         TabOrder = 0
-        ExplicitLeft = 9
-        ExplicitWidth = 154
         object btnClearAll: TCWSButton
           AlignWithMargins = True
-          Left = 5
-          Top = 9
-          Width = 133
-          Height = 33
-          Margins.Left = 4
-          Margins.Top = 8
-          Margins.Right = 16
+          Left = 7
+          Top = 13
+          Width = 202
+          Height = 49
+          Margins.Left = 6
+          Margins.Top = 12
+          Margins.Right = 24
           Margins.Bottom = 0
           Align = alTop
           Color = clBtnFace
@@ -307,27 +350,27 @@ object frmRecipients: TfrmRecipients
       object pnlSelectAllBtn: TPanel
         Left = 1
         Top = 1
-        Width = 155
-        Height = 34
-        Margins.Left = 8
-        Margins.Bottom = 4
+        Width = 234
+        Height = 51
+        Margins.Left = 12
+        Margins.Top = 5
+        Margins.Right = 5
+        Margins.Bottom = 6
         Align = alTop
         BevelOuter = bvNone
         BorderWidth = 1
         Color = clWhite
         ParentBackground = False
         TabOrder = 1
-        ExplicitLeft = 9
-        ExplicitWidth = 154
         object btnSelectAll: TCWSButton
           AlignWithMargins = True
-          Left = 5
+          Left = 7
           Top = 1
-          Width = 133
-          Height = 33
-          Margins.Left = 4
+          Width = 202
+          Height = 49
+          Margins.Left = 6
           Margins.Top = 0
-          Margins.Right = 16
+          Margins.Right = 24
           Margins.Bottom = 0
           Align = alTop
           Color = clBtnFace
@@ -361,70 +404,80 @@ object frmRecipients: TfrmRecipients
     end
     object pnlGridsOuter: TPanel
       Left = 1
-      Top = 101
-      Width = 481
-      Height = 310
-      Margins.Left = 8
+      Top = 151
+      Width = 722
+      Height = 466
+      Margins.Left = 12
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 1
       Color = clWhite
-      Padding.Left = 16
-      Padding.Right = 3
-      Padding.Bottom = 10
+      Padding.Left = 24
+      Padding.Right = 5
+      Padding.Bottom = 15
       ParentBackground = False
       TabOrder = 2
-      ExplicitWidth = 474
-      ExplicitHeight = 312
       object pnlGridsInner: TPanel
-        Left = 17
+        Left = 25
         Top = 1
-        Width = 460
-        Height = 298
-        Margins.Left = 8
+        Width = 691
+        Height = 449
+        Margins.Left = 12
+        Margins.Top = 5
+        Margins.Right = 5
+        Margins.Bottom = 5
         Align = alClient
         BevelOuter = bvNone
         BorderWidth = 1
         Color = clWhite
         ParentBackground = False
         TabOrder = 0
-        ExplicitWidth = 453
         object grdStudentsByClassLevels: TCWSCheckDBGrid
           Left = 1
           Top = 1
-          Width = 458
-          Height = 296
+          Width = 689
+          Height = 447
+          Margins.Left = 5
+          Margins.Top = 5
+          Margins.Right = 5
+          Margins.Bottom = 5
           Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
           TitleFont.Charset = DEFAULT_CHARSET
           TitleFont.Color = clWindowText
-          TitleFont.Height = -14
+          TitleFont.Height = -21
           TitleFont.Name = 'Segoe UI'
           TitleFont.Style = []
           Align = alClient
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
-          Font.Height = -14
+          Font.Height = -21
           Font.Name = 'Segoe UI'
           Font.Style = []
           ParentFont = False
           TabOrder = 0
-          ExplicitLeft = 5
           CornerRadiusF = 6.00000000000000000
         end
         object grdStudentsByCountries: TCWSCheckDBGrid
-          Left = 96
-          Top = 64
-          Width = 291
-          Height = 163
+          Left = 144
+          Top = 96
+          Width = 437
+          Height = 245
+          Margins.Left = 5
+          Margins.Top = 5
+          Margins.Right = 5
+          Margins.Bottom = 5
           Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
           TitleFont.Charset = DEFAULT_CHARSET
           TitleFont.Color = clWindowText
-          TitleFont.Height = -14
+          TitleFont.Height = -21
           TitleFont.Name = 'Segoe UI'
           TitleFont.Style = []
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
-          Font.Height = -14
+          Font.Height = -21
           Font.Name = 'Segoe UI'
           Font.Style = []
           ParentFont = False
@@ -435,10 +488,13 @@ object frmRecipients: TfrmRecipients
     end
     object pnlRadioBtnsOuter: TPanel
       Left = 1
-      Top = 25
-      Width = 638
-      Height = 52
-      Margins.Left = 8
+      Top = 37
+      Width = 958
+      Height = 78
+      Margins.Left = 12
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       Align = alTop
       BevelOuter = bvNone
       BorderWidth = 1
@@ -448,24 +504,28 @@ object frmRecipients: TfrmRecipients
       object pnlRadioBtns: TPanel
         Left = 1
         Top = 1
-        Width = 636
-        Height = 32
-        Margins.Left = 8
+        Width = 956
+        Height = 48
+        Margins.Left = 12
+        Margins.Top = 5
+        Margins.Right = 5
+        Margins.Bottom = 5
         Align = alTop
         BevelOuter = bvNone
         BorderWidth = 1
         Color = clWhite
         ParentBackground = False
         TabOrder = 0
-        ExplicitWidth = 637
         object rbAllStudents: TCWSRadioButton
           AlignWithMargins = True
-          Left = 17
-          Top = 4
-          Width = 103
-          Height = 24
-          Margins.Left = 16
-          Margins.Right = 8
+          Left = 25
+          Top = 6
+          Width = 164
+          Height = 36
+          Margins.Left = 24
+          Margins.Top = 5
+          Margins.Right = 12
+          Margins.Bottom = 5
           Caption = 'All Students'
           Checked = True
           GroupIndex = 1
@@ -483,7 +543,7 @@ object frmRecipients: TfrmRecipients
           Align = alLeft
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
-          Font.Height = -15
+          Font.Height = -23
           Font.Name = 'Segoe UI'
           Font.Style = []
           ParentFont = False
@@ -492,12 +552,14 @@ object frmRecipients: TfrmRecipients
         end
         object rbStudentsByCountries: TCWSRadioButton
           AlignWithMargins = True
-          Left = 328
-          Top = 4
-          Width = 167
-          Height = 24
-          Margins.Left = 8
-          Margins.Right = 8
+          Left = 522
+          Top = 6
+          Width = 272
+          Height = 36
+          Margins.Left = 12
+          Margins.Top = 5
+          Margins.Right = 12
+          Margins.Bottom = 5
           Caption = 'Students By Countries'
           GroupIndex = 1
           RadioSize = 18
@@ -514,22 +576,23 @@ object frmRecipients: TfrmRecipients
           Align = alLeft
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
-          Font.Height = -15
+          Font.Height = -23
           Font.Name = 'Segoe UI'
           Font.Style = []
           ParentFont = False
           TabOrder = 1
           OnClick = rbStudentsByCountriesClick
-          ExplicitLeft = 321
         end
         object rbStudentsByClassLevels: TCWSRadioButton
           AlignWithMargins = True
-          Left = 136
-          Top = 4
-          Width = 176
-          Height = 24
-          Margins.Left = 8
-          Margins.Right = 8
+          Left = 213
+          Top = 6
+          Width = 285
+          Height = 36
+          Margins.Left = 12
+          Margins.Top = 5
+          Margins.Right = 12
+          Margins.Bottom = 5
           Caption = 'Students By Class Level'
           GroupIndex = 1
           RadioSize = 18
@@ -546,22 +609,24 @@ object frmRecipients: TfrmRecipients
           Align = alLeft
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
-          Font.Height = -15
+          Font.Height = -23
           Font.Name = 'Segoe UI'
           Font.Style = []
           ParentFont = False
           TabOrder = 2
           OnClick = rbStudentsByClassLevelsClick
-          ExplicitLeft = 134
         end
       end
     end
     object pnlInstructions: TPanel
       Left = 1
-      Top = 77
-      Width = 638
-      Height = 24
-      Margins.Left = 8
+      Top = 115
+      Width = 958
+      Height = 36
+      Margins.Left = 12
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       Align = alTop
       BevelOuter = bvNone
       BorderWidth = 1
@@ -570,26 +635,32 @@ object frmRecipients: TfrmRecipients
       TabOrder = 4
       object lblStudentsType: TRzLabel
         AlignWithMargins = True
-        Left = 17
+        Left = 25
         Top = 1
-        Width = 328
-        Height = 20
-        Margins.Left = 16
+        Width = 510
+        Height = 29
+        Margins.Left = 24
         Margins.Top = 0
+        Margins.Right = 5
+        Margins.Bottom = 5
         Align = alLeft
         Caption = 'Choose which students to include in the email list:'
         Color = clWhite
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -15
+        Font.Height = -23
         Font.Name = 'Segoe UI'
         Font.Style = []
         ParentColor = False
         ParentFont = False
+        ExplicitLeft = 26
+        ExplicitTop = 2
+        ExplicitHeight = 31
       end
     end
   end
   object SVGIconImageList1: TSVGIconImageList
+    Size = 24
     SVGIconItems = <
       item
         IconName = 'next-black'

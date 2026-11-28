@@ -2002,7 +2002,7 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       AlignWithMargins = True
       Left = 24
       Top = 0
-      Width = 1239
+      Width = 900
       Height = 62
       Margins.Left = 24
       Margins.Top = 0
@@ -2021,7 +2021,6 @@ object frmEditMessageTemplate: TfrmEditMessageTemplate
       Font.Style = []
       ParentColor = False
       ParentFont = False
-      ExplicitWidth = 900
     end
   end
   object SVGIconImageList1: TSVGIconImageList

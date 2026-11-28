@@ -249,10 +249,25 @@ end;
 procedure TfrmSendEmails.BeforeShowMessage;
 begin
   inherited;
-  if Assigned(FEmailProcessThread) then begin
-    FEmailProcessThread.KillThreadEvent.SetEvent;
-    FEmailProcessThread.ThreadEndedEvent.WaitFor(2000);
-    FreeAndNil(FEmailProcessThread);
+  try
+    if Assigned(FEmailProcessThread) then begin
+      FEmailProcessThread.KillThreadEvent.SetEvent;
+      FEmailProcessThread.ThreadEndedEvent.WaitFor(2000);
+      FreeAndNil(FEmailProcessThread);
+    end;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmSendEmails.BeforeShowMessage',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
 end;
 

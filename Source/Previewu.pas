@@ -88,62 +88,153 @@ procedure TfrmPreview.FormCreate(Sender: TObject);
 begin
   inherited FormCreate(Sender);
 
-  // One-shot scroll timer for preview
-  ScrollTimer.Enabled := False;
-  ScrollTimer.Interval := 1;
-  ScrollTimer.OnTimer := ScrollPreviewToTop;
+  try
+    // One-shot scroll timer for preview
+    ScrollTimer.Enabled := False;
+    ScrollTimer.Interval := 1;
+    ScrollTimer.OnTimer := ScrollPreviewToTop;
 
-  FSelectedStudent := '';
-  FSLStudents := TStringList.Create;
-  cboStudent.Font.Size := InputFontSize;
-  TUtils.AdjustButtonsPanel(pnlButtons);
-  FEmailProcessor := TEmailProcessor.Create(
-    Self,
-    FThreadException);
+    FSelectedStudent := '';
+    FSLStudents := TStringList.Create;
+    cboStudent.Font.Size := InputFontSize;
+    TUtils.AdjustButtonsPanel(pnlButtons);
+    FEmailProcessor := TEmailProcessor.Create(
+      Self,
+      FThreadException);
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmPreview.FormCreate',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmPreview.FormDestroy(Sender: TObject);
 begin
-  if Assigned(FSLStudents) then begin
-    FSLStudents.Free;
-  end;
-  if Assigned(FEMailProcessor) then begin
-    FreeAndNil(FEMailProcessor);
+  try
+    if Assigned(FSLStudents) then begin
+      FSLStudents.Free;
+    end;
+    if Assigned(FEMailProcessor) then begin
+      FreeAndNil(FEMailProcessor);
+    end;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmPreview.FormDestroy',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
   inherited FormDestroy(Sender);
 end;
 
 procedure TfrmPreview.FormShow(Sender: TObject);
 begin
-  FParentForm.SVGimgSteps.ImageIndex := 3;
-  FSLStudents.Clear;
-  FSLStudents.LoadFromFile(
-      FParentForm.FullCheckpointCSVFileName,
-      TEncoding.UTF8);
+  try
+    FParentForm.SVGimgSteps.ImageIndex := 3;
+    FSLStudents.Clear;
+    FSLStudents.LoadFromFile(
+        FParentForm.FullCheckpointCSVFileName,
+        TEncoding.UTF8);
 
-  LoadStudentPreviewCombo;
+    LoadStudentPreviewCombo;
 
-  DisplayPreviewText;
+    DisplayPreviewText;
+
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmPreview.FormShow',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmPreview.btnNewSessionClick(Sender: TObject);
 begin
-  if FParentForm.SendEmailInitated then begin
-    FParentForm.ShowWelcomeForm;
-  end else begin
-    FParentForm.ShowComposeForm;
+  try
+    if FParentForm.SendEmailInitated then begin
+      FParentForm.ShowWelcomeForm;
+    end else begin
+      FParentForm.ShowComposeForm;
+    end;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmPreview.btnNewSessionClick',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
 end;
 
 procedure TfrmPreview.btnNextClick(Sender: TObject);
 begin
-  FParentForm.ShowAuthorizeForm;
+  try
+    FParentForm.ShowAuthorizeForm;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmPreview.btnNextClick',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmPreview.cboStudentChange(Sender: TObject);
 begin
-  if Not(FLoading) then begin
-    DisplayPreviewText;
+  try
+    if Not(FLoading) then begin
+      DisplayPreviewText;
+    end;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmPreview.cboStudentChange',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
 end;
 
@@ -156,39 +247,54 @@ var
   I: Integer;
   LIndex: Integer;
 begin
-  if (cboStudent.Items.Count = 0) or
-   Not(TFile.Exists(FParentForm.FullCheckpointCSVFileName)) then Exit;
-  FSelectedStudent := cboStudent.Items[
-    cboStudent.ItemIndex];
+  try
+    if (cboStudent.Items.Count = 0) or
+     Not(TFile.Exists(FParentForm.FullCheckpointCSVFileName)) then Exit;
+    FSelectedStudent := cboStudent.Items[
+      cboStudent.ItemIndex];
 
-  if FSLStudents.Count >= 2 then begin
-    for I := 1 to FSLStudents.Count - 1 do begin
-      LFields := TCSVHelper.ParseCSVLine(
-      FSLStudents[I]);
-      if (Length(LFields) >= 8) and SameText(LFields[0], FSelectedStudent) then begin
-        LStudentName    := LFields[0];
-        LTeacherName    := LFields[1];
-        LRoomName       := LFields[2];
-        LClassLevel     := LFields[3];
-        LChildcareLevel := LFields[4];
-        LLanguage       := LFields[7];
+    if FSLStudents.Count >= 2 then begin
+      for I := 1 to FSLStudents.Count - 1 do begin
+        LFields := TCSVHelper.ParseCSVLine(
+        FSLStudents[I]);
+        if (Length(LFields) >= 8) and SameText(LFields[0], FSelectedStudent) then begin
+          LStudentName    := LFields[0];
+          LTeacherName    := LFields[1];
+          LRoomName       := LFields[2];
+          LClassLevel     := LFields[3];
+          LChildcareLevel := LFields[4];
+          LLanguage       := LFields[7];
 
-        LMessage := FEmailProcessor.ProcessMailMessage(
-          FParentForm.FullCheckpointCSVFileName,
-          LStudentName,
-          LTeacherName,
-          LRoomName,
-          LClassLevel,
-          LChildcareLevel,
-          LLanguage);
+          LMessage := FEmailProcessor.ProcessMailMessage(
+            FParentForm.FullCheckpointCSVFileName,
+            LStudentName,
+            LTeacherName,
+            LRoomName,
+            LClassLevel,
+            LChildcareLevel,
+            LLanguage);
 
-        memPreview.Lines.Clear;
-        memPreview.Lines.Text := LMessage;
-        ScrollTimer.Enabled := False;
-        ScrollTimer.Enabled := True;
-        Exit;
+          memPreview.Lines.Clear;
+          memPreview.Lines.Text := LMessage;
+          ScrollTimer.Enabled := False;
+          ScrollTimer.Enabled := True;
+          Exit;
+        end;
       end;
     end;
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmPreview.DisplayPreviewText',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
   end;
 end;
 
@@ -200,33 +306,48 @@ var
 begin
   LLines := TStringList.Create;
   try
-    cboStudent.Items.Clear;
-    memPreview.Lines.Clear;
-    LLines.LoadFromFile(FParentForm.FullCheckpointCSVFileName, TEncoding.UTF8);
-    LLines.Sorted := True;
-    for I := 1 to LLines.Count - 1 do begin
-      LFields := TCSVHelper.ParseCSVLine(LLines[I]);
-      if Length(LFields) >= 1 then
-        cboStudent.Items.Add(LFields[0]);
-    end;
-
-    // Sorted causes exception for TWCSComboBox
-    //cboStudent.Sorted := True;
-
-    FLoading := True;
     try
-      cboStudent.ItemIndex := 0;
-      if cboStudent.Items.Count > 0 then begin
-        if Length(Trim(FSelectedStudent)) > 0 then begin
-          cboStudent.ItemIndex := 0;
-          I := cboStudent.Items.IndexOf(FSelectedStudent);
-          if I >= 0 then begin
-            cboStudent.ItemIndex := I;
-          end;
+        cboStudent.Items.Clear;
+        memPreview.Lines.Clear;
+        LLines.LoadFromFile(FParentForm.FullCheckpointCSVFileName, TEncoding.UTF8);
+        LLines.Sorted := True;
+        for I := 1 to LLines.Count - 1 do begin
+          LFields := TCSVHelper.ParseCSVLine(LLines[I]);
+          if Length(LFields) >= 1 then
+            cboStudent.Items.Add(LFields[0]);
         end;
+
+        // Sorted causes exception for TWCSComboBox
+        //cboStudent.Sorted := True;
+
+        FLoading := True;
+        try
+          cboStudent.ItemIndex := 0;
+          if cboStudent.Items.Count > 0 then begin
+            if Length(Trim(FSelectedStudent)) > 0 then begin
+              cboStudent.ItemIndex := 0;
+              I := cboStudent.Items.IndexOf(FSelectedStudent);
+              if I >= 0 then begin
+                cboStudent.ItemIndex := I;
+              end;
+            end;
+          end;
+        finally
+          FLoading := False;
+        end;
+    except
+      {$IFDEF MadExceptOn}
+      raise;
+      {$ELSE}
+      On E: Exception do begin
+        FParentForm.ShowErrorMessage(
+          'Error',
+          'TfrmPreview.LoadStudentPreviewCombo',
+          E.Message,
+          E.StackTrace
+          );
       end;
-    finally
-      FLoading := False;
+      {$ENDIF}
     end;
   finally
     LLines.Free;
@@ -239,14 +360,29 @@ var
   I: Integer;
   LFileName: String;
 begin
-  ScrollTimer.Enabled := False;
-  memPreview.SelStart := 0;
-  memPreview.SelLength := 0;
-  SendMessage(
-    memPreview.Handle,
-    WM_VSCROLL,
-    MakeWParam(SB_TOP, 0),
-    0);
+  try
+    ScrollTimer.Enabled := False;
+    memPreview.SelStart := 0;
+    memPreview.SelLength := 0;
+    SendMessage(
+      memPreview.Handle,
+      WM_VSCROLL,
+      MakeWParam(SB_TOP, 0),
+      0);
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmPreview.ScrollPreviewToTop',
+        E.Message,
+        E.StackTrace
+        );
+    end;
+    {$ENDIF}
+  end;
 end;
 
 procedure TfrmPreview.ApplyTheme;
@@ -254,29 +390,44 @@ var
   I: Integer;
   LComp: TComponent;
 begin
-  Self.Color := flNeutralBackground1;
+  try
+    Self.Color := flNeutralBackground1;
 
-  TUtils.SetStatusBarColor(sbMain);
-  TUtils.SetTPanelsColor(Self);
-  TUtils.SetPanelColor(pnlButtons);
+    TUtils.SetStatusBarColor(sbMain);
+    TUtils.SetTPanelsColor(Self);
+    TUtils.SetPanelColor(pnlButtons);
 
-  for I := 0 to ComponentCount - 1 do  begin
-    LComp := Components[I];
-    if LComp is TCWSMemo then begin
-      TUtils.SetMemoColor(TCWSMemo(LComp));
+    for I := 0 to ComponentCount - 1 do  begin
+      LComp := Components[I];
+      if LComp is TCWSMemo then begin
+        TUtils.SetMemoColor(TCWSMemo(LComp));
+      end;
+
+      if LComp is TCWSSettingsPanel then begin
+        TUtils.SetPanelColor(TCWSSettingsPanel(LComp));
+      end;
+
+      if LComp is TRzLabel then begin
+        TUtils.SetLabelColor(LComp as TRzLabel)
+      end;
+
+      if LComp is TCWSComboBox then begin
+        TUtils.SetComboBoxColor(LComp as TCWSComboBox);
+      end;
     end;
-
-    if LComp is TCWSSettingsPanel then begin
-      TUtils.SetPanelColor(TCWSSettingsPanel(LComp));
+  except
+    {$IFDEF MadExceptOn}
+    raise;
+    {$ELSE}
+    On E: Exception do begin
+      FParentForm.ShowErrorMessage(
+        'Error',
+        'TfrmPreview.ApplyTheme',
+        E.Message,
+        E.StackTrace
+        );
     end;
-
-    if LComp is TRzLabel then begin
-      TUtils.SetLabelColor(LComp as TRzLabel)
-    end;
-
-    if LComp is TCWSComboBox then begin
-      TUtils.SetComboBoxColor(LComp as TCWSComboBox);
-    end;
+    {$ENDIF}
   end;
 end;
 
